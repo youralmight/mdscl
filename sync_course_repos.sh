@@ -11,7 +11,7 @@
 #           远端默认分支动了会提示，但要不要合并由你自己决定。
 #           → assignments/ 下的个人作业仓库
 #
-# 来源配置：resources/public_repos/sources.conf
+# 来源配置：sources.conf（仓库根）
 #           name ; api_base ; org ; include ; exclude ; dest ; mode
 # 名单快照：<dest>.txt（每次自动重写，进 git）
 # 克隆目标：<dest>/<repo>（不进 git）
@@ -26,7 +26,7 @@
 set -uo pipefail
 
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-conf="$repo_root/resources/public_repos/sources.conf"
+conf="$repo_root/sources.conf"
 [[ -f "$conf" ]] || { echo "缺来源配置: $conf" >&2; exit 1; }
 
 offline=0

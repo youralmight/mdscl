@@ -1,25 +1,31 @@
 # DSCI 521 资源
 
-`resources/mds-2026-27/DSCI_521_platforms-dsci_students/`
+**这门课的材料分散在三个地方，而且最重要的那份不在 GHE 上。** 只看学生版仓库会以为这门课什么都没发。
 
-**空的。** 整个仓库只有两个文件：
+评分表和 deadline 在 `my_notes/courses/index.md`，不在这里。
 
-```
-LICENSE.md
-README.md   ← 内容就一句 "This repo contains the student-facing material for the course."
-```
 
-没有 syllabus、没有评分表、没有讲义、没有 deadline、没有 Canvas / Gradescope 链接。
 
-仓库最后一次 push 是 2026-08-31 03:33（Block 1 开课当天凌晨），说明在动，但内容还没放出来。
 
-## 因此现在完全未知
 
-- 评分怎么算（quiz / lab / worksheet 各多少）
-- 有没有到场类分数（pre-lecture quiz、iClicker、口试）
-- deadline
-- 用什么语言和工具
+| 章 | 内容 |
+|---|---|
+| 0 | 约定、JupyterLab / Positron / RStudio 三选一的上手 |
+| 1 | MDS 工具栈、bash、文件系统 |
+| 2 | git / GitHub / SSH 基本工作流 |
+| 3 | Quarto + GitHub Pages |
+| 4 | R Markdown / Quarto slides + GitHub Pages |
+| 5 | git history、merge conflict、stash |
+| 6 | RStudio projects、notebook |
+| 7a / 7b | 虚拟环境：`uv`（Python）/ `renv`（R） |
+| 8 / 8b / 8c | 文件命名与项目组织 / regex / 怎么问问题 |
 
-## 下一步
+## 
 
-开课第一天问，或者等仓库更新。`./sync_course_repos.sh` 每次会打出名单和 pull 的变化。
+| 渠道 | 干什么 |
+|---|---|
+| **Canvas** | Setup 任务的实际链接和说明。syllabus 明说 "Canvas remains the place with the actual links and instructions" |
+| **PrairieLearn** | Policies（1%）+ 每周 Practice（各 2%）。也是让你在别的课遇到计分的 PrairieLearn 之前先熟悉它 |
+| **Qualtrics** | 学生信息问卷（1%） |
+| **Gradescope** | lab0a / 0b、三个 milestone、group lab 的 PDF |
+| **Slack** | `521_platforms-dsci` 频道 |
