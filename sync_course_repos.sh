@@ -216,3 +216,6 @@ if [[ ${#failed[@]} -gt 0 ]]; then
   exit 1
 fi
 echo "全部成功"
+
+rm resources/mds-2026-27.txt
+rm resources/ubc-mds.txt
