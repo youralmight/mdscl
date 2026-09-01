@@ -1,0 +1,48 @@
+用途：每个 Block 开始时，把 Section L03 的课表从 Canvas 页面转录成 .ics，导入 Google Calendar。
+复用方法：把下面的 {BLOCK} 和 {WEEKS} 换成当前 block 的值，整段发给一个 subagent。
+Block 1 = Week 1-4，Block 2 = Week 5-8，Block 3 = Week 9-12，Block 4 = Week 13-16（周次以页面实际标注为准，别硬套）。
+
+--- 以下为 prompt 正文 ---
+
+新任务：把 Section L03（用户是 Section 3）的 Block {BLOCK} 课表手动转录成日历文件。
+
+## 来源
+https://canvas.ubc.ca/courses/204677/pages/section-l03-calendar
+
+打开确认页面当前实际状态，然后把 {WEEKS} 的表格逐条转录。
+
+## 课表是图片，必须用视觉读图
+这一页的课表**不是文本，是 PNG 图片**（一周一张，挂在标题下面）。纯文本提取会全部丢失，别被"页面看起来是空的"骗了。
+做法：把图片下载下来，**用你的视觉能力直接看图**读出每一格的课程、时间、教室。
+不许偷懒——不许只靠文件名/alt 文字猜，不许跳过看不清的格子，不许因为"大概是这样"就填。
+偷懒会造成严重后果：课表错一格，用户就会走错教室或错过一节课。
+看不清就放大、裁剪、重看，或者明确报告"这一格读不出来"。
+
+## 要转录的字段
+每一节课/每个事件：课程代码、星期几、具体日期、开始和结束时间、教室/地点、事件类型（lecture / lab / quiz / office hour / 其他）。
+
+## 铁律：不许编
+- 页面上没写的，一律留空并标 UNKNOWN，绝对不要根据常识、其他 section、或别的课推断填补。
+- 某周如果确实是空的，就明确写"页面上为空"，不要去别处凑数据填进去。
+- 图上只写"Week N and M"、没给日期区间的，**不许按周次顺推日期**。这类条目不进 ics，只写进 md。
+- 如果某个时间/教室只在别的地方（比如 Canvas Calendar 事件）出现，可以用，但必须标注这条来自哪里，跟页面转录的区分开。
+- 转录完自己核对一遍：逐条对着页面再读一次，确认没有错行、错列、错日期。
+
+## 补充数据源（可选，用来填 UNKNOWN）
+https://canvas.ubc.ca/calendar?include_contexts=course_204677
+如果里面有明确属于 L03 / Section 3 的事件，可以用来补，但同样要标来源。
+
+## 产出（写到 scratchpad，不要写进用户的 repo）
+1. block{BLOCK}-l03.md — 人可读的表格，一周一节，每条标来源（页面 / Calendar 事件）。
+2. block{BLOCK}-l03.ics — 标准 iCalendar 文件，能直接导入 Google Calendar。
+   - 时区用 America/Vancouver。
+   - 每个 VEVENT 要有 SUMMARY（课程代码 + 类型）、DTSTART、DTEND、LOCATION（教室）、UID。
+   - 时间是 UNKNOWN 的条目不要生成 VEVENT（宁可缺，也不要生成一个时间错的事件），把它们列在 md 里说明为什么没进 ics。
+   - 写完做个基本校验，确认文件结构完整（BEGIN/END 配对、每个 VEVENT 字段齐全）。
+
+## 浏览器约束
+挂 CDP 9222 的已有 Brave（用户日常在用的浏览器，已开 remote debugging），用 --pin-tab 开独立标签页，只读，做完关掉自己开的标签页，不要动用户的标签页，不要 close --all。
+先跑 `agent-browser skills get core --full` 读用法再动手。
+
+## 报告
+10 行以内。说清楚：转录了几条、哪几周有/没有内容、有几条因为 UNKNOWN 没进 ics、两个文件路径。

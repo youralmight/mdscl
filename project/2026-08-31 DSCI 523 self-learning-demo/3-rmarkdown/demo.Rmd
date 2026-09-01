@@ -1,0 +1,146 @@
+---
+title: "Scenario 3: R Markdown to PDF"
+author: "Yi Zhang"
+date: "2026-08-31"
+output:
+  pdf_document:
+    toc: true
+    number_sections: true
+---
+
+<!--
+============================================================
+场景 3：.Rmd —— 551 交 lab 走的就是这条路，最后要出 PDF。
+
+写作时按块跑：
+  ⇧⌘Enter   跑光标所在的代码块
+  ⌘⌥P       跑当前块以上的所有块（重开文件后恢复上下文）
+  ⇧⌘V       预览
+
+出 PDF：
+  ⇧⌘K                        Knit（按 YAML 里的 output 走，这里就是 PDF）
+  ⇧⌘P → "R: Knit Rmd To PDF"  强制出 PDF
+
+⚠️ 标题、正文、图里都不能有中文——pdflatex 会直接报
+   "Unicode character not set up for use with LaTeX"。
+   所以这个文件正文全是英文，注释写在这种 HTML 注释里（不进 PDF）。
+============================================================
+-->
+
+```{r setup, include=FALSE}
+# include=FALSE：这个块会执行，但代码和输出都不进 PDF。
+# 每个 .Rmd 开头基本都有这么一块，用来设全局选项。
+knitr::opts_chunk$set(
+  echo = TRUE,        # 默认把代码也印进 PDF
+  warning = FALSE,    # 不印 warning
+  message = FALSE,    # 不印 library() 那堆加载信息
+  fig.width = 6,
+  fig.height = 3.5
+)
+library(tidyverse)
+```
+
+# What this file is
+
+This is the workflow DSCI 551 labs use: write prose and R code in one
+`.Rmd` file, then render straight to PDF.
+
+Three things to notice: chunk options control what reaches the PDF,
+inline code lets you put computed numbers inside sentences, and the
+whole document runs top-to-bottom in a **fresh** R session when knitted.
+
+# Chunk options
+
+<!-- 下面演示三种最常用的 chunk 选项 -->
+
+The default: code shown, output shown.
+
+```{r}
+summary(mtcars$mpg)
+```
+
+`echo=FALSE` hides the code but keeps the output. Lab questions that ask
+for a plot usually want this.
+
+```{r echo=FALSE}
+mtcars |>
+  count(cyl) |>
+  rename(cylinders = cyl, cars = n)
+```
+
+`eval=FALSE` shows the code but does not run it.
+
+```{r eval=FALSE}
+# This line is never executed.
+install.packages("something")
+```
+
+# Inline code
+
+The `mtcars` dataset has `r nrow(mtcars)` rows and `r ncol(mtcars)`
+columns. Mean fuel economy is `r round(mean(mtcars$mpg), 2)` mpg.
+
+<!--
+上面那三个反引号包起来的行内代码，渲染后会变成实际数字。
+写结论句子的时候用这个，比手敲数字安全——数据变了句子自动跟着变。
+
+⚠️ 坑：knitr 连 HTML 注释里的行内代码也会执行。
+   所以注释里不能原样写那个语法，否则 knit 会报
+   "'...' used in an incorrect context" 然后整个渲染失败。
+   （这个坑我踩了，就是在这一行。）
+-->
+
+# A figure
+
+```{r fig-scatter, fig.cap="Weight versus fuel economy, coloured by cylinder count."}
+ggplot(mtcars, aes(x = wt, y = mpg, colour = factor(cyl))) +
+  geom_point(size = 2.5) +
+  labs(x = "Weight (1000 lbs)", y = "Miles per gallon", colour = "Cylinders") +
+  theme_minimal()
+```
+
+<!--
+交叉引用（\ref{...}）在普通 pdf_document 下解析不出来，会印成 "??"，
+要用 bookdown::pdf_document2 才行。lab 里一般用不上，先不引入。
+-->
+
+# A table
+
+```{r}
+knitr::kable(
+  head(mtcars[order(-mtcars$mpg), c("mpg", "cyl", "wt", "hp")], 5),
+  caption = "Five most fuel-efficient cars."
+)
+```
+
+# Math
+
+LaTeX math works because the PDF goes through LaTeX. DSCI 551 will need
+this constantly.
+
+Inline: the mean is $\bar{x} = \frac{1}{n}\sum_{i=1}^{n} x_i$.
+
+Display:
+
+$$
+\hat{\theta}_{\text{MLE}} = \arg\max_{\theta} \prod_{i=1}^{n} f(x_i \mid \theta)
+$$
+
+# The one trap
+
+<!--
+这一段是真正要记住的东西。
+-->
+
+Knitting runs the document in a **brand new R session**. Anything you
+created interactively in your terminal does not exist there.
+
+So a document can work perfectly while you click through it, and still
+fail to knit. Before submitting, always knit once from scratch and check
+the PDF actually came out.
+
+```{r}
+# This works when knitted because tidyverse is loaded in the setup chunk
+# above. If it were only loaded in your terminal, knitting would fail.
+mtcars |> summarise(n = n(), mean_mpg = mean(mpg))
+```

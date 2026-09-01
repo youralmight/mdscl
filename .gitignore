@@ -1,0 +1,4 @@
+# 克隆下来的仓库：内容不进本仓库，只提交名单（*.txt）和脚本
+resources/mds-2026-27/
+resources/ubc-mds/
+assignments/*/

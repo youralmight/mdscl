@@ -1,0 +1,7 @@
+https://github.ubc.ca/mds-2026-27/DSCI_511_py-prog_students.git
+https://github.ubc.ca/mds-2026-27/DSCI_521_platforms-dsci_students.git
+https://github.ubc.ca/mds-2026-27/DSCI_523_r-prog_students.git
+https://github.ubc.ca/mds-2026-27/DSCI_551_stat-prob-dsci_students.git
+https://github.ubc.ca/mds-2026-27/lab-sections.git
+https://github.ubc.ca/mds-2026-27/orientation.git
+https://github.ubc.ca/mds-2026-27/student-reps.git
