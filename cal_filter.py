@@ -13,6 +13,12 @@ id、日历名。用 Python 的 re，lookahead / 分组 / (?i) 这些跟 grep -P
 （agenda --details 的可选值里根本没有 recurrence），保不住重复规则。
 
 第一次用之前要先授权：uvx --from gcalcli gcalcli init
+
+
+uv run cal_filter.py \
+    --src 'courses' \
+    --dst 'courses to attend' \
+    --pattern '^DSCI 5(?:11|21) Lab'
 """
 
 import argparse

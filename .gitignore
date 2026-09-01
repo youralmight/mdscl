@@ -2,3 +2,5 @@
 resources/mds-2026-27/
 resources/ubc-mds/
 assignments/*/
+.DS_Store
+assignments/.DS_Store
