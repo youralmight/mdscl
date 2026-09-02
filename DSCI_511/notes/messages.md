@@ -20,3 +20,5 @@ I will see section 2 tomorrow at 9:30 in ORCH 1001
 
 
 For general questions about lectures, labs, autograders, assessments, or course logistics, please post them here rather than sending an instructor or TA a DM. That way, the whole teaching team can help, and other students can benefit from the answer as well. If something is personal or confidential, please contact us privately.
+
+@channel We sent an email to each group confirming your lecture and lab section. Reminder: DSCI 511 is the CL-only course this block, so you will all be in section 003 and L05 for it. Hopefully that clarifies the scheduling confusion. If you have any questions, feel free to reach out.
