@@ -1,0 +1,5 @@
+https://github.com/UBC-MDS/DSCI_511_prog-dsci.git
+https://github.com/UBC-MDS/DSCI_521_platforms-dsci.git
+https://github.com/UBC-MDS/DSCI_521_platforms-dsci_book.git
+https://github.com/UBC-MDS/DSCI_523_r-prog.git
+https://github.com/UBC-MDS/DSCI_551_stat-prob-dsci.git
