@@ -1,6 +1,6 @@
 # DSCI 551 资源
 
-来源只有一个：`resources/mds-2026-27/DSCI_551_stat-prob-dsci_students/`
+来源只有一个：`../official/current/DSCI_551_stat-prob-dsci_students/`
 网页版 https://pages.github.ubc.ca/mds-2026-27/DSCI_551_stat-prob-dsci_students/
 
 Block 1 里材料做得最厚的一门：讲义、slides、可交互 demo、附录 cheatsheet 都有。但 **README 里一个 deadline 都没写**，全是 "Refer to the MDS calendar"。

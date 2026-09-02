@@ -21,7 +21,7 @@
 先在编辑器里打开这个目录：
 
 ```bash
-cursor "/Users/youralmight/workspaces/reps/mdscl/project/2026-08-31 DSCI 523 self-learning-demo"
+cursor "/Users/youralmight/workspaces/reps/mdscl/DSCI_523/projects/2026-08-31 self-learning-demo"
 ```
 
 （或者 `./command.sh open`）

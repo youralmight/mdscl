@@ -1,6 +1,6 @@
 # DSCI 511 资源
 
-`resources/mds-2026-27/DSCI_511_py-prog_students/`
+`../official/current/DSCI_511_py-prog_students/`
 网页版 https://pages.github.ubc.ca/mds-2026-27/DSCI_511_py-prog_students/
 
 Quarto **book** 工程。整个仓库 77 个文件，结构最扁平的一门。

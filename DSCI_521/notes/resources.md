@@ -2,7 +2,7 @@
 
 **这门课的材料分散在三个地方，而且最重要的那份不在 GHE 上。** 只看学生版仓库会以为这门课什么都没发。
 
-评分表和 deadline 在 `my_notes/courses/index.md`，不在这里。
+评分表和 deadline 在 `../../course-index.md`，不在这里。
 
 
 

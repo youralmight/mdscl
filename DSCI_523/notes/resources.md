@@ -1,6 +1,6 @@
 # DSCI 523 资源
 
-`resources/mds-2026-27/DSCI_523_r-prog_students/`
+`../official/current/DSCI_523_r-prog_students/`
 网页版 https://pages.github.ubc.ca/MDS-2026-27/DSCI_523_r-prog_students/README.html
 
 按"我拿它干什么"分类。路径都相对仓库根。

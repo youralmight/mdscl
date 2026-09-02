@@ -44,7 +44,7 @@ data/              数据（由 make-data.R 生成）
 ## 怎么用
 
 ```bash
-codium "/Users/youralmight/workspaces/reps/mdscl/project/2026-09-01 DSCI 523 lec01-readr-dplyr-tidyr"
+codium "/Users/youralmight/workspaces/reps/mdscl/DSCI_523/projects/2026-09-01 lec01-readr-dplyr-tidyr"
 ```
 
 打开 `lec01-demo.ipynb` → 右上角 kernel 选 **R 4.6.1** → 从头 `⇧Enter` 按到底。
