@@ -5,28 +5,29 @@
 #
 #   mirror  只读镜像。上游经常 reset/rebase 改历史，所以不用 pull，
 #           直接 fetch + reset --hard 到远端，本地改动一律丢弃。
-#           → resources/ 下的课程材料
+#           → 课程根 official/current，未建课程则进 admin/upstream/current
 #
 #   work    自己要动手的。只 clone 新的 + fetch，绝不碰工作区和当前分支。
 #           远端默认分支动了会提示，但要不要合并由你自己决定。
-#           → assignments/ 下的个人作业仓库
+#           → 课程根 assignments/<kind>
 #
-# 来源配置：sources.conf（仓库根）
-#           name ; api_base ; org ; include ; exclude ; dest ; mode
-# 名单快照：<dest>.txt（每次自动重写，进 git）
-# 克隆目标：<dest>/<repo>（不进 git）
+# 来源配置：admin/sources.conf
+#           name ; api_base ; org ; include ; exclude ; family ; mode
+# 名单快照：admin/<family>.txt（每次自动重写，进 git）
+# 克隆目标：按 family 和 repo 名路由
 #
 # 凭据：从 ~/.git-credentials 按 API 主机名取 token（私有 org 必须有）。
 #
-#   ./sync_course_repos.sh                 # 全部来源：发现 + 同步
-#   ./sync_course_repos.sh assignments     # 只同步某一条来源
-#   ./sync_course_repos.sh --offline       # 不查 API，直接按现有名单同步
-#   ./sync_course_repos.sh --list-only     # 只刷新名单，不 clone/更新
-#   ./sync_course_repos.sh --clean         # mirror 源顺便删掉未跟踪文件（不影响 work 源）
+#   admin/sync_course_repos.sh                 # 全部来源：发现 + 同步
+#   admin/sync_course_repos.sh assignments     # 只同步某一条来源
+#   admin/sync_course_repos.sh --offline       # 不查 API，直接按现有名单同步
+#   admin/sync_course_repos.sh --list-only     # 只刷新名单，不 clone/更新
+#   admin/sync_course_repos.sh --clean         # mirror 源顺便删掉未跟踪文件（不影响 work 源）
 set -uo pipefail
 
-repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-conf="$repo_root/sources.conf"
+script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+repo_root="$(cd "$script_dir/.." && pwd)"
+conf="$script_dir/sources.conf"
 [[ -f "$conf" ]] || { echo "缺来源配置: $conf" >&2; exit 1; }
 
 offline=0
@@ -98,6 +99,54 @@ remote_head() {
   echo "$h"
 }
 
+course_prefix() {
+  local repo="$1"
+  if [[ "$repo" =~ ^(DSCI|COLX)_[0-9]{3} ]]; then
+    printf '%s' "${BASH_REMATCH[0]}"
+  fi
+}
+
+assignment_kind() {
+  local repo="$1"
+  if [[ "$repo" =~ ^(DSCI|COLX)_[0-9]{3}_(.+)_yz2000$ ]]; then
+    printf '%s' "${BASH_REMATCH[2]}"
+  fi
+}
+
+active_course() {
+  local course="$1"
+  [[ -n "$course" && -d "$repo_root/$course" ]]
+}
+
+repo_dest() {
+  local family="$1" repo="$2" course kind
+  course="$(course_prefix "$repo")"
+  case "$family" in
+    current)
+      if active_course "$course"; then
+        printf '%s/%s/official/current/%s' "$repo_root" "$course" "$repo"
+      else
+        printf '%s/admin/upstream/current/%s' "$repo_root" "$repo"
+      fi
+      ;;
+    public)
+      if active_course "$course"; then
+        printf '%s/%s/official/public/%s' "$repo_root" "$course" "$repo"
+      else
+        printf '%s/admin/upstream/public/%s' "$repo_root" "$repo"
+      fi
+      ;;
+    work)
+      kind="$(assignment_kind "$repo")"
+      [[ -n "$course" && -n "$kind" ]] || { echo "无法路由作业仓库: $repo" >&2; return 1; }
+      printf '%s/%s/assignments/%s/%s' "$repo_root" "$course" "$kind" "$repo"
+      ;;
+    *)
+      echo "未知 family: $family" >&2
+      return 1
+      ;;
+  esac
+}
 failed=()
 
 # mirror：强制对齐远端，本地改动丢弃
@@ -146,14 +195,14 @@ update_work() {
   fi
 }
 
-while IFS=';' read -r name api org inc exc dest mode; do
+while IFS=';' read -r name api org inc exc family mode; do
   name="$(trim "${name:-}")"
   [[ -z "$name" || "$name" == \#* ]] && continue
   api="$(trim "${api:-}")";  org="$(trim "${org:-}")"
   inc="$(trim "${inc:-}")";  exc="$(trim "${exc:-}")"
-  dest="$(trim "${dest:-}")"; mode="$(trim "${mode:-mirror}")"
+  family="$(trim "${family:-}")"; mode="$(trim "${mode:-mirror}")"
 
-  [[ -n "$dest" ]] || { echo "来源 $name 没写 dest" >&2; failed+=("dest $name"); continue; }
+  [[ -n "$family" ]] || { echo "来源 $name 没写 family" >&2; failed+=("family $name"); continue; }
   case "$mode" in
     mirror|work) ;;
     *) echo "来源 $name 的 mode 不认识: $mode（只能是 mirror 或 work）" >&2; failed+=("mode $name"); continue ;;
@@ -163,8 +212,7 @@ while IFS=';' read -r name api org inc exc dest mode; do
     printf '%s\n' "${wanted[@]}" | grep -qx "$name" || continue
   fi
 
-  dest_abs="$repo_root/$dest"
-  list="$dest_abs.txt"          # 名单快照 = dest 同名 .txt
+  list="$script_dir/$family.txt"
 
   if [[ $offline -eq 0 ]]; then
     tmp="$(mktemp)"
@@ -185,12 +233,19 @@ while IFS=';' read -r name api org inc exc dest mode; do
   [[ -f "$list" ]] || { echo "名单不存在: $list" >&2; failed+=("missing $name"); continue; }
   [[ $list_only -eq 1 ]] && continue
 
-  echo "=== $name [$mode] → $dest ($(grep -cve '^\s*$' -e '^#' "$list") 个仓库)"
-  mkdir -p "$dest_abs"
+  repo_count="$(python3 - "$list" <<'PY'
+import sys
+
+with open(sys.argv[1]) as fh:
+    print(sum(1 for line in fh if line.strip() and not line.lstrip().startswith("#")))
+PY
+)"
+  echo "=== $name [$mode/$family] ($repo_count 个仓库)"
   while read -r url; do
     [[ -z "$url" || "$url" == \#* ]] && continue
     repo="$(basename "$url" .git)"
-    dir="$dest_abs/$repo"
+    dir="$(repo_dest "$family" "$repo")" || { failed+=("route $url"); continue; }
+    mkdir -p "$(dirname "$dir")"
 
     if [[ ! -d "$dir/.git" ]]; then
       echo ">>> clone $repo"
@@ -217,5 +272,3 @@ if [[ ${#failed[@]} -gt 0 ]]; then
 fi
 echo "全部成功"
 
-rm resources/mds-2026-27.txt
-rm resources/ubc-mds.txt
