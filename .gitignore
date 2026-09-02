@@ -1,7 +1,11 @@
-# 克隆下来的仓库：内容不进本仓库，只提交名单（*.txt）和脚本
-resources/mds-2026-27/
-resources/ubc-mds/
-assignments/*/
+# Upstream clones and personal assignment repos are nested Git repositories.
+DSCI_*/official/current/*/
+DSCI_*/official/public/*/
+DSCI_*/assignments/*/*/
+COLX_*/official/current/*/
+COLX_*/official/public/*/
+COLX_*/assignments/*/*/
+admin/upstream/current/*/
+admin/upstream/public/*/
+
 .DS_Store
-assignments/.DS_Store
-.worktrees/

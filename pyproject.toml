@@ -20,6 +20,9 @@ mdscl = "mdscl:main"
 requires = ["uv_build>=0.12.5,<0.13.0"]
 build-backend = "uv_build"
 
+[tool.uv.build-backend]
+module-root = "admin/python/src"
+
 [dependency-groups]
 dev = [
     "pytest>=9.1.1",
