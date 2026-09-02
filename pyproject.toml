@@ -20,6 +20,23 @@ mdscl = "mdscl:main"
 requires = ["uv_build>=0.12.5,<0.13.0"]
 build-backend = "uv_build"
 
+[tool.pytest.ini_options]
+norecursedirs = [
+    ".*",
+    "*.egg",
+    "build",
+    "CVS",
+    "dist",
+    "node_modules",
+    "venv",
+    "{arch}",
+    "admin/upstream",
+    "DSCI_*/official",
+    "DSCI_*/assignments",
+    "COLX_*/official",
+    "COLX_*/assignments",
+]
+
 [tool.uv.build-backend]
 module-root = "admin/python/src"
 
