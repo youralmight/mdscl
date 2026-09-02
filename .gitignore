@@ -8,5 +8,9 @@ COLX_*/assignments/*/*/
 admin/upstream/current/*/
 admin/upstream/public/*/
 
+# Generated Python cache
+__pycache__/
+*.py[cod]
+
 .DS_Store
 .worktrees/
