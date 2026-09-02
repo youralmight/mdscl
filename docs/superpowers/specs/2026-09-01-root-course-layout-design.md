@@ -13,6 +13,7 @@ DSCI_523/
 DSCI_551/
 admin/
 README.md
+course-index.md
 pyproject.toml
 uv.lock
 .python-version
@@ -67,6 +68,7 @@ tmp/
 .superpowers/
 .claude/
 README.md
+course-index.md
 pyproject.toml
 uv.lock
 .python-version
@@ -149,6 +151,7 @@ Rules:
 
 - No `shared/`. If content is course-specific, put it in that course. If not, it is maintenance/reference and goes under `admin/` or the root README.
 - Root `README.md` absorbs the source map role from `resources/index.md`.
+- Root `course-index.md` is the all-year course table moved from `my_notes/courses/index.md`.
 - `life` and other tiny non-course notes are folded into root `README.md` unless they grow enough to justify a named root file.
 - `src/mdscl/` moves to `admin/python/src/mdscl/`. `pyproject.toml` must set `module-root = "admin/python/src"` under `[tool.uv.build-backend]`.
 
@@ -228,6 +231,7 @@ Update tracked text references after moving files:
 - moved `notes/resources.md` paths that currently reference `resources/mds-2026-27/...`;
 - project READMEs with absolute paths under `/Users/youralmight/workspaces/reps/mdscl/project/...`;
 - root `README.md` after absorbing `resources/index.md`;
+- root `course-index.md` after moving `my_notes/courses/index.md`;
 - script comments/help text in `admin/sync_course_repos.sh`;
 - `admin/sources.conf` comments;
 - `.gitignore`;
@@ -238,16 +242,17 @@ Do not rewrite paths inside upstream mirror repositories unless needed for their
 ## Migration Order
 
 1. Create root directories for `DSCI_511`, `DSCI_521`, `DSCI_523`, and `DSCI_551`.
-2. Move user-authored course notes and course message files into `<COURSE>/notes/`.
-3. Move DSCI 523 projects into `DSCI_523/projects/`, preserving each project as a whole directory.
-4. Move current-year active course mirrors into `<COURSE>/official/current/`.
-5. Move public active-course mirrors into `<COURSE>/official/public/`.
-6. Move assignment work repositories into `<COURSE>/assignments/<kind>/`.
-7. Move non-course current-year upstream repos into `admin/upstream/current/`.
-8. Move inactive public upstream repos into `admin/upstream/public/`.
-9. Move operational tooling and Python package code into `admin/`.
-10. Update `.gitignore`, `pyproject.toml`, sync routing, and tracked text references.
-11. Verify sync routing, package import, stale paths, and project behavior.
+2. Move the all-year course table to `course-index.md`.
+3. Move user-authored course notes and course message files into `<COURSE>/notes/`.
+4. Move DSCI 523 projects into `DSCI_523/projects/`, preserving each project as a whole directory.
+5. Move current-year active course mirrors into `<COURSE>/official/current/`.
+6. Move public active-course mirrors into `<COURSE>/official/public/`.
+7. Move assignment work repositories into `<COURSE>/assignments/<kind>/`.
+8. Move non-course current-year upstream repos into `admin/upstream/current/`.
+9. Move inactive public upstream repos into `admin/upstream/public/`.
+10. Move operational tooling and Python package code into `admin/`.
+11. Update `.gitignore`, `pyproject.toml`, sync routing, and tracked text references.
+12. Verify sync routing, package import, stale paths, and project behavior.
 
 ## Verification
 
