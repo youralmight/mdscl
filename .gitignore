@@ -4,3 +4,4 @@ resources/ubc-mds/
 assignments/*/
 .DS_Store
 assignments/.DS_Store
+.worktrees/
