@@ -24,6 +24,8 @@ Top level is course-first. Open a `DSCI_*` directory for daily study.
 - MDS-CL project site: https://ubc-mdscl.github.io/
 - CL calendar: https://ling.air.arts.ubc.ca/mds-cl-calendar/
 
+Weekly deadline audits: follow [`admin/deadline-audit-runbook.md`](admin/deadline-audit-runbook.md).
+
 Use `admin/sync_course_repos.sh` with `admin/sources.conf` to update upstream clones.
 
 ## Saved links
