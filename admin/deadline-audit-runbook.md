@@ -9,21 +9,23 @@ The deliverable is a concise deadline table plus an auditable reconciliation aga
 - Interpret a week as Monday 00:00 through Sunday 23:59 in `America/Vancouver` unless the user gives another range.
 - Report deadlines, not general study advice or tasks without a fixed due time.
 - Keep submitted work in the table; show that it is submitted.
-- Exclude Setup Check, Policy Quiz, and pre-lecture quizzes unless the user explicitly changes this preference.
+- Audit Setup Check, Policy Quiz, and pre-lecture quiz streams for completeness; under the standing user preference, omit their individual deadlines from the first table and disclose the exclusion.
 - Do not generate an ICS or modify calendars unless asked.
 
 ## Source map
 
-Start from local files; open only the live platform needed for a candidate deadline.
+Start from `course-index.md` to identify every active course. For each active course, read `<COURSE>/README.md` and follow its named current grading-table and submission-platform sources. A course missing from the convenience map below must still be audited; discover its sources from its README rather than reusing another course's mapping.
+
+Current Block 1 convenience map:
 
 | Course | Grading-table source | Usual live deadline source |
 |---|---|---|
-| DSCI 511 | `DSCI_511/official/current/DSCI_511_py-prog_students/README.md`, `Deliverables` | Gradescope; CL calendar only if Gradescope has no date |
+| DSCI 511 | `DSCI_511/official/current/DSCI_511_py-prog_students/README.md`, `Deliverables` | Gradescope; quizzes: PrairieTest + PrairieLearn; CL calendar only if these have no date |
 | DSCI 521 | `DSCI_521/official/public/DSCI_521_platforms-dsci/index.qmd`, `Assessments` | Gradescope, PrairieLearn, or Canvas as named by the grading table |
-| DSCI 523 | `DSCI_523/official/current/DSCI_523_r-prog_students/README.md`, `Deliverables` | Gradescope |
-| DSCI 551 | `DSCI_551/official/current/DSCI_551_stat-prob-dsci_students/README.md`, `Deliverables` | Gradescope; CL calendar only if Gradescope has no date |
+| DSCI 523 | `DSCI_523/official/current/DSCI_523_r-prog_students/README.md`, `Deliverables` | Gradescope; quizzes: PrairieTest + PrairieLearn |
+| DSCI 551 | `DSCI_551/official/current/DSCI_551_stat-prob-dsci_students/README.md`, `Deliverables` | Gradescope; quizzes: PrairieTest + PrairieLearn; MDS calendar only if these have no date |
 
-Use `course-index.md` to identify active courses and to cross-check assessment counts and weights. Use each course's `notes/messages.md` only to resolve or document a conflict. Use `assignments/` to check whether a released assignment exists locally; it is not deadline authority.
+Use each course's `notes/messages.md` only to resolve or document a conflict. Assignment repositories and local checkouts describe the work, not whether a submission item is open.
 
 When browser access is needed, follow the global `AGENTS.md`: attach only to the user's existing Brave process/profile/window, use a task-owned background tab, and pin the session to that exact tab. Never fall back to a new browser, profile, window, or foreground tab. Preserve raw page/API responses under one `tmp/runs/<timestamp>_course-deadlines/logs/` directory.
 
@@ -31,124 +33,137 @@ When browser access is needed, follow the global `AGENTS.md`: attach only to the
 
 ### 1. Fix the audit range
 
-State the exact Monday–Sunday range and Pacific Time before collecting data. A deadline is in scope only if its current authoritative due time falls inside that range.
+State the exact Monday–Sunday range and Pacific Time before collecting data. Confirmed deadlines belong in the range when their authoritative due time falls inside it. A structure-derived current-week candidate with no authoritative time remains visible as `本周（截止时间待确认）` with an alarm; never invent a date.
 
-### 2. Build the grading inventory first
+### 2. Build the assessment-stream inventory first
 
-For every active course, transcribe every graded category, total count, weight, and any stated week or cadence. Do this before looking at deadline platforms.
+For every active course, transcribe each assessment type, its total count, weight, cadence, and stated weeks. Do this before looking at deadline platforms.
 
-Create a working coverage matrix:
+Create one working row per assessment stream:
 
-| Course | Grading-table requirement | Total count/weight | Expected this week and why | Live evidence | Disposition |
+| Course | Assessment type | Full-course structure | What the current week implies | Submission-platform observation | Match? |
 |---|---|---|---|---|---|
 
-Every grading-table row must end in exactly one disposition:
-
-1. `included` — deadline falls in the audited week;
-2. `outside week` — current deadline is before or after the range;
-3. `excluded by user`;
-4. `not released / no date`;
-5. `conflict` — sources disagree and need an explicit decision;
-6. `unverified` — the required source could not be accessed.
-
-No blank disposition is allowed.
+The inventory must account for every grading-table category, but it should not expand every numbered future item into a user-facing status ledger. Its purpose is to show why the current week does—or does not—create a candidate to check.
 
 ### 3. Derive candidates; do not invent dates
 
 Use course structure to detect likely omissions:
 
-- four labs across four teaching weeks means actively check for that week's lab;
+- four labs across four teaching weeks means actively check for the current week's lab;
 - eight worksheets across four weeks usually means actively check for two that week;
 - an assessment explicitly labelled Week 1/2/3/4 must be checked in that week;
-- oral checks, quizzes, milestones, surveys, and group work follow their stated week, not a generic weekly assumption.
+- oral checks, quizzes, milestones, surveys, and group work follow stated timing rather than a generic weekly assumption;
+- a small count such as two quizzes does not imply even spacing—check the authoritative quiz schedule.
 
-These rules create **candidates to investigate**, never dates to report. A plausible candidate without authoritative timing is `not released / no date` or `unverified`, not a guessed deadline.
+These rules create **candidates to investigate**, never dates. The live source supplies dates. If the structure says an item should be due but the submission platform has no item, treat that mismatch as an alarm, not as proof that nothing is due.
 
 ### 4. Check only the relevant live source
 
-For each candidate, open the submission platform named by the grading table. Record:
+For each candidate, open the designated submission platform and record:
 
 - exact title;
 - due date and time, including timezone;
-- released/unreleased state;
+- whether the submission item exists and accepts submissions;
 - submitted/unsubmitted state where visible;
 - source URL and check time.
 
-Do not browse every platform for every course. Escalate to the syllabus, course message, or calendar only when the named live source lacks a date or conflicts with another source.
+For each quiz-bearing course, also check PrairieTest for the exam window and reservation state, and PrairieLearn for cheatsheet or practice deadlines. A quiz is not covered merely because its grading-table row was noticed.
 
-### 5. Reconcile conflicts and local availability
+Do not browse every platform for every course. Escalate to the syllabus, course message, or calendar only when the designated live source lacks a date or conflicts with another source.
 
-- Use the current live submission-platform deadline for the main table when it conflicts with a syllabus or announcement.
+### 5. Compare expectation with submission-platform reality
+
+- Use the current live submission-platform deadline when it conflicts with a syllabus or announcement.
 - Report both values and the chosen source under `Problems`; never silently overwrite a conflict.
-- A submitted assignment remains in the deadline table.
-- A live released assignment missing from the local `assignments/` directory remains in the table and is flagged `本地未找到作业`.
-- A known in-scope deadline for an unreleased item remains in the table with status `未发布`.
+- Keep submitted work in the deadline table when its deadline falls inside the range.
+- **Open/released** means the designated submission platform has created the item and accepts submissions.
+- A GitHub assignment repository does not establish that an item is open for submission.
+- Do not show repository presence or local checkout/sync state in normal deadline output. Use them only as background diagnostics after an expectation/platform mismatch.
+- If course structure or a current syllabus says an item should be due this week but the submission platform has no item, keep it in the deadline table and mark the missing submission item as an alarm.
 
-### 6. Run completeness and plausibility checks
+### 6. Reconcile each assessment stream
 
-For each course, verify both set equalities:
+For every grading-table stream, answer four questions:
 
-`grading inventory = included ∪ outside week ∪ excluded ∪ not released/no date ∪ conflicts ∪ unverified`
+1. What is the full-course count, weight, cadence, or stated week?
+2. Does that structure imply a deadline candidate in the audited week?
+3. What does the authoritative submission or quiz platform show?
+4. Do expectation and platform reality match?
 
-`expected in-week candidates = final table ∪ unresolved difference`
+Investigate every mismatch. Also flag:
 
-The disposition sets must not overlap. A verified report requires an empty unresolved difference.
-
-Then report:
-
-| Course | Expected this week | Found on authoritative sources | Listed in final table | Unresolved difference |
-|---|---:|---:|---:|---:|
-
-Investigate any non-zero difference. Also flag:
-
-- four labs/four weeks but no lab candidate for a teaching week;
-- eight worksheets/four weeks but fewer than two candidates without explanation;
-- a live released item absent from the grading inventory;
-- a grading item absent from every release/deadline source;
+- four labs/four weeks but no current-week lab on the submission platform;
+- eight worksheets/four weeks but fewer than two current-week items without explanation;
+- an item due this week whose submission platform has no submission entry;
+- a live submission item absent from the grading inventory;
+- a quiz-bearing course whose PrairieTest window, reservation state, or relevant PrairieLearn deadline was not checked;
 - an unusual time such as `18:01`;
-- a deadline outside the stated week appearing in the final table;
-- duplicate rows or an item dropped because it was submitted.
+- a submitted in-scope item dropped from the deadline table.
+
+Do not substitute an opaque expected/found/listed count for these rows. The user must be able to see the reasoning for each assessment stream.
 
 ## Required report
 
-### Deadline table
+Use the `mdscl-coursework` skill's `references/weekly-deadline-report-example.md` when available. It defines presentation shape only; never reuse its dates or status.
 
-Sort by deadline, then course and assignment name. State that all times are Pacific Time.
+### 1. This week's deadlines
 
-| 时间 | 课程 | 作业名字 | 发布状态 |
+Sort by deadline, then course and item. State that all times are Pacific Time.
+
+| 时间 | 课程 | 项目 | 提交平台状态 |
 |---|---|---|---|
 
-Use concise statuses such as:
+Use concise states:
 
-- `已发布；未提交`
-- `已发布；已提交`
-- `已发布；本地未找到作业；未提交`
-- `未发布`
-- `无法核实`
+- `✅ Gradescope 已开放；📤 未提交`
+- `✅ PrairieLearn 已开放；📤 已提交`
+- `🚨 Syllabus 确认本周 due；Gradescope 没有提交项`
+- `🚨 本周（截止时间待确认）；提交平台没有对应项`
 
-### Coverage proof
+“已开放” always means the designated submission platform accepts submissions. Do not mention GitHub or local sync.
 
-After the deadline table, provide:
+### 2. Immediately after this week
 
-1. the completed grading-table coverage matrix;
-2. the per-course count table showing expected, found, listed, and difference;
-3. a `Problems` list covering every conflict, inaccessible source, missing local assignment, and unexplained candidate;
-4. an evidence list with source URLs/log paths and the check time.
+Include this short table only when an item just outside Sunday requires action now, such as a Monday cheatsheet deadline or an unbooked exam window.
 
-End with one of these conclusions:
+### 3. Course structure and current-week checks
 
-- **Verified:** every grading item has a disposition, every expected in-week item appears in the deadline table, all count differences are zero, and no source required for the conclusion was inaccessible.
-- **Not fully verified:** name the exact missing source or unexplained item. Do not say the table is complete.
+Use one row per assessment stream:
+
+| 课程 | 评分类型 | 全期结构 | Current-week 核查 |
+|---|---|---|---|
+
+Inside the final column, use short line-separated entries:
+
+- `🔎` why the course structure creates—or does not create—a candidate;
+- `✅` expected submission item and live due time found;
+- `📤` submitted/unsubmitted;
+- `🚨` expectation and platform state disagree;
+- `⏭️` no graded deadline expected this week.
+
+Quizzes use the same table and reasoning as labs, worksheets, milestones, and other assessment streams. Do not create a quiz-special report section.
+
+### 4. Problems and evidence
+
+`Problems` contains only expectation/platform mismatches, conflicting dates, inaccessible required sources, and immediate risks. Evidence lists source URLs/log paths and check time.
+
+End with a qualified conclusion:
+
+- **Verified:** every grading stream has a visible reasoning row; every current-week candidate is accounted for; every non-excluded candidate appears in the deadline table; excluded streams remain in the assessment-stream reconciliation and the exclusion is disclosed; all expectation/platform comparisons are explained; and every required source was accessible.
+- **Not fully verified:** name the exact missing source or unexplained candidate.
 
 ## Final checklist
 
 - [ ] Exact week and timezone stated
 - [ ] Active courses taken from `course-index.md`
-- [ ] Every grading-table category has one disposition
-- [ ] Weekly cadence used to probe for missing items
-- [ ] Every final row has live or explicitly qualified authoritative evidence
-- [ ] Submitted work retained
+- [ ] Every grading-table assessment stream represented once
+- [ ] Count/cadence/stated weeks used to derive current-week candidates
+- [ ] Every candidate checked on its designated submission platform
+- [ ] Quiz windows, reservations, and relevant PrairieLearn deadlines checked
+- [ ] “Open/released” refers only to a submission item that accepts submissions
+- [ ] Every in-scope row shows submitted/unsubmitted where visible
+- [ ] Expectation/platform mismatches use an alarm and are investigated
+- [ ] Repository/local-sync state omitted from normal report output
 - [ ] User exclusions applied and disclosed
-- [ ] Source conflicts and missing local assignments reported
-- [ ] Per-course expected/found/listed counts reconcile
 - [ ] Raw evidence and verification report saved
