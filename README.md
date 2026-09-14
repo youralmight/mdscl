@@ -43,7 +43,7 @@ brew install pango
 uv sync
 ```
 
-Render Markdown directly to a compact US Letter PDF. One-page documents also get a PNG:
+Render Markdown directly to compact US Letter HTML, PDF, and PNG:
 
 ```bash
 uv run mdscl-cheatsheet DSCI_511/notes/quiz1-cheatsheet.md tmp/quiz1-cheatsheet
@@ -51,4 +51,4 @@ uv run mdscl-cheatsheet DSCI_511/notes/quiz1-cheatsheet.md tmp/quiz1-cheatsheet
 
 Body text defaults to 8 pt; use `--font-size 9` or `--font-size 10` to override it.
 
-At the chosen size, the renderer compares two-, three-, and four-column layouts. It selects the fewest pages, breaking ties in favor of fewer columns. Standard output always includes `PDF pages: N`; PNG output is limited to one-page documents.
+At the chosen size, the renderer compares two-, three-, and four-column layouts. It selects the fewest pages, breaking ties in favor of fewer columns. It saves a styled `.html`, a complete `.pdf`, and one PNG per PDF page. A one-page Cheat Sheet uses `<output-stem>.png`; multipage output uses `<output-stem>-page-1.png`, `<output-stem>-page-2.png`, and so on. Standard output always includes `PDF pages: N`.

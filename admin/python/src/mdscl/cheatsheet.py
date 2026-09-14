@@ -61,7 +61,7 @@ def render_cheatsheet(
     *,
     font_size_pt: int = DEFAULT_FONT_SIZE_PT,
     dpi: int = DEFAULT_DPI,
-) -> tuple[Path, Path | None, int, int, int, float | None]:
+) -> tuple[Path, Path, tuple[Path, ...], int, int, int]:
     source = source.resolve()
     output_stem = output_stem.resolve()
     if source.suffix.lower() not in {".md", ".markdown"}:
@@ -103,21 +103,39 @@ def render_cheatsheet(
     ):
         raise RuntimeError("No column candidates were evaluated")
 
-    # Write and verify the complete Letter PDF.
+    # Save the selected layout and complete Letter PDF.
     output_stem.parent.mkdir(parents=True, exist_ok=True)
+    html_path = output_stem.with_suffix(".html")
     pdf_path = output_stem.with_suffix(".pdf")
-    png_path = output_stem.with_suffix(".png")
+    stylesheet = _css(selected_columns, font_size_pt)
+    html_path.write_text(
+        "<!doctype html><html><head><meta charset=\"utf-8\">"
+        f"<base href=\"{source.parent.as_uri()}/\"><style>{stylesheet}</style>"
+        f"</head><body><main>{body}</main></body></html>",
+        encoding="utf-8",
+    )
     selected_document.write_pdf(pdf_path)
 
-    generated_png_path = None
-    ink_bottom = None
+    # Render every PDF page; a one-page Cheat Sheet keeps the simple .png name.
+    single_png_path = output_stem.with_suffix(".png")
+    for stale_path in output_stem.parent.glob(f"{output_stem.name}-page-*.png"):
+        stale_path.unlink()
+    if selected_page_count == 1:
+        png_paths = (single_png_path,)
+    else:
+        single_png_path.unlink(missing_ok=True)
+        png_paths = tuple(
+            output_stem.parent / f"{output_stem.name}-page-{page_number}.png"
+            for page_number in range(1, selected_page_count + 1)
+        )
+
     with pymupdf.open(pdf_path) as pdf:
         if len(pdf) != selected_page_count:
             raise RuntimeError(
                 f"Expected {selected_page_count} PDF page(s), got {len(pdf)}"
             )
         expected_width_pt, expected_height_pt = 612, 792
-        for page in pdf:
+        for page, png_path in zip(pdf, png_paths, strict=True):
             if (
                 abs(page.rect.width - expected_width_pt) > 0.5
                 or abs(page.rect.height - expected_height_pt) > 0.5
@@ -126,49 +144,31 @@ def render_cheatsheet(
                     f"Expected US Letter PDF, got {page.rect.width:.1f} × "
                     f"{page.rect.height:.1f} pt"
                 )
-
-        # A page-sized PNG is valid only when it contains the whole document.
-        if selected_page_count == 1:
-            pixmap = pdf[0].get_pixmap(
+            pixmap = page.get_pixmap(
                 dpi=dpi,
                 colorspace=pymupdf.csGRAY,
                 alpha=False,
             )
             pixmap.save(png_path)
-            generated_png_path = png_path
-
             if png_path.stat().st_size > MAX_PNG_BYTES:
                 raise RuntimeError(
-                    f"PNG exceeds 5 MB: "
-                    f"{png_path.stat().st_size / (1024 * 1024):.2f} MB"
+                    f"PNG exceeds 5 MB: {png_path} "
+                    f"({png_path.stat().st_size / (1024 * 1024):.2f} MB)"
                 )
 
-            samples = pixmap.samples_mv
-            ink_bottom = next(
-                (
-                    (row + 1) / pixmap.height
-                    for row in range(pixmap.height - 1, -1, -1)
-                    if min(samples[row * pixmap.width : (row + 1) * pixmap.width])
-                    < 245
-                ),
-                0.0,
-            )
-        else:
-            png_path.unlink(missing_ok=True)
-
     return (
+        html_path,
         pdf_path,
-        generated_png_path,
+        png_paths,
         selected_page_count,
         selected_columns,
         font_size_pt,
-        ink_bottom,
     )
 
 
 def main() -> None:
     parser = argparse.ArgumentParser(
-        description="Render Markdown as a compact US Letter PDF and optional PNG."
+        description="Render Markdown as compact US Letter HTML, PDF, and PNG."
     )
     parser.add_argument("source", type=Path, help="Markdown content file")
     parser.add_argument("output_stem", type=Path, help="Output path without extension")
@@ -187,7 +187,7 @@ def main() -> None:
     )
     args = parser.parse_args()
 
-    pdf_path, png_path, page_count, columns, font_size_pt, ink_bottom = (
+    html_path, pdf_path, png_paths, page_count, columns, font_size_pt = (
         render_cheatsheet(
             args.source,
             args.output_stem,
@@ -195,13 +195,12 @@ def main() -> None:
             dpi=args.dpi,
         )
     )
+    print(f"HTML: {html_path}")
     print(f"PDF: {pdf_path}")
     print(f"PDF pages: {page_count}")
-    print(f"Layout: {columns} columns, {font_size_pt} pt")
-    if png_path is not None and ink_bottom is not None:
+    for png_path in png_paths:
         print(f"PNG: {png_path}")
-        print(f"Ink reaches {ink_bottom:.1%} of page height")
-        print(f"PNG size: {png_path.stat().st_size / (1024 * 1024):.2f} MB")
+    print(f"Layout: {columns} columns, {font_size_pt} pt")
 
 
 if __name__ == "__main__":
