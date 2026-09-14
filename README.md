@@ -33,3 +33,20 @@ Use `admin/sync_course_repos.sh` with `admin/sources.conf` to update upstream cl
 - UBC/Vancouver food map: https://maps.app.goo.gl/8w3j6JqDAKRPJhvV6
 - UBC/Vancouver activity map: https://maps.app.goo.gl/DzbCrP6MsNguaRjh8
 - Quiz cheatsheet guidance: https://ubc-mds.github.io/resources_pages/quiz/#creating-a-cheatsheet
+
+## Render a Quiz Cheat Sheet
+
+Install the macOS native text-layout library once, then sync the project:
+
+```bash
+brew install pango
+uv sync
+```
+
+Render a Markdown content draft directly to a one-page US Letter PDF and PNG:
+
+```bash
+uv run mdscl-cheatsheet DSCI_511/notes/quiz1-cheatsheet.md tmp/quiz1-cheatsheet
+```
+
+The renderer chooses the first readable layout that fits between two and four columns at 8–10 pt. It fails instead of shrinking below 8 pt or silently producing multiple pages.
