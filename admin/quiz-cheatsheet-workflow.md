@@ -4,15 +4,15 @@
 
 先为每门 Quiz 写一份完整、简洁、真正适合复习的 Markdown 知识文档。此时不要猜用户已经会什么，也不要急着压缩成一页。
 
-知识文档完成后，用户会分别和三个课程 Agent 沟通，选择哪些内容进入 Cheat Sheet 的 Markdown 内容稿。图片和页面排版最后再决定。
+知识文档完成后，用户会分别和三个课程 Agent 沟通，选择哪些内容进入 Cheat Sheet。考试时使用的 Markdown 与范围、来源和取舍说明分开保存；图片和页面排版最后再决定。
 
 ## 当前分工
 
-| 课程 | 第一阶段文件 | 后续 Cheat Sheet 内容稿 |
-|---|---|---|
-| DSCI 511 | `DSCI_511/notes/quiz1-knowledge.md` | `DSCI_511/notes/quiz1-cheatsheet.md` |
-| DSCI 523 | `DSCI_523/notes/quiz1-knowledge.md` | `DSCI_523/notes/quiz1-cheatsheet.md` |
-| DSCI 551 | `DSCI_551/notes/quiz1-knowledge.md` | `DSCI_551/notes/quiz1-cheatsheet.md` |
+| 课程 | 第一阶段文件 | 考试用内容 | 说明文件 |
+|---|---|---|---|
+| DSCI 511 | `DSCI_511/notes/quiz1-knowledge.md` | `DSCI_511/notes/quiz1-cheatsheet.md` | `DSCI_511/notes/quiz1-cheatsheet-explanation.md` |
+| DSCI 523 | `DSCI_523/notes/quiz1-knowledge.md` | `DSCI_523/notes/quiz1-cheatsheet.md` | `DSCI_523/notes/quiz1-cheatsheet-explanation.md` |
+| DSCI 551 | `DSCI_551/notes/quiz1-knowledge.md` | `DSCI_551/notes/quiz1-cheatsheet.md` | `DSCI_551/notes/quiz1-cheatsheet-explanation.md` |
 
 每个 Agent 只负责自己的一门课。DSCI 521 没有正式 Quiz，不在这里。`official/` 只读，成品写入相应课程的 `notes/`。
 
@@ -44,12 +44,14 @@
 
 ## 第二阶段：用户选择 Cheat Sheet 内容
 
-只有用户开始选择后，才创建对应的 `quiz1-cheatsheet.md`。
+只有用户开始选择后，才创建对应的 `quiz1-cheatsheet.md` 与 `quiz1-cheatsheet-explanation.md`。
 
 用户决定哪些内容加入、删除、展开或压缩。Agent 可以指出遗漏、依赖关系和空间代价，也可以提出建议，但不能根据自己的判断替用户决定“这个不用记”。
 
-`quiz1-cheatsheet.md` 是未来图片的内容稿，只保留用户想带进考场的公式、代码模板、对比、例子和提醒。它不需要复制知识文档中的来源、审查记录或长篇解释。
+`quiz1-cheatsheet.md` 是考试时实际使用、未来转成图片的内容稿，只保留公式、代码模板、对比、例子、判断规则和易错提醒。不要放考试范围、日期、分值、地点、平台操作、来源、审查记录、诚信说明或文档使用说明。
+
+`quiz1-cheatsheet-explanation.md` 不进入考场，用于保存上述范围与来源信息，并简要记录内容选择和压缩取舍。它应链接知识文档与考试用内容稿。
 
 此时仍不需要决定具体排版工具。等内容基本确认后，再处理 Letter 单面页面、至少 8 pt、填满可用空间、打印可读以及 PNG 不超过 5 MB 等要求。
 
-Quiz 2 可以沿用同样流程，文件名改为 `quiz2-knowledge.md` 和 `quiz2-cheatsheet.md`。
+Quiz 2 可以沿用同样流程，文件名中的 `quiz1` 改为 `quiz2`。
