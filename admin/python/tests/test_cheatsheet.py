@@ -26,10 +26,12 @@ def test_render_cheatsheet_outputs_one_letter_page(tmp_path: Path) -> None:
         assert pdf[0].rect.height == 792
     assert page_count == 1
 
+    assert png_path is not None
+    assert ink_bottom is not None
     image = pymupdf.Pixmap(png_path)
     assert (image.width, image.height) == (1700, 2200)
     assert png_path.stat().st_size <= MAX_PNG_BYTES
-    assert (columns, font_size_pt) == (2, 10)
+    assert (columns, font_size_pt) == (2, 8)
     assert 0 < ink_bottom <= 1
 
 
@@ -72,9 +74,17 @@ def test_main_reports_pdf_page_count(tmp_path: Path, monkeypatch, capsys) -> Non
     monkeypatch.setattr(
         sys,
         "argv",
-        ["mdscl-cheatsheet", str(source), str(tmp_path / "sheet")],
+        [
+            "mdscl-cheatsheet",
+            str(source),
+            str(tmp_path / "sheet"),
+            "--font-size",
+            "9",
+        ],
     )
 
     main()
 
-    assert "PDF pages: 1" in capsys.readouterr().out.splitlines()
+    output = capsys.readouterr().out.splitlines()
+    assert "PDF pages: 1" in output
+    assert "Layout: 2 columns, 9 pt" in output

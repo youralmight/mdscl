@@ -49,4 +49,6 @@ Render Markdown directly to a compact US Letter PDF. One-page documents also get
 uv run mdscl-cheatsheet DSCI_511/notes/quiz1-cheatsheet.md tmp/quiz1-cheatsheet
 ```
 
-The renderer tries layouts between two and four columns at 8–10 pt. If none fits one page, it writes the layout with the fewest pages rather than shrinking below 8 pt or truncating content. Standard output always includes `PDF pages: N`; PNG output is limited to one-page documents.
+Body text defaults to 8 pt; use `--font-size 9` or `--font-size 10` to override it.
+
+At the chosen size, the renderer compares two-, three-, and four-column layouts. It selects the fewest pages, breaking ties in favor of fewer columns. Standard output always includes `PDF pages: N`; PNG output is limited to one-page documents.
