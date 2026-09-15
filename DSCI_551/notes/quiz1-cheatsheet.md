@@ -16,6 +16,8 @@ X is a random variable; x is a possible/realized value. Random variables may be 
 - “or” includes the intersection unless the question says **exactly one**.
 - Equal probabilities do not imply independence.
 - Frequentist probability: long-run relative frequency; Bayesian probability: belief updated by information.
+- A finite-sample relative frequency estimates P(A); it is not the true probability.
+- Odds micro-check: p = 0.8 gives 4:1; doubling the odds gives 8:1 and p = 8/9, not 1.6.
 
 ## PMF, summaries, and transformations
 
@@ -37,6 +39,7 @@ For a discrete X, p_X(x) = P(X = x), p_X(x) ≥ 0, and Σₓ p_X(x) = 1. For an 
 For Z = g(X), first map every support point, then combine collisions: P(Z = z) = Σ₍ₓ: g(x)=z₎ P(X = x).
 
 Example: if X ∈ {−1, 0, 1} is uniform and Z = X², then P(Z = 0) = 1/3 and P(Z = 1) = 2/3.
+- If g is one-to-one on X’s support, no probabilities merge; otherwise add every collision.
 
 ### Linear rules
 
@@ -57,6 +60,8 @@ Use E[XY] = E[X]E[Y] or drop the covariance term **only when X and Y are indepen
 | Poisson(λ): count of independent arrivals in a fixed window | x = 0, 1, …; λˣe⁻λ/x! | λ; λ | `dpois(x, lambda = lambda)`; mean = variance. |
 
 Parameters: Binomial 0 ≤ p ≤ 1 and n ∈ {0, 1, …}; Geometric / NegBin 0 < p ≤ 1 and k ∈ {1, 2, …}; Poisson λ ≥ 0. R `d*` functions return P(X = x), not a CDF or random draw.
+
+**Selection cues:** Bernoulli = one binary trial; Binomial = successes in a fixed n trials; Geometric = failures until first success; NegBin = failures until k-th success; Poisson = arrivals counted in a fixed window. Binomial/Geometric/NegBin require independent trials with common p—do not choose only from the support.
 
 **Family vs distribution:** a family contains all legal parameter combinations; parameters specify one distribution.
 
@@ -80,6 +85,7 @@ A unique legal parameter set is sufficient; multiple legal sets mean insufficien
 - To find an event probability from a joint table, identify all allowed (x, y) cells and sum them.
 - Marginals do not determine the joint distribution. Do not multiply marginal probabilities unless independence is given or verified.
 - To test X ⟂ Y: compute both marginals, then verify p_X,Y(x, y) = p_X(x)p_Y(y) for **every** cell. One failure disproves independence.
+- **Joint-table checks:** the whole table and each marginal PMF sum to 1; an individual row or column usually does not. Given independence and both marginals, fill every cell with p_X(x)p_Y(y).
 
 - E[XY] = ΣₓΣᵧ xy p_X,Y(x, y).
 - Cov(X, Y) = E[XY] − E[X]E[Y].
@@ -98,6 +104,7 @@ A non-monotonic deterministic relationship such as Y = X² can have Pearson = 0 
 
 - For P(B) > 0: P(A | B) = P(A ∩ B) / P(B).
 - Conditioning restricts the sample space to B: discard excluded outcomes, divide each retained probability by P(B), and check the resulting PMF sums to 1.
+- Micro-example: p_X(1, 2, 3, 4) = (0.1, 0.2, 0.3, 0.4). Given X ≥ 3, P(X ≥ 3) = 0.7, so P(X = 3 | X ≥ 3) = 3/7 and P(X = 4 | X ≥ 3) = 4/7; X = 1, 2 get probability 0.
 - P(Y = y | X = x) = P(Y = y, X = x) / P(X = x), for P(X = x) > 0.
 - P(Y = y, X = x) = P(Y = y | X = x)P(X = x).
 - P(Y = y) = Σₓ P(Y = y | X = x)P(X = x).
@@ -110,3 +117,5 @@ A non-monotonic deterministic relationship such as Y = X² can have Pearson = 0 
 X ⟂ Y | Z iff P(X = x, Y = y | Z = z) = P(X = x | Z = z)P(Y = y | Z = z) for every z with P(Z = z) > 0.
 
 To test conditional independence: for each z, restrict the three-way joint distribution to Z = z, renormalize, obtain conditional marginals, and test factorization across all (x, y). Marginal independence and conditional independence do not imply one another; use the distributional test, not a correlation coefficient.
+
+**Binary shortcut:** for fixed z with known conditional marginals, checking P(X = 1, Y = 1 | Z = z) = P(X = 1 | Z = z)P(Y = 1 | Z = z) determines whether the other three cells factorize; with more categories, test every cell.
