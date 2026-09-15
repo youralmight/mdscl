@@ -1,0 +1,98 @@
+<!doctype html><html><head><meta charset="utf-8"><base href="file:///Users/youralmight/workspaces/reps/mdscl/DSCI_523/notes/"><style>
+@page { size: Letter; margin: 0.25in; }
+html { font-family: Arial, "PingFang SC", sans-serif; }
+body { margin: 0; color: #111; font-size: 8pt; line-height: 1; }
+main { column-count: 2; column-fill: auto; column-gap: 0.08in; }
+h1 { column-span: all; margin: 0 0 2pt; font-size: 1.5em; line-height: 1; }
+h2 { margin: 2pt 0 0.5pt; font-size: 1.25em; line-height: 1; break-after: avoid; }
+h3 { margin: 1.5pt 0 0.5pt; font-size: 1.0625em; line-height: 1; break-after: avoid; }
+p, ul, ol { margin: 0.5pt 0; }
+ul, ol { padding-left: 10pt; }
+li { margin: 0; }
+pre {
+    margin: 1pt 0;
+    padding: 1pt;
+    border: 0.4pt solid #bbb;
+    background: #f5f5f5;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+code { font-family: Menlo, Consolas, monospace; font-size: 8pt; }
+table {
+    width: 100%;
+    margin: 1pt 0;
+    border-collapse: collapse;
+    font-size: 8pt;
+    line-height: 1;
+}
+tr { break-inside: avoid; }
+th, td { border: 0.4pt solid #999; padding: 0.5pt; vertical-align: top; overflow-wrap: anywhere; }
+hr { margin: 1pt 0; border: 0; border-top: 0.4pt solid #999; }
+</style></head><body><main><h1>DSCI 523 Quiz 1</h1>
+<h2>Import, names, pipe</h2>
+<ul>
+<li>CSV: <code>readr::read_csv("file.csv")</code> -&gt; tibble (URL allowed). Delimited: <code>readr::read_delim(path, delim = "\t", col_names = FALSE)</code>; set delimiter; no header otherwise consumes row 1 as names. Metadata/preview: <code>read_csv(path, skip = 2, n_max = 100)</code> (<code>n_max</code> = data rows). Excel: <code>readxl::read_excel(path, sheet = "Sheet1")</code>; <code>.xlsx</code> is not CSV; download URL first. Write: <code>readr::write_csv(df, "out.csv")</code> (names, no row names).</li>
+<li>Check delimiter/header/metadata/column count/types. Backticks for <code>`Mother tongue`</code>; <code>rename(df, new = old)</code>; many names: <code>janitor::clean_names()</code>.</li>
+<li><code>&lt;-</code> assigns; <code>==</code> compares. <code>median(x = 1:10)</code>: named argument; <code>median(x &lt;- 1:10)</code>: also assigns. <code>|&gt;</code> passes left side as first argument; dplyr takes/returns a table and uses bare column names.</li>
+<li>Debug a pipe by letting it print first; assign (<code>result &lt;-</code>) only after its intermediate/result shape is right. <code>%&gt;%</code> is the older pipe; current code uses <code>|&gt;</code>.</li>
+</ul>
+<h2>dplyr and tidy shape</h2>
+<pre><code class="language-r">flights |&gt; filter(carrier %in% c(&quot;AC&quot;, &quot;WS&quot;), delay &gt; 0) |&gt;
+  mutate(delay_hours = delay / 60) |&gt; select(carrier, delay_hours) |&gt;
+  arrange(desc(delay_hours))
+</code></pre>
+<ul>
+<li><code>select(df, a, first:last)</code>: same rows. <code>filter(df, c1, c2)</code>: all conditions <code>TRUE</code>; comma = AND; <code>NA</code> rows drop. Set: <code>x %in% c("A","B")</code>; elementwise OR/AND: <code>|</code>, <code>&amp;</code>, <code>!</code>—not <code>||</code>, <code>&amp;&amp;</code> (only element 1).</li>
+<li><code>mutate(df, new = old * 2, old = round(old))</code>: add/overwrite; later expressions may use earlier ones. <code>arrange(df, x, desc(y))</code>; <code>slice(df, 1)</code> remains table; sort then slice for extreme row. <code>pull(df, col)</code> -&gt; vector.</li>
+<li><strong>Tidy:</strong> one observation/row, variable/column, value/cell. Define the observation first.</li>
+</ul>
+<pre><code class="language-r">wide |&gt; pivot_longer(`1999`:`2000`, names_to = &quot;year&quot;, values_to = &quot;cases&quot;)
+wide |&gt; pivot_longer(-country, names_to = &quot;year&quot;, values_to = &quot;cases&quot;)
+long |&gt; pivot_wider(names_from = type, values_from = count)
+</code></pre>
+<ul>
+<li>Column names are values -&gt; <code>pivot_longer(cols, names_to, values_to)</code>; <code>cols</code> uses <code>select()</code> syntax (<code>-id</code>, <code>everything()</code>). Values in a column become names -&gt; <code>pivot_wider(names_from, values_from)</code>; remaining columns identify the observation.</li>
+<li>Shape check: <code>country | 1999 | 2000</code> becomes <code>country | year | cases</code> with <code>pivot_longer()</code>; <code>country | type | count</code> becomes <code>country | A | B | ...</code> with <code>pivot_wider()</code>. A remaining identifier column is part of the observation; an accidental extra identifier prevents intended rows from combining.</li>
+<li><code>pivot_longer(-country, ...)</code> keeps <code>country</code> as the identifier; <code>pivot_longer(everything(), ...)</code> would also turn country values into the names column. <code>pivot_wider()</code> uses <strong>all</strong> columns not named in <code>names_from</code>/<code>values_from</code> as identifiers—select/keep only the columns that define one desired output row.</li>
+</ul>
+<h2>R values, types, extraction</h2>
+<ul>
+<li>Scalar = length-1 vector. Atomic vectors are homogeneous: logical, integer (<code>1L</code>), double (<code>1</code>), character; <code>c(1,"a")</code> -&gt; character. Factor has finite <code>levels</code> (whose order affects graphs/statistics); list may mix/nest; matrix is homogeneous 2-D; data frame is equal-length columns. Tibbles are data-frame subclasses; <code>as_tibble(df)</code> converts explicitly.</li>
+<li>Check <code>typeof(x)</code> (underlying type), <code>class(x)</code> (important for factor/data frame/tibble), <code>str(x)</code> (compact type/length/content), <code>is.integer(x)</code>, <code>as.double(x)</code> (may lose information). Index starts at <strong>1</strong>.</li>
+<li><code>v[2:4]</code>/<code>v[-1]</code> -&gt; vector. <code>lst[1]</code> -&gt; list; <code>lst[[1]]</code> -&gt; element; nest <code>lst[[6]][[3]]</code>. <code>df[rows, cols]</code>/<code>df[1]</code> -&gt; table; <code>df[["mass"]]</code>/<code>df$mass</code> -&gt; column. <code>df[, 1]</code>: base data frame simplifies to vector, tibble retains tibble.</li>
+<li><code>y &lt;- x</code>, then modify <code>y</code>: <code>x</code> unchanged (copy-on-modify). Arithmetic/comparisons and <code>&amp; | !</code> are elementwise; short inputs recycle (non-multiple lengths warn). <code>&amp;&amp;</code>/<code>||</code> inspect element 1. <code>NA</code> is missing, not a value: numeric/logical operations can yield <code>NA</code>; in <code>filter()</code>, conditions must be <code>TRUE</code>, so <code>NA</code> rows drop.</li>
+<li>Matrix indexing is <code>[row, column]</code>. A data frame is a special list of equal-length column vectors: <code>df[1:5, c("conc", "uptake")]</code> remains a table; <code>df[df$cyl == 6, ]</code> is base-R logical row filtering. In data-operation questions, use tidyverse <code>filter()</code> unless base R is explicitly requested.</li>
+</ul>
+<h2>Dates, strings, factors</h2>
+<pre><code class="language-r">d &lt;- ymd(&quot;2017-01-31&quot;); dt &lt;- ymd_hms(&quot;2017-01-31 20:11:59&quot;)
+mdy_hm(&quot;01/31/2017 08:01&quot;); make_date(year, month, day)
+make_datetime(year, month, day, hour, minute, second)
+year(dt); month(dt); mday(dt); yday(dt); wday(dt, label = TRUE, abbr = FALSE)
+term &lt;- interval(start, end)
+filter(holidays, holiday_date %within% term)
+</code></pre>
+<ul>
+<li><code>ymd</code>/<code>mdy</code>/<code>dmy</code> -&gt; <code>Date</code>; time helpers -&gt; date-time (<code>tz</code> adds time zone). <code>today()</code> -&gt; <code>Date</code>. Parse character dates before comparison; strings are not reliable dates. <code>%within%</code> returns one logical per date, so it works directly inside <code>filter()</code>.</li>
+<li>Parser name follows input order: use <code>dmy()</code> for day-month-year, <code>mdy()</code> for month-day-year; they accept character or unquoted numeric dates. Parse serialized text with a parser; build separate components with <code>make_date()</code>/<code>make_datetime()</code>.</li>
+<li><code>str_*</code> is vectorized. <code>str_detect(x,"^Al")</code> -&gt; logical (<code>==</code> exact only); <code>str_subset()</code> -&gt; vector; <code>str_split()</code> -&gt; list (variable pieces); <code>str_split_fixed(..., n=2)</code> -&gt; matrix. <code>str_length()</code> is per-string count; <code>str_sub(x,1,3)</code> (assign through <code>str_sub(...) &lt;- "AAA"</code>). <code>str_c(a,b,sep="-")</code> elementwise; <code>str_c(x,collapse="-")</code> one string; <code>str_replace()</code> replaces first match—use <code>mutate(col = str_replace(col, ...))</code> to replace a table column.</li>
+<li>Regex: <code>^</code> start, <code>$</code> end, <code>.</code> any; regex backslash in an R string: <code>"\\"</code>. <code>separate()</code> splits a table column; <code>unite()</code> combines.</li>
+<li>Clean character text before <code>factor()</code>, rather than treating a factor like free text. Check with <code>class()</code>/<code>str()</code>, <code>levels(f)</code>, <code>nlevels(f)</code>; filter leaves unused levels -&gt; <code>fct_drop(f)</code>. <code>fct_infreq()</code>, <code>fct_reorder(f,x,.fun=median)</code>, <code>fct_relevel(f,"Asia","Africa")</code>, <code>fct_rev()</code> set level/graph/statistical order.</li>
+<li><code>str_length(c("cat", "horse"))</code> -&gt; <code>c(3, 5)</code>, not the vector length. <code>str_c(c("a","b"), c("1","2"), sep="-")</code> -&gt; <code>c("a-1","b-2")</code>; adding <code>collapse="-"</code> instead reduces all elements to one string. <code>filter(df, str_detect(col, "tan$"))</code> keeps rows whose <code>col</code> ends in <code>tan</code>.</li>
+</ul>
+<h2>Two tables</h2>
+<p><code>left_join(x, y, by = c("countries" = "country"))</code>; <code>x</code> is left/main; same-name keys join by default. Duplicate keys create all combinations: two <code>x</code> rows and three <code>y</code> rows with the same key yield six matched rows—check key uniqueness and output rows.</p>
+<ul>
+<li><code>left_join</code>: all <code>x</code> + <code>y</code> columns; unmatched <code>y</code> = <code>NA</code>. <code>inner_join</code>: matched rows only + both columns. <code>full_join</code>: all rows/columns; unmatched side = <code>NA</code>.</li>
+<li><code>semi_join</code>: matched <code>x</code> only; only <code>x</code> columns; duplicate <code>y</code> does not copy <code>x</code>. <code>anti_join</code>: unmatched <code>x</code>; only <code>x</code> columns. First three are mutating; last two filtering: use semi/anti when the right table decides membership but should add no columns.</li>
+<li><code>bind_rows()</code> stacks corresponding variables/types. <code>bind_cols()</code> matches row position only—prefer a keyed join unless alignment is guaranteed.</li>
+<li>Join debugging: identify the key and expected output rows before joining; inspect repeated keys in <strong>both</strong> tables, then count output rows. Same-name key uses the default; different names require <code>by = c("x_key" = "y_key")</code>. A right-only key never appears in <code>left_join()</code>, but does appear in <code>full_join()</code>.</li>
+</ul>
+<h2>Base control flow and final check</h2>
+<pre><code class="language-r">if (x &gt; t) { a } else if (x &lt; t) { b } else { c }
+for (item in x) print(item ^ 2)
+for (i in seq_along(x)) print(x[i] ^ 2)
+</code></pre>
+<ul>
+<li><code>if</code> needs one logical value (not a whole column/vector); <code>{}</code> for multiple statements. <code>for (item in x)</code> iterates values; use <code>seq_along(x)</code> plus <code>x[i]</code> only when position matters. Never <code>1:length(x)</code>: for <code>character(0)</code>, it is <code>1:0</code> but <code>seq_along()</code> is empty.</li>
+<li>Answer shape first (table/vector/Date/factor/value); one table -&gt; verb; shape -&gt; observation then pivot; two tables -&gt; retained rows + right columns then join; convert date/string/factor types first; check names, commas, quotes, brackets, pipe.</li>
+</ul></main></body></html>

@@ -1,0 +1,270 @@
+<!doctype html><html><head><meta charset="utf-8"><base href="file:///Users/youralmight/workspaces/reps/mdscl/DSCI_551/notes/"><style>
+@page { size: Letter; margin: 0.25in; }
+html { font-family: Arial, "PingFang SC", sans-serif; }
+body { margin: 0; color: #111; font-size: 8pt; line-height: 1; }
+main { column-count: 2; column-fill: auto; column-gap: 0.08in; }
+h1 { column-span: all; margin: 0 0 2pt; font-size: 1.5em; line-height: 1; }
+h2 { margin: 2pt 0 0.5pt; font-size: 1.25em; line-height: 1; break-after: avoid; }
+h3 { margin: 1.5pt 0 0.5pt; font-size: 1.0625em; line-height: 1; break-after: avoid; }
+p, ul, ol { margin: 0.5pt 0; }
+ul, ol { padding-left: 10pt; }
+li { margin: 0; }
+pre {
+    margin: 1pt 0;
+    padding: 1pt;
+    border: 0.4pt solid #bbb;
+    background: #f5f5f5;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+code { font-family: Menlo, Consolas, monospace; font-size: 8pt; }
+table {
+    width: 100%;
+    margin: 1pt 0;
+    border-collapse: collapse;
+    font-size: 8pt;
+    line-height: 1;
+}
+tr { break-inside: avoid; }
+th, td { border: 0.4pt solid #999; padding: 0.5pt; vertical-align: top; overflow-wrap: anywhere; }
+hr { margin: 1pt 0; border: 0; border-top: 0.4pt solid #999; }
+</style></head><body><main><h1>DSCI 551 Quiz 1</h1>
+<p>X is a random variable; x is a possible/realized value. Random variables may be categorical, though moments require numerical values.</p>
+<h2>Core notation and probability rules</h2>
+<table>
+<thead>
+<tr>
+<th>Item</th>
+<th>Rule / meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Sample space</td>
+<td>S: all outcomes; P(S) = 1.</td>
+</tr>
+<tr>
+<td>Complement</td>
+<td>P(Aᶜ) = 1 − P(A).</td>
+</tr>
+<tr>
+<td>Union / intersection</td>
+<td>A ∪ B: at least one; A ∩ B: both. P(A ∪ B) = P(A) + P(B) − P(A ∩ B).</td>
+</tr>
+<tr>
+<td>Partition / total probability</td>
+<td>If {Bᵢ} is mutually exclusive, exhaustive, and P(Bᵢ) &gt; 0: P(A) = Σᵢ P(A</td>
+</tr>
+<tr>
+<td>Independence</td>
+<td>A ⟂ B iff P(A ∩ B) = P(A)P(B). Positive-probability mutually exclusive events are <strong>not</strong> independent.</td>
+</tr>
+<tr>
+<td>Odds</td>
+<td>o = p/(1 − p), p = o/(1 + o). Multiplying odds does not multiply probability by the same factor.</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>“or” includes the intersection unless the question says <strong>exactly one</strong>.</li>
+<li>Equal probabilities do not imply independence.</li>
+<li>Frequentist probability: long-run relative frequency; Bayesian probability: belief updated by information.</li>
+<li>A finite-sample relative frequency estimates P(A); it is not the true probability.</li>
+<li>Odds micro-check: p = 0.8 gives 4:1; doubling the odds gives 8:1 and p = 8/9, not 1.6.</li>
+</ul>
+<h2>PMF, summaries, and transformations</h2>
+<p>For a discrete X, p_X(x) = P(X = x), p_X(x) ≥ 0, and Σₓ p_X(x) = 1. For an event, sum the PMF over its allowed values.</p>
+<ul>
+<li>E[X] = Σₓ x p_X(x); E[g(X)] = Σₓ g(x)p_X(x).</li>
+<li>Var(X) = E[(X − E[X])²] = E[X²] − E[X]²; SD(X) = √Var(X).</li>
+<li>H(X) = −Σₓ p_X(x) log p_X(x), with 0 log 0 := 0.</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>Quantity</th>
+<th>Key point / trap</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Mode</td>
+<td>Value(s) with largest PMF; may tie; works for categories.</td>
+</tr>
+<tr>
+<td>Mean</td>
+<td>Probability-weighted long-run average; need not be an attainable value.</td>
+</tr>
+<tr>
+<td>Variance / SD</td>
+<td>Var(X) ≥ 0, in squared units; SD restores units. Do not confuse E[X²] with E[X]².</td>
+</tr>
+<tr>
+<td>Entropy</td>
+<td>Natural log; uncertainty of the probability distribution, not magnitude of outcomes; H = 0 means no randomness.</td>
+</tr>
+<tr>
+<td>Continuous X</td>
+<td>PDF f_X(x) is a density, <strong>not</strong> P(X = x); E[g(X)] = ∫ g(x)f_X(x) dx.</td>
+</tr>
+<tr>
+<td>Sample mean</td>
+<td>X̄ = (1/n)ΣᵢXᵢ estimates E[X]; it is not automatically the model mean.</td>
+</tr>
+</tbody>
+</table>
+<p>For Z = g(X), first map every support point, then combine collisions: P(Z = z) = Σ₍ₓ: g(x)=z₎ P(X = x).</p>
+<p>Example: if X ∈ {−1, 0, 1} is uniform and Z = X², then P(Z = 0) = 1/3 and P(Z = 1) = 2/3.
+- If g is one-to-one on X’s support, no probabilities merge; otherwise add every collision.</p>
+<h3>Linear rules</h3>
+<ul>
+<li>E[aX + bY] = aE[X] + bE[Y] (no independence needed).</li>
+<li>Var(aX) = a²Var(X).</li>
+<li>Var(aX + bY) = a²Var(X) + b²Var(Y) + 2ab Cov(X, Y).</li>
+</ul>
+<p>Use E[XY] = E[X]E[Y] or drop the covariance term <strong>only when X and Y are independent</strong>.</p>
+<h2>Discrete distribution families</h2>
+<table>
+<thead>
+<tr>
+<th>Distribution / process</th>
+<th>Support and PMF</th>
+<th>Mean, variance</th>
+<th>R / distinction</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Bernoulli(p): one success/failure trial</td>
+<td>x ∈ {0, 1}; pˣ(1 − p)¹⁻ˣ</td>
+<td>p; p(1 − p)</td>
+<td><code>dbinom(x, size = 1, prob = p)</code></td>
+</tr>
+<tr>
+<td>Binomial(n, p): successes in n independent trials with common p</td>
+<td>x = 0, …, n; C(n, x)pˣ(1 − p)ⁿ⁻ˣ</td>
+<td>np; np(1 − p)</td>
+<td><code>dbinom(x, size = n, prob = p)</code>; <code>size</code> is trials, not requested successes.</td>
+</tr>
+<tr>
+<td>Geometric(p): failures <strong>before first success</strong></td>
+<td>x = 0, 1, …; p(1 − p)ˣ</td>
+<td>(1 − p)/p; (1 − p)/p²</td>
+<td><code>dgeom(x, prob = p)</code>; x = 0 = immediate success. “Trial number of first success” is this variable + 1.</td>
+</tr>
+<tr>
+<td>NegBin(k, p): failures before k-th success</td>
+<td>x = 0, 1, …; C(k − 1 + x, x)pᵏ(1 − p)ˣ</td>
+<td>k(1 − p)/p; k(1 − p)/p²</td>
+<td><code>dnbinom(x, size = k, prob = p)</code>; <code>size</code> is successes. k = 1 is Geometric.</td>
+</tr>
+<tr>
+<td>Poisson(λ): count of independent arrivals in a fixed window</td>
+<td>x = 0, 1, …; λˣe⁻λ/x!</td>
+<td>λ; λ</td>
+<td><code>dpois(x, lambda = lambda)</code>; mean = variance.</td>
+</tr>
+</tbody>
+</table>
+<p>Parameters: Binomial 0 ≤ p ≤ 1 and n ∈ {0, 1, …}; Geometric / NegBin 0 &lt; p ≤ 1 and k ∈ {1, 2, …}; Poisson λ ≥ 0. R <code>d*</code> functions return P(X = x), not a CDF or random draw.</p>
+<p><strong>Selection cues:</strong> Bernoulli = one binary trial; Binomial = successes in a fixed n trials; Geometric = failures until first success; NegBin = failures until k-th success; Poisson = arrivals counted in a fixed window. Binomial/Geometric/NegBin require independent trials with common p—do not choose only from the support.</p>
+<p><strong>Family vs distribution:</strong> a family contains all legal parameter combinations; parameters specify one distribution.</p>
+<h3>Recovering parameters from μ and v (only after family is known)</h3>
+<table>
+<thead>
+<tr>
+<th>Family</th>
+<th>Fast check</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Bernoulli</td>
+<td>p = μ; v = μ(1 − μ). Mean determines it; incompatible variance means impossible.</td>
+</tr>
+<tr>
+<td>Poisson</td>
+<td>λ = μ = v. Mean determines it; μ ≠ v means not Poisson.</td>
+</tr>
+<tr>
+<td>Geometric</td>
+<td>p = 1/(μ + 1); v = μ(μ + 1). Mean determines it.</td>
+</tr>
+<tr>
+<td>Binomial, μ &gt; 0</td>
+<td>p = 1 − v/μ; n = μ/p; require legal p and integer n.</td>
+</tr>
+<tr>
+<td>NegBin, 0 &lt; p &lt; 1</td>
+<td>p = μ/v; k = μ²/(v − μ); require v &gt; μ and integer k &gt; 0.</td>
+</tr>
+</tbody>
+</table>
+<p>A unique legal parameter set is sufficient; multiple legal sets mean insufficient information; contradictions mean impossible. Mean and variance alone do <strong>not</strong> determine an arbitrary PMF.</p>
+<h2>Joint distributions, marginals, and dependence</h2>
+<ul>
+<li>p_X,Y(x, y) = P(X = x, Y = y); ΣₓΣᵧ p_X,Y(x, y) = 1.</li>
+<li>
+<p>p_X(x) = Σᵧ p_X,Y(x, y); p_Y(y) = Σₓ p_X,Y(x, y).</p>
+</li>
+<li>
+<p>To find an event probability from a joint table, identify all allowed (x, y) cells and sum them.</p>
+</li>
+<li>Marginals do not determine the joint distribution. Do not multiply marginal probabilities unless independence is given or verified.</li>
+<li>To test X ⟂ Y: compute both marginals, then verify p_X,Y(x, y) = p_X(x)p_Y(y) for <strong>every</strong> cell. One failure disproves independence.</li>
+<li>
+<p><strong>Joint-table checks:</strong> the whole table and each marginal PMF sum to 1; an individual row or column usually does not. Given independence and both marginals, fill every cell with p_X(x)p_Y(y).</p>
+</li>
+<li>
+<p>E[XY] = ΣₓΣᵧ xy p_X,Y(x, y).</p>
+</li>
+<li>Cov(X, Y) = E[XY] − E[X]E[Y].</li>
+<li>ρ_XY = Cov(X, Y) / √(Var(X)Var(Y)), with −1 ≤ ρ_XY ≤ 1 if both variances are positive.</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>Measure / implication</th>
+<th>What it does <strong>not</strong> establish</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Independent ⇒ E[XY] = E[X]E[Y] and Cov(X, Y) = 0</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Cov(X, Y) = 0 or Pearson ρ = 0</td>
+<td>Does not imply independence; it only rules out linear association.</td>
+</tr>
+<tr>
+<td>Pearson ρ</td>
+<td>Standardized <strong>linear</strong> association; undefined if either variance is 0.</td>
+</tr>
+<tr>
+<td>Kendall τ_K</td>
+<td>Rank-based <strong>monotonic</strong> association. Without ties: τ_K = (number concordant − number discordant)/C(n, 2).</td>
+</tr>
+</tbody>
+</table>
+<p>A non-monotonic deterministic relationship such as Y = X² can have Pearson = 0 and Kendall = 0, yet Y is fully determined by X. A strictly increasing nonlinear relationship such as Y = X³ can have τ_K = 1.</p>
+<h2>Conditional probability and conditional independence</h2>
+<ul>
+<li>For P(B) &gt; 0: P(A | B) = P(A ∩ B) / P(B).</li>
+<li>Conditioning restricts the sample space to B: discard excluded outcomes, divide each retained probability by P(B), and check the resulting PMF sums to 1.</li>
+<li>Micro-example: p_X(1, 2, 3, 4) = (0.1, 0.2, 0.3, 0.4). Given X ≥ 3, P(X ≥ 3) = 0.7, so P(X = 3 | X ≥ 3) = 3/7 and P(X = 4 | X ≥ 3) = 4/7; X = 1, 2 get probability 0.</li>
+<li>P(Y = y | X = x) = P(Y = y, X = x) / P(X = x), for P(X = x) &gt; 0.</li>
+<li>P(Y = y, X = x) = P(Y = y | X = x)P(X = x).</li>
+<li>P(Y = y) = Σₓ P(Y = y | X = x)P(X = x).</li>
+<li>
+<p>E[Y] = Σₓ E[Y | X = x]P(X = x) = E_X[E[Y | X]].</p>
+</li>
+<li>
+<p>P(A | B) ≠ P(B | A) in general: denominators differ.</p>
+</li>
+<li>Under X ⟂ Y, P(Y = y | X = x) = P(Y = y): learning X does not change Y's distribution.</li>
+<li>For total expectation, weight conditional means by P(X = x); do not take an unweighted average.</li>
+</ul>
+<p>X ⟂ Y | Z iff P(X = x, Y = y | Z = z) = P(X = x | Z = z)P(Y = y | Z = z) for every z with P(Z = z) &gt; 0.</p>
+<p>To test conditional independence: for each z, restrict the three-way joint distribution to Z = z, renormalize, obtain conditional marginals, and test factorization across all (x, y). Marginal independence and conditional independence do not imply one another; use the distributional test, not a correlation coefficient.</p>
+<p><strong>Binary shortcut:</strong> for fixed z with known conditional marginals, checking P(X = 1, Y = 1 | Z = z) = P(X = 1 | Z = z)P(Y = 1 | Z = z) determines whether the other three cells factorize; with more categories, test every cell.</p></main></body></html>
