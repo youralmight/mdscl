@@ -1,6 +1,6 @@
-uvx jupytext --to ipynb lab1.Rmd
+uvx jupytext --to ipynb worksheet3.Rmd
 
-uvx jupytext --to Rmd lab1.ipynb
+uvx jupytext --to Rmd worksheet3.ipynb
 
 
 quarto render *.Rmd --to typst

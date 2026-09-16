@@ -20,6 +20,7 @@ https://github.com/UBC-MDS/DSCI_554_exper-causal-inf.git
 https://github.com/UBC-MDS/DSCI_561_regr-1.git
 https://github.com/UBC-MDS/DSCI_563_unsup-learn.git
 https://github.com/UBC-MDS/DSCI_571_sup-learn-1.git
+https://github.com/UBC-MDS/DSCI_571_sup-learn-1_book.git
 https://github.com/UBC-MDS/DSCI_573_feat-model-select.git
 https://github.com/UBC-MDS/DSCI_574_spat-temp-mod.git
 https://github.com/UBC-MDS/DSCI_575_adv-mach-learn.git
