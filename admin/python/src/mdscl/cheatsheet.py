@@ -2,8 +2,10 @@ from __future__ import annotations
 
 import argparse
 import os
+import re
 import sys
 from pathlib import Path
+
 
 import markdown
 import pymupdf
@@ -19,6 +21,25 @@ DEFAULT_DPI = 200
 DEFAULT_FONT_SIZE_PT = 8
 FONT_SIZES_PT = (DEFAULT_FONT_SIZE_PT, 9, 10)
 MAX_PNG_BYTES = 5 * 1024 * 1024
+
+_CODE_SPAN = re.compile(r"```.*?```|`[^`\n]*`", re.DOTALL)
+_MATH_MARKUP = (
+    (re.compile(r"\\[\(\[]"), r"\( \) / \[ \]"),
+    (re.compile(r"\$\$"), "$$"),
+    (re.compile(r"\$[^$\n]+\$"), "$...$"),
+)
+
+
+def _reject_math_markup(source: Path, text: str) -> None:
+    """Refuse LaTeX math: this renderer has no math engine and would print it literally."""
+    outside_code = _CODE_SPAN.sub(" ", text)
+    found = [label for pattern, label in _MATH_MARKUP if pattern.search(outside_code)]
+    if found:
+        raise ValueError(
+            f"{source} contains LaTeX math markup ({', '.join(found)}); this renderer has no "
+            "math engine and would print it as literal text. Write formulas as plain text "
+            "instead — see admin/quiz-cheatsheet-workflow.md."
+        )
 
 
 def _css(columns: int, font_size_pt: int) -> str:
@@ -74,10 +95,9 @@ def render_cheatsheet(
         raise ValueError("DPI must be at least 150 for readable printed text")
 
     # Parse the source once for every column candidate.
-    body = markdown.markdown(
-        source.read_text(encoding="utf-8"),
-        extensions=["extra", "sane_lists"],
-    )
+    text = source.read_text(encoding="utf-8")
+    _reject_math_markup(source, text)
+    body = markdown.markdown(text, extensions=["extra", "sane_lists"])
     html = f"<!doctype html><html><body><main>{body}</main></body></html>"
 
     # Minimize pages; ties retain the earlier, wider column layout.

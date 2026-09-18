@@ -6,6 +6,13 @@
 
 知识文档完成后，用户会分别和三个课程 Agent 沟通，选择哪些内容进入 Cheat Sheet。考试时使用的 Markdown 与范围、来源和取舍说明分开保存；图片和页面排版最后再决定。
 
+## 公式写法（硬约束，先读这一节）
+
+这两个文档的消费者都没有数学引擎：`mdscl-cheatsheet`（Python-Markdown + WeasyPrint → Letter PDF/PNG）和 GitHub / Obsidian 的 Markdown 预览。规则按文档分两种：
+
+- **`quiz1-cheatsheet.md`（要打印）不能出现任何 LaTeX 数学标记。** `$...$`、`$$...$$`、`\(...\)`、`\[...\]` 都不要：渲染器会把 `$P(A)$` 原样打进 PDF/PNG；`\(S\)` 还会被吃掉反斜杠变成 `(S)`，`\cap` 直接打印成 `\cap`。公式写成纯文本 / Unicode，例如 `P(Aᶜ) = 1 − P(A)`、`P(A | B) = P(A ∩ B) / P(B)`、`Var(X) = E[X²] − E[X]²`、`Σᵢ P(A | Bᵢ)P(Bᵢ)`、`X ∼ Bernoulli(p)`、`(1 − p)/p²`。渲染器会直接报错拦住 LaTeX 输入，不会静默产出坏图；R/Python 代码里的 `$`（`df$mass`）写在 code span 里，不受影响。
+- **`quiz1-knowledge.md`（只阅读、不打印）可以用 `$...$` / `$$...$$`**，GitHub、Obsidian、VS Code 都能渲染。但**不要把 display 公式缩进进列表项**：GitHub 不渲染缩进在列表里的 `$$` 块，会原样显示 `$$`。要 display 就把 `$$` 放第 0 列，否则把它写成行内公式放进列表项那一行。
+
 ## 当前分工
 
 | 课程 | 第一阶段文件 | 考试用内容 | 说明文件 |

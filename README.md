@@ -51,4 +51,6 @@ uv run mdscl-cheatsheet DSCI_511/notes/quiz1-cheatsheet.md tmp/quiz1-cheatsheet
 
 Body text defaults to 8 pt; use `--font-size 9` or `--font-size 10` to override it.
 
+The renderer has no math engine, so cheat-sheet source must not contain LaTeX math markup: `$...$`, `$$...$$`, `\(...\)` and `\[...\]` are rejected with an error (write formulas as plain text instead, e.g. `P(Aᶜ) = 1 − P(A)`). See [`admin/quiz-cheatsheet-workflow.md`](admin/quiz-cheatsheet-workflow.md).
+
 At the chosen size, the renderer compares two-, three-, and four-column layouts. It selects the fewest pages, breaking ties in favor of fewer columns. It saves a styled `.html`, a complete `.pdf`, and one PNG per PDF page. A one-page Cheat Sheet uses `<output-stem>.png`; multipage output uses `<output-stem>-page-1.png`, `<output-stem>-page-2.png`, and so on. Standard output always includes `PDF pages: N`.

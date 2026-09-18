@@ -6,6 +6,7 @@ https://github.ubc.ca/mds-2026-27/DSCI_511_worksheet2_yz2000.git
 https://github.ubc.ca/mds-2026-27/DSCI_511_worksheet3_yz2000.git
 https://github.ubc.ca/mds-2026-27/DSCI_511_worksheet4_yz2000.git
 https://github.ubc.ca/mds-2026-27/DSCI_511_worksheet5_yz2000.git
+https://github.ubc.ca/mds-2026-27/DSCI_511_worksheet6_yz2000.git
 https://github.ubc.ca/mds-2026-27/DSCI_521_lab0a_yz2000.git
 https://github.ubc.ca/mds-2026-27/DSCI_521_lab0b_yz2000.git
 https://github.ubc.ca/mds-2026-27/DSCI_523_lab1_yz2000.git
@@ -16,6 +17,7 @@ https://github.ubc.ca/mds-2026-27/DSCI_523_worksheet2_yz2000.git
 https://github.ubc.ca/mds-2026-27/DSCI_523_worksheet3_yz2000.git
 https://github.ubc.ca/mds-2026-27/DSCI_523_worksheet4_yz2000.git
 https://github.ubc.ca/mds-2026-27/DSCI_523_worksheet5_yz2000.git
+https://github.ubc.ca/mds-2026-27/DSCI_523_worksheet6_yz2000.git
 https://github.ubc.ca/mds-2026-27/DSCI_551_lab1_yz2000.git
 https://github.ubc.ca/mds-2026-27/DSCI_551_lab2_yz2000.git
 https://github.ubc.ca/mds-2026-27/DSCI_551_lab3_yz2000.git

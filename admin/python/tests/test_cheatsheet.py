@@ -2,6 +2,7 @@ import sys
 from pathlib import Path
 
 import pymupdf
+import pytest
 
 from mdscl.cheatsheet import MAX_PNG_BYTES, main, render_cheatsheet
 
@@ -93,3 +94,28 @@ def test_main_reports_pdf_page_count(tmp_path: Path, monkeypatch, capsys) -> Non
     assert "Layout: 2 columns, 9 pt" in output
     assert any(line.startswith("HTML: ") for line in output)
     assert any(line.startswith("PNG: ") for line in output)
+
+
+@pytest.mark.parametrize(
+    "formula",
+    ["$P(A)=1-P(A^c)$", "$$P(A)=1-P(A^c)$$", r"\(P(A)\)", r"\[P(A)\]"],
+)
+def test_render_cheatsheet_rejects_latex_math(tmp_path: Path, formula: str) -> None:
+    source = tmp_path / "source.md"
+    source.write_text(f"# Quiz Cheat Sheet\n\n- {formula}\n", encoding="utf-8")
+
+    with pytest.raises(ValueError, match="LaTeX math markup"):
+        render_cheatsheet(source, tmp_path / "sheet")
+
+
+def test_render_cheatsheet_allows_dollar_signs_inside_code(tmp_path: Path) -> None:
+    source = tmp_path / "source.md"
+    source.write_text(
+        "# Quiz Cheat Sheet\n\n"
+        "- `df$mass` selects a column; `str_detect(x, \"tan$\")` anchors the end\n",
+        encoding="utf-8",
+    )
+
+    render_cheatsheet(source, tmp_path / "sheet")
+
+    assert (tmp_path / "sheet.pdf").exists()
