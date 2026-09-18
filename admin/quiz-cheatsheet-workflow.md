@@ -15,11 +15,14 @@
 
 ## 当前分工
 
-| 课程 | 第一阶段文件 | 考试用内容 | 说明文件 |
+| 课程 / Quiz | 第一阶段文件 | 考试用内容 | 说明文件 |
 |---|---|---|---|
-| DSCI 511 | `DSCI_511/notes/quiz1-knowledge.md` | `DSCI_511/notes/quiz1-cheatsheet.md` | `DSCI_511/notes/quiz1-cheatsheet-explanation.md` |
-| DSCI 523 | `DSCI_523/notes/quiz1-knowledge.md` | `DSCI_523/notes/quiz1-cheatsheet.md` | `DSCI_523/notes/quiz1-cheatsheet-explanation.md` |
-| DSCI 551 | `DSCI_551/notes/quiz1-knowledge.md` | `DSCI_551/notes/quiz1-cheatsheet.md` | `DSCI_551/notes/quiz1-cheatsheet-explanation.md` |
+| DSCI 511 — Quiz 1 | `DSCI_511/notes/quiz1-knowledge.md` | `DSCI_511/notes/quiz1-cheatsheet.md` | `DSCI_511/notes/quiz1-cheatsheet-explanation.md` |
+| DSCI 511 — Quiz 2 | `DSCI_511/notes/quiz2-knowledge.md` | `DSCI_511/notes/quiz2-cheatsheet.md` | `DSCI_511/notes/quiz2-cheatsheet-explanation.md` |
+| DSCI 523 — Quiz 1 | `DSCI_523/notes/quiz1-knowledge.md` | `DSCI_523/notes/quiz1-cheatsheet.md` | `DSCI_523/notes/quiz1-cheatsheet-explanation.md` |
+| DSCI 523 — Quiz 2 | `DSCI_523/notes/quiz2-knowledge.md` | `DSCI_523/notes/quiz2-cheatsheet.md` | `DSCI_523/notes/quiz2-cheatsheet-explanation.md` |
+| DSCI 551 — Quiz 1 | `DSCI_551/notes/quiz1-knowledge.md` | `DSCI_551/notes/quiz1-cheatsheet.md` | `DSCI_551/notes/quiz1-cheatsheet-explanation.md` |
+| DSCI 551 — Quiz 2 | `DSCI_551/notes/quiz2-knowledge.md` | `DSCI_551/notes/quiz2-cheatsheet.md` | `DSCI_551/notes/quiz2-cheatsheet-explanation.md` |
 
 每个 Agent 只负责自己的一门课。DSCI 521 没有正式 Quiz，不在这里。`official/` 只读，成品写入相应课程的 `notes/`。
 

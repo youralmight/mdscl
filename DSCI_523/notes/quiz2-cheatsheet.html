@@ -1,0 +1,217 @@
+<!doctype html><html><head><meta charset="utf-8"><base href="file:///Users/youralmight/workspaces/reps/mdscl/DSCI_523/notes/"><style>
+@page { size: Letter; margin: 0.25in; }
+html { font-family: Arial, "PingFang SC", sans-serif; }
+body { margin: 0; color: #111; font-size: 8pt; line-height: 1; }
+main { column-count: 2; column-fill: auto; column-gap: 0.08in; }
+h1 { column-span: all; margin: 0 0 2pt; font-size: 1.5em; line-height: 1; }
+h2 { margin: 2pt 0 0.5pt; font-size: 1.25em; line-height: 1; break-after: avoid; }
+h3 { margin: 1.5pt 0 0.5pt; font-size: 1.0625em; line-height: 1; break-after: avoid; }
+p, ul, ol { margin: 0.5pt 0; }
+ul, ol { padding-left: 10pt; }
+li { margin: 0; }
+pre {
+    margin: 1pt 0;
+    padding: 1pt;
+    border: 0.4pt solid #bbb;
+    background: #f5f5f5;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+code { font-family: Menlo, Consolas, monospace; font-size: 8pt; }
+table {
+    width: 100%;
+    margin: 1pt 0;
+    border-collapse: collapse;
+    font-size: 8pt;
+    line-height: 1;
+}
+tr { break-inside: avoid; }
+th, td { border: 0.4pt solid #999; padding: 0.5pt; vertical-align: top; overflow-wrap: anywhere; }
+hr { margin: 1pt 0; border: 0; border-top: 0.4pt solid #999; }
+</style></head><body><main><h1>DSCI 523 Quiz 2</h1>
+<h2>Tidy control flow: groups, missingness, values</h2>
+<pre><code class="language-r"># Change selected values; preserve all other values
+fixed &lt;- fix_me |&gt;
+  mutate(province = case_when(
+    province == &quot;Alberta&quot; ~ &quot;AB&quot;,
+    province == &quot;British Columbia&quot; ~ &quot;BC&quot;,
+    TRUE ~ province
+  ))
+
+# Drop rows using only selected columns, or using every column
+penguins |&gt; drop_na(body_mass_g)
+penguins |&gt; drop_na()
+
+# Check missingness; never compare with == NA
+is.na(x)
+</code></pre>
+<ul>
+<li><code>case_when(condition ~ value, ..., TRUE ~ old_col)</code>: rowwise branches; without the final default, unmatched values become <code>NA</code>. Results must have compatible types. For a factor column, <code>as.character()</code> before text replacement.</li>
+<li><code>drop_na(x:y)</code>: remove rows missing in any listed column only. <code>drop_na()</code>: remove rows missing anywhere. Decide whether to drop, replace, or preserve missingness.</li>
+</ul>
+<pre><code class="language-r"># One row per group
+planes |&gt;
+  group_by(engine) |&gt;
+  summarise(
+    avg_seats = mean(seats, na.rm = TRUE),
+    planes = n()
+  )
+
+# Keep original rows; calculate within each group
+gapminder |&gt;
+  group_by(country) |&gt;
+  mutate(life_exp_gain = lifeExp - first(lifeExp)) |&gt;
+  ungroup()
+</code></pre>
+<ul>
+<li><code>group_by(a, b)</code>: each <code>(a, b)</code> combination is a group; it marks data but does not collapse rows. <code>summarise()</code> gives one row/group; grouped <code>mutate()</code> usually keeps the original rows. <code>n()</code> counts the current group.</li>
+<li><code>mean()</code>/<code>max()</code>/<code>median()</code> etc. propagate <code>NA</code> unless <code>na.rm = TRUE</code> is passed inside that function. Use <code>ungroup()</code> before later global operations.</li>
+<li>Order: desired output observation → group keys → <code>summarise()</code> or grouped <code>mutate()</code> → missing-value rule → <code>select()</code>/<code>arrange()</code> → check shape.</li>
+</ul>
+<h2><code>purrr::map*</code>: suffix = output shape</h2>
+<pre><code class="language-r">library(purrr)
+map(mtcars, median)                         # list
+map_dbl(mtcars, median, na.rm = TRUE)       # double vector
+map_lgl(mixed_bag, is.numeric)              # logical vector
+map_chr(x, function(item) paste0(&quot;id-&quot;, item))
+map_df(mtcars, median)                      # tibble (classroom convention)
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>Desired result from every <code>.x</code> element</th>
+<th>Use</th>
+<th>Check</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>arbitrary/variable</td>
+<td><code>map(.x, .f, ...)</code></td>
+<td>list</td>
+</tr>
+<tr>
+<td>one double</td>
+<td><code>map_dbl</code></td>
+<td>length-1 numeric</td>
+</tr>
+<tr>
+<td>one integer</td>
+<td><code>map_int</code></td>
+<td>length-1 integer</td>
+</tr>
+<tr>
+<td>TRUE/FALSE</td>
+<td><code>map_lgl</code></td>
+<td>length-1 logical</td>
+</tr>
+<tr>
+<td>one string</td>
+<td><code>map_chr</code></td>
+<td>length-1 character</td>
+</tr>
+<tr>
+<td>combined tibble</td>
+<td><code>map_df</code></td>
+<td>results combine as a tibble</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><code>.f</code> can be <code>median</code>, <code>is.numeric</code>, or <code>function(item) ...</code>; <code>...</code> passes extra arguments to every call, e.g. <code>na.rm = TRUE</code>.</li>
+<li>Before mapping: identify <code>.x</code>, per-element output type/length, suffix, and missing-value arguments. <code>map()</code> is still a list even when displayed elements are numeric.</li>
+<li><code>for</code> needs manual preallocation, iteration extent and index management. If asked for <code>map*</code>, use <code>map*</code>, not <code>across()</code>.</li>
+</ul>
+<h2>Functions, returns, lazy evaluation, scope</h2>
+<pre><code class="language-r">mpg_to_kml &lt;- function(mpg) {
+  if (!is.numeric(mpg)) {
+    stop(&quot;mpg must be numeric&quot;)
+  }
+  mpg * 0.425144              # last expression is returned
+}
+
+repeat_string &lt;- function(x, n = 2) {
+  out &lt;- &quot;&quot;
+  for (i in seq_len(n)) out &lt;- paste0(out, x)
+  out
+}
+</code></pre>
+<ul>
+<li>Definition: <code>name &lt;- function(parameters) { body }</code>. Functions are objects and can be passed to <code>map</code>.</li>
+<li>Last expression returns; <code>return(value)</code> exits early. A default is used only when its argument is omitted.</li>
+<li>Lazy evaluation: an argument is evaluated only when the body accesses it. <code>...</code> accepts extra arguments; Lecture 6 marks manual <code>...</code> handling Optional–Advanced.</li>
+<li>Scope: inner names mask outer names; missing names are found in enclosing/global/package environments at call time (dynamic lookup). Each call gets a fresh execution environment. Prefer explicit parameters to mutable globals.</li>
+<li><code>pkg::fun()</code> calls one package function without attaching the package. <code>source("src/functions.R")</code> loads functions from a script.</li>
+</ul>
+<h2>Tests, TDD, errors</h2>
+<pre><code class="language-r">library(testthat)
+
+test_that(&quot;conversion works&quot;, {
+  expect_equal(mpg_to_kml(1), 0.425144)
+  expect_equal(mpg_to_kml(2), 0.850288)
+})
+
+test_that(&quot;invalid input errors&quot;, {
+  expect_error(mpg_to_kml(&quot;A&quot;))
+  expect_error(mpg_to_kml(list(1, 2)))
+  expect_error(mpg_to_kml(data.frame(x = 1)))
+})
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>Assert</th>
+<th>Expectation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>exact value/type/attributes</td>
+<td><code>expect_identical(x, y)</code></td>
+</tr>
+<tr>
+<td>equal or near-equal values</td>
+<td><code>expect_equal(x, y, tolerance = ...)</code></td>
+</tr>
+<tr>
+<td>equality without attribute emphasis</td>
+<td><code>expect_equivalent(x, y)</code></td>
+</tr>
+<tr>
+<td>logical result</td>
+<td><code>expect_true(x)</code> / <code>expect_false(x)</code></td>
+</tr>
+<tr>
+<td>error / warning / printed output</td>
+<td><code>expect_error(expr)</code> / <code>expect_warning(expr)</code> / <code>expect_output(expr, ...)</code></td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>TDD: write normal, edge and error specifications → implement the smallest function → add cases and rerun. A failed test is evidence about the contract or implementation; do not delete it blindly.</li>
+<li>Check bad inputs at function entry and <code>stop("useful message")</code>; <code>warning()</code> allows continuation. <code>try({ ... })</code> continues after an error but does not make bad input valid.</li>
+<li>Use a meaningful numeric <code>tolerance</code> only when the contract allows floating-point error.</li>
+</ul>
+<h2>Documentation, variance, and final checks</h2>
+<pre><code class="language-r">#' Convert miles per gallon to kilometres per litre.
+#'
+#' @param mpg numeric vector in miles per gallon
+#' @return numeric vector in kilometres per litre
+#' @examples
+#' mpg_to_kml(1)
+mpg_to_kml &lt;- function(mpg) mpg * 0.425144
+</code></pre>
+<ul>
+<li>roxygen2: description + <code>@param</code> + <code>@return</code> + <code>@examples</code> (Worksheet 6 also shows <code>@export</code>). Document the contract, not every obvious line.</li>
+<li>Lab 3 sample variance (write from scratch, not <code>var()</code>): <code>sum((x - mean(x))^2) / (length(x) - 1)</code>. Return one numeric value; reject list/data-frame inputs with a tested error.</li>
+<li>Function review: explicit inputs/outputs/errors; one coherent task; readable names/indentation; no accidental global dependency or repeated work.</li>
+</ul>
+<ol>
+<li>“Each group” → group keys + <code>summarise</code>; “retain rows” → grouped <code>mutate</code>.</li>
+<li>Missing value → choose <code>drop_na(columns)</code>, <code>drop_na()</code>, <code>na.rm = TRUE</code>, or <code>case_when</code> replacement.</li>
+<li><code>case_when</code> → include <code>TRUE ~ old</code>; check factor/character type and use <code>is.na()</code> for missingness.</li>
+<li>map → suffix equals required output; pass <code>na.rm</code> through <code>...</code>.</li>
+<li>Function → parameters/defaults → input check → return shape → clear error message.</li>
+<li>Test → expectation matches contract; include a hand-checkable edge/error; tolerance only with reason.</li>
+<li>Before submitting code, check parentheses, commas, names, arguments, grouping state and final type/shape.</li>
+</ol></main></body></html>

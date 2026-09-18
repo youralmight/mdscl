@@ -1,0 +1,181 @@
+<!doctype html><html><head><meta charset="utf-8"><base href="file:///Users/youralmight/workspaces/reps/mdscl/DSCI_551/notes/"><style>
+@page { size: Letter; margin: 0.25in; }
+html { font-family: Arial, "PingFang SC", sans-serif; }
+body { margin: 0; color: #111; font-size: 8pt; line-height: 1; }
+main { column-count: 2; column-fill: auto; column-gap: 0.08in; }
+h1 { column-span: all; margin: 0 0 2pt; font-size: 1.5em; line-height: 1; }
+h2 { margin: 2pt 0 0.5pt; font-size: 1.25em; line-height: 1; break-after: avoid; }
+h3 { margin: 1.5pt 0 0.5pt; font-size: 1.0625em; line-height: 1; break-after: avoid; }
+p, ul, ol { margin: 0.5pt 0; }
+ul, ol { padding-left: 10pt; }
+li { margin: 0; }
+pre {
+    margin: 1pt 0;
+    padding: 1pt;
+    border: 0.4pt solid #bbb;
+    background: #f5f5f5;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+code { font-family: Menlo, Consolas, monospace; font-size: 8pt; }
+table {
+    width: 100%;
+    margin: 1pt 0;
+    border-collapse: collapse;
+    font-size: 8pt;
+    line-height: 1;
+}
+tr { break-inside: avoid; }
+th, td { border: 0.4pt solid #999; padding: 0.5pt; vertical-align: top; overflow-wrap: anywhere; }
+hr { margin: 1pt 0; border: 0; border-top: 0.4pt solid #999; }
+</style></head><body><main><h1>DSCI 551 Quiz 2</h1>
+<h2>Continuous basics</h2>
+<ul>
+<li>离散：PMF，单点可有正概率，期望用 Σ。连续：PDF，单点 P(X = x) = 0，区间概率用面积/积分。</li>
+<li>PDF 合法：f(x) ≥ 0；∫ f(x)dx = 1；支持外 f = 0。密度可 &gt; 1；只有面积必须是概率。</li>
+<li>P(a ≤ X ≤ b) = ∫ₐᵇ f(x)dx = F(b) − F(a)。连续中 &lt; 与 ≤、&gt; 与 ≥ 概率相同。</li>
+<li>E[X] = ∫ x f(x)dx；E[g(X)] = ∫ g(x)f(x)dx。</li>
+<li>Var(X) = E[(X − μ)²] = E[X²] − E[X]²；SD = √Var。</li>
+<li>Mode = PDF 最高的 x；median M：P(X ≤ M) = 0.5；p-quantile Q(p)：P(X ≤ Q(p)) = p。</li>
+<li>中央 p 预测区间：[Q((1−p)/2), Q((1+p)/2)]；两侧各 (1−p)/2。</li>
+<li>右偏：右尾长，通常 Mode &lt; Median &lt; Mean；左偏：Mean &lt; Median &lt; Mode。</li>
+</ul>
+<h2>PDF / CDF / survival / quantile</h2>
+<ul>
+<li>PDF：f_X(x)，概率是曲线下的面积；CDF：F_X(x) = P(X ≤ x) = ∫₋∞ˣ f_X(t)dt。</li>
+<li>Survival：S_X(x) = P(X &gt; x) = 1 − F_X(x)。Quantile：Q(p) = F⁻¹(p)，输入 0 ≤ p ≤ 1。</li>
+<li>合法 CDF：单调不减；值在 [0,1]；x→−∞ 时到 0；x→∞ 时到 1。</li>
+<li>由 PDF 算区间、由 CDF 做差、由 survival 取尾部、由 quantile 反解概率。先辨认题目要 f、F、S 还是 Q。</li>
+<li>例：f(x)=2x（0≤x≤1）：P(X&lt;0.5)=0.25，P(X=0.5)=0；中位数 √0.5。</li>
+</ul>
+<h2>Continuous families</h2>
+<table>
+<thead>
+<tr>
+<th>Family / cue</th>
+<th>Support / key formulas</th>
+<th>Mean；variance</th>
+<th>R</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Uniform(a,b)：区间内等密度</td>
+<td>f=1/(b−a)，a≤x≤b</td>
+<td>(a+b)/2；(b−a)²/12</td>
+<td><code>dunif</code>, <code>punif</code>, <code>qunif</code>, <code>runif</code></td>
+</tr>
+<tr>
+<td>Normal(μ,σ²)：对称 bell</td>
+<td>全实数；f=1/√(2πσ²) · exp(−(x−μ)²/(2σ²))</td>
+<td>μ；σ²</td>
+<td><code>dnorm</code>, <code>pnorm</code>, <code>qnorm</code>, <code>rnorm</code></td>
+</tr>
+<tr>
+<td>Log-Normal(μ,σ²)：log X 正态</td>
+<td>x≥0；参数是 log(X) 的 μ、σ²</td>
+<td>exp(μ+σ²/2)；exp(2(μ+σ²))−exp(2μ+σ²)</td>
+<td><code>dlnorm</code>, <code>plnorm</code>, <code>qlnorm</code>, <code>rlnorm</code></td>
+</tr>
+<tr>
+<td>Exponential(β)：一次等待/mean wait</td>
+<td>x≥0；f=β⁻¹exp(−x/β)；λ=1/β</td>
+<td>β；β²</td>
+<td><code>dexp</code>, <code>pexp</code>, <code>qexp</code>, <code>rexp</code>，R 用 <code>rate=λ</code></td>
+</tr>
+<tr>
+<td>Exponential(λ)：rate 参数化</td>
+<td>x≥0；f=λexp(−λx)</td>
+<td>1/λ；1/λ²</td>
+<td><code>rate</code> 不是 mean</td>
+</tr>
+<tr>
+<td>Beta(α,β)：(0,1) 比例，shape 两参数</td>
+<td>0≤x≤1；f=Γ(α+β)/[Γ(α)Γ(β)] · x^(α−1)(1−x)^(β−1)</td>
+<td>α/(α+β)；αβ/[(α+β)²(α+β+1)]</td>
+<td><code>dbeta</code>, <code>pbeta</code>, <code>qbeta</code>, <code>rbeta</code></td>
+</tr>
+<tr>
+<td>Weibull(λ,k)：time-to-event，shape 改变风险</td>
+<td>x≥0；f=k/λ · (x/λ)^(k−1) exp(−(x/λ)^k)</td>
+<td>λΓ(1+1/k)；λ²[Γ(1+2/k)−Γ²(1+1/k)]</td>
+<td><code>dweibull</code>, <code>pweibull</code>, <code>qweibull</code>, <code>rweibull</code></td>
+</tr>
+<tr>
+<td>Gamma(k,θ)：多个 Exponential 等待之和</td>
+<td>x≥0；f=x^(k−1)exp(−x/θ)/[Γ(k)θ^k]</td>
+<td>kθ；kθ²</td>
+<td><code>dgamma</code>, <code>pgamma</code>, <code>qgamma</code>, <code>rgamma</code></td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>一次下一事件、稳定速率、memoryless → Exponential。</li>
+<li>第 k&gt;1 次事件累计等待/多个独立 Exponential 之和 → Gamma；k=1 为 Exponential。</li>
+<li>风险随时间增/减，shape k 控制 → Weibull；k=1 为 Exponential。</li>
+<li>log(X) bell-shaped → Log-Normal；仅“正值/右偏/等待时间” → Not enough information。</li>
+<li>0–1 比例且两个 shape 参数 → Beta；固定区间等密度 → Uniform；对称 bell → Normal。</li>
+<li>不要按符号猜参数：Exponential 的 λ 是 rate，Weibull 的 λ 是 scale。</li>
+</ul>
+<h2>R d / p / q / r</h2>
+<ul>
+<li><code>d*</code> = density；<code>p*</code> = CDF；<code>q*</code> = quantile；<code>r*</code> = random sample。</li>
+<li><code>dnorm(x=3, mean=2, sd=2)</code>：σ²=4 时传 <code>sd=2</code>，不是 4。</li>
+<li><code>punif(q=c(0.25,0.5), min=0, max=2)</code>：求 CDF；<code>qunif(p=0.5, min=0, max=2)</code>：求中位数。</li>
+<li><code>qexp(p=0.75, rate=1/beta)</code>：R 的 Exponential 用 rate；先确认题给的是 mean β 还是 rate λ。</li>
+<li><code>rnorm(n=10, mean=0, sd=5)</code>：生成 10 个值；<code>d*</code> 返回密度高度，不是点概率。</li>
+</ul>
+<h2>Bivariate continuous</h2>
+<ul>
+<li>联合 PDF f_X,Y(x,y) ≥ 0；全支持 ∬ f_X,Y(x,y)dxdy = 1；概率 = 事件区域下的体积。</li>
+<li>边缘：f_X(x)=∫f_X,Y(x,y)dy；f_Y(y)=∫f_X,Y(x,y)dx。</li>
+<li>独立时 f_X,Y(x,y)=f_X(x)f_Y(y)；没有独立不能直接相乘。</li>
+<li>例：X,Y 独立且均匀在 [5,5.5]：联合密度 4；P(X&lt;Y)=1/2；P(X≤5.2)=4×(0.2×0.5)=0.4。</li>
+<li>计算前先画/描述区域：点、条、矩形、三角形；只对事件区域积分。</li>
+</ul>
+<h2>Conditional density</h2>
+<ul>
+<li>事件条件 B：保留 B 内的 PDF，再除以 P(B)：f_X|B(x)=f_X(x)/P(B)（B 外为 0）；最后检查面积=1。</li>
+<li>连续单点 P(X=x)=0，不能用点概率比值；给定 X=x：f_Y|X(y|x)=f_Y,X(y,x)/f_X(x)。</li>
+<li>若独立：f_Y|X(y|x)=f_Y(y)。</li>
+<li>支持也要更新：例如给定 X≥2500，x&lt;2500 的条件密度为 0，x≥2500 的原密度重新归一化。</li>
+</ul>
+<h2>Transformations</h2>
+<ul>
+<li>连续 <code>Y=g(X)</code>：先找 Y 的支持；把 Y 的事件改写成 X 的事件，或先求 <code>F_Y</code> 再求导；不能只替换 PDF 表达式。</li>
+<li>一一对应且单调时：<code>f_Y(y) = f_X(g⁻¹(y)) · |d g⁻¹(y) / dy|</code>，仅在 Y 的支持内；导数绝对值是尺度因子。</li>
+<li>多个有效反解时，必须把每条分支的密度贡献相加；先列出满足原 X 支持的反解，不能只取一个根。</li>
+</ul>
+<pre><code class="language-r"># X ~ Exponential(rate = 1), X ≥ 0; Y = X^2
+# y &lt; 0: F_Y(y) = 0
+# y ≥ 0: F_Y(y) = P(X ≤ sqrt(y)) = 1 - exp(-sqrt(y))
+# y &gt; 0: f_Y(y) = exp(-sqrt(y)) / (2 * sqrt(y))
+</code></pre>
+<ul>
+<li><code>exp(−y²)</code> 或 <code>exp(−√y)</code> 单独都不是此变换的完整 PDF；后者是上例 CDF 的一部分，遗漏了导数因子。</li>
+<li>CDF 路径最稳：支持 → <code>{Y≤y}</code> 改写 → 原分布概率/CDF → 按 y 分段 → 求导并检查密度非负、积分为 1。</li>
+</ul>
+<h2>二元与条件题：最短流程</h2>
+<ol>
+<li>写完整联合支持；PDF 在支持外为 0。</li>
+<li>先画/描述事件区域，再决定积分界；点、竖条、横条、矩形、三角形的面积不同。</li>
+<li>若题目给独立，先写 <code>f_X,Y = f_X · f_Y</code>；没给独立不能相乘。</li>
+<li>边缘：对另一变量、在其合法支持内积分；条件事件先限制支持，再除以条件事件的概率。</li>
+<li>给 <code>X=x</code> 时用 <code>f_Y|X(y|x) = f_Y,X(y,x) / f_X(x)</code>，不是 <code>P(Y=y)/P(X=x)</code>。</li>
+</ol>
+<pre><code class="language-r"># Uniform X,Y on [5, 5.5], independent:
+# joint density = 4; P(X &lt;= 5.2) = 4 * (0.2 * 0.5) = 0.4
+# P(X &lt; Y) = half the support square = 0.5
+</code></pre>
+<ul>
+<li>条件密度最终必须在新支持上积分为 1；若知道 X、Y 独立，<code>f_Y|X(y|x)</code> 直接等于 <code>f_Y(y)</code>。</li>
+</ul>
+<h2>读题与查错顺序</h2>
+<ol>
+<li><strong>对象</strong>：离散/连续？题目要 PMF、PDF、CDF、survival、quantile、样本还是条件密度？</li>
+<li><strong>支持</strong>：端点、支持外为 0、参数合法性和单位是否已写清？</li>
+<li><strong>操作</strong>：区间用积分或 CDF 差；右尾用 <code>1−F</code>；分位点用 <code>q*</code>；随机样本用 <code>r*</code>。</li>
+<li><strong>分布族</strong>：先看生成过程与参数定义；只凭“正值”“右偏”或“等待时间”不够。</li>
+<li><strong>R 参数</strong>：Normal 传 <code>sd</code>；Exponential 传 <code>rate</code>；<code>p*</code> 的输入是数值 <code>q</code>，<code>q*</code> 的输入是概率 <code>p</code>。</li>
+<li><strong>最后检查</strong>：概率在 <code>[0,1]</code>；PDF/CDF 的支持和极限合理；条件密度重归一化；不要把 density 高度当点概率。</li>
+</ol></main></body></html>

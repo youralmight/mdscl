@@ -1,0 +1,208 @@
+<!doctype html><html><head><meta charset="utf-8"><base href="file:///Users/youralmight/workspaces/reps/mdscl/DSCI_511/notes/"><style>
+@page { size: Letter; margin: 0.25in; }
+html { font-family: Arial, "PingFang SC", sans-serif; }
+body { margin: 0; color: #111; font-size: 8pt; line-height: 1; }
+main { column-count: 2; column-fill: auto; column-gap: 0.08in; }
+h1 { column-span: all; margin: 0 0 2pt; font-size: 1.5em; line-height: 1; }
+h2 { margin: 2pt 0 0.5pt; font-size: 1.25em; line-height: 1; break-after: avoid; }
+h3 { margin: 1.5pt 0 0.5pt; font-size: 1.0625em; line-height: 1; break-after: avoid; }
+p, ul, ol { margin: 0.5pt 0; }
+ul, ol { padding-left: 10pt; }
+li { margin: 0; }
+pre {
+    margin: 1pt 0;
+    padding: 1pt;
+    border: 0.4pt solid #bbb;
+    background: #f5f5f5;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+code { font-family: Menlo, Consolas, monospace; font-size: 8pt; }
+table {
+    width: 100%;
+    margin: 1pt 0;
+    border-collapse: collapse;
+    font-size: 8pt;
+    line-height: 1;
+}
+tr { break-inside: avoid; }
+th, td { border: 0.4pt solid #999; padding: 0.5pt; vertical-align: top; overflow-wrap: anywhere; }
+hr { margin: 1pt 0; border: 0; border-top: 0.4pt solid #999; }
+</style></head><body><main><h1>DSCI 511 Quiz 2 Cheat Sheet — 内容稿</h1>
+<h2>DataFrame：读入、检查、选择</h2>
+<pre><code class="language-python">import pandas as pd
+
+df = pd.read_csv(&quot;data.csv&quot;)
+df = pd.read_csv(&quot;data.tsv&quot;, sep=&quot;\t&quot;)
+df = pd.read_csv(&quot;no_header.tsv&quot;, sep=&quot;\t&quot;, header=None,
+                 names=[&quot;id&quot;, &quot;temp&quot;])
+df = pd.read_csv(&quot;data.csv&quot;, index_col=&quot;id&quot;)
+</code></pre>
+<ul>
+<li>先查 <code>df.shape</code>、<code>df.columns.to_list()</code>、<code>df.head()</code>、<code>df.info()</code>、<code>df.describe()</code>；<code>.shape</code>/<code>.columns</code> 是 attribute，没有 <code>()</code>。</li>
+<li><code>df["col"]</code> 是 Series；<code>df[["col"]]</code> 是单列 DataFrame。<code>s.value_counts()</code> 计频数，<code>s.nunique()</code> 计不同值数。</li>
+<li><code>df.loc[row_label, col_label]</code> 按 <strong>label</strong>；<code>df.iloc[row_pos, col_pos]</code> 按从 0 开始的<strong>位置</strong>，不可传列名。单一选取常降维；用 list（如 <code>df.loc[[key]]</code>）保留 DataFrame。</li>
+</ul>
+<pre><code class="language-python">df = df.set_index(&quot;iso_code&quot;)       # 返回新表；须赋值
+x = df.loc[&quot;aiw&quot;, &quot;continent&quot;]
+x = df.loc[df.index[6], &quot;continent&quot;]  # 第 7 行位置 + 列 label
+x = df.loc[&quot;aiw&quot;, df.columns[0]]       # 行 label + 第 1 列位置
+</code></pre>
+<h2>整列计算、排序、过滤</h2>
+<ul>
+<li>列运算向量化且按 index 对齐：<code>df["scaled"] = df["score"] * 1.03</code>；不要为逐元素算术写 loop。</li>
+<li>归约中 <code>axis=0</code>（默认）给每列一个值，<code>axis=1</code> 给每行一个值：<code>df.mean(axis=1)</code>、<code>df.idxmax(axis=1)</code>。</li>
+</ul>
+<pre><code class="language-python">recent = df.sort_values(by=&quot;year&quot;, ascending=False)
+mask = (df[&quot;region&quot;] == &quot;Cariboo&quot;) &amp; (df[&quot;year&quot;] &gt; 2015)
+out = df[mask]
+out = df.query(&quot;region == 'Cariboo' and year &gt; 2015&quot;)
+</code></pre>
+<ul>
+<li>mask 用 <code>&amp;</code>、<code>|</code>、<code>~</code>，每个比较各加 <code>()</code>；不用 Python 的 <code>and</code>、<code>or</code>、<code>not</code>。</li>
+<li><code>.query()</code> 内直接写列名、可用 <code>and</code>/<code>or</code>/<code>not</code>；含空格的列名用反引号，字符串值用引号。涉及 <code>.isin()</code>、<code>.str...</code> 时 mask 更灵活。</li>
+</ul>
+<h2>清理、修改与写出</h2>
+<pre><code class="language-python">has_missing = df.isna().any()
+complete = df.dropna()                 # 返回新表
+filled = df.fillna(&quot;Unknown&quot;)          # 返回新表
+
+df = df.drop([14379, 54578])           # 按 index label 删行
+df = df.drop([&quot;Art&quot;, &quot;Drama&quot;], axis=1)  # 删列
+df = df.rename(columns={&quot;area&quot;: &quot;region&quot;})
+df.to_csv(&quot;clean.csv&quot;, index=False)   # 先决定是否写出 index
+</code></pre>
+<ul>
+<li>缺失值先问业务含义；<code>NaN</code> 不等于空字符串，也不自动等于 0。长格式资料可因缺少整行而看似没有 NaN；pivot/merge 后缺口才会显现。</li>
+<li><code>df.columns = [...]</code> 是整体原地改名，长度和顺序必须完整匹配；只改少数列用 <code>rename</code>。</li>
+<li><code>set_index</code>、<code>drop</code>、<code>fillna</code>、<code>rename</code>、<code>sort_values</code>、reshape、<code>reset_index</code> 常返回新对象：没赋值就没替换原变量。</li>
+</ul>
+<h2>Tidy data 与 reshape</h2>
+<p><strong>Tidy：</strong>每个变量一列、每个 observation 一行、每种 observational unit 一张表。先定义“每行代表什么”，再选 long/wide。</p>
+<pre><code class="language-python">wide = df.pivot(index=&quot;country&quot;, columns=&quot;metric&quot;, values=&quot;value&quot;)
+means = df.pivot_table(index=&quot;language&quot;, columns=&quot;accent&quot;, values=&quot;score&quot;)
+long = df.melt(id_vars=[&quot;Director&quot;], value_vars=[&quot;Star1&quot;, &quot;Star2&quot;],
+               var_name=&quot;Billing_Order&quot;, value_name=&quot;Actor&quot;)
+clean = wide.reset_index()
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>操作</th>
+<th>何时用 / 关键点</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>df.transpose()</code></td>
+<td>行列互换，返回新表。</td>
+</tr>
+<tr>
+<td><code>pivot</code></td>
+<td>long → wide；每个 <code>(index, columns)</code> 组合必须唯一，否则报错。</td>
+</tr>
+<tr>
+<td><code>pivot_table</code></td>
+<td>组合有重复；默认聚合为 <code>mean</code>，不是随便保留一行。</td>
+</tr>
+<tr>
+<td><code>melt</code></td>
+<td>wide → long；<code>id_vars</code> 保留，原列名和值分别进 <code>var_name</code>/<code>value_name</code>。</td>
+</tr>
+<tr>
+<td><code>reset_index</code></td>
+<td>把 reshape 后的 index 还原为普通列，返回新表。</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><code>pivot</code> 后的 NaN 可能只是不存在的组合；只有语义确为 0 时才 <code>.fillna(0)</code>，再视需要 <code>.astype(int)</code>。</li>
+<li>省略 <code>melt(value_vars=...)</code> 会 melt 所有非 <code>id_vars</code> 列；保留某些测量列时显式写出。</li>
+</ul>
+<h2>拼接与按 key 合并</h2>
+<pre><code class="language-python">stacked = pd.concat([w1, w2, w3])       # 默认 axis=0，叠行
+side_by_side = pd.concat([w1, w3], axis=1)  # 按 index 并列
+
+both = pd.merge(w1, w4, how=&quot;outer&quot;, on=[&quot;Date&quot;, &quot;Month&quot;, &quot;Year&quot;])
+lookup = pd.merge(weather, seasons, how=&quot;left&quot;,
+                  left_on=&quot;Month&quot;, right_on=&quot;month&quot;)
+by_index = pd.merge(w1, w4, how=&quot;outer&quot;,
+                    left_index=True, right_index=True)
+</code></pre>
+<ul>
+<li><code>concat</code> 是沿轴直接接；它不理解业务 key。列集合不同会生 NaN，重复 index/列仍可能保留。</li>
+<li><code>merge</code> 按实体 key 匹配：同名 key 用 <code>on</code>，异名 key 用 <code>left_on</code>/<code>right_on</code>，按 index 则两侧 <code>*_index=True</code>。<code>outer</code> 保留两侧 key，<code>left</code> 保留左表 key，<code>right</code> 保留右表 key。</li>
+<li>merge 前检查 key 含义与重复；重复 key 可形成 many-to-many，行数暴增是信号。按列 merge 会重建默认 index。</li>
+</ul>
+<h2><code>apply</code>、<code>map</code>、<code>groupby</code></h2>
+<table>
+<thead>
+<tr>
+<th>写法</th>
+<th>函数接收 / 结果</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>df.apply(func, axis=0)</code></td>
+<td>每列一个 Series；默认每列一个结果。<code>axis=1</code> 时每行一个 Series。</td>
+</tr>
+<tr>
+<td><code>df.map(func)</code></td>
+<td>DataFrame 每个 scalar 各调用一次。</td>
+</tr>
+<tr>
+<td><code>s.apply(func)</code></td>
+<td>对 Series 应用函数。</td>
+</tr>
+<tr>
+<td><code>s.map(dict_or_func)</code></td>
+<td>单值映射；可查 dict。未映射 key 变 <code>NaN</code>。</td>
+</tr>
+</tbody>
+</table>
+<pre><code class="language-python">col_sums = df[[&quot;a&quot;, &quot;b&quot;]].apply(sum)
+df2 = df.copy()
+df2[&quot;food_type&quot;] = df2[&quot;food&quot;].map(food_type_map)
+
+by_country = (
+    df.groupby(&quot;country&quot;)[&quot;co2_emmission&quot;]
+      .sum().sort_values(ascending=False)
+)
+summary = df.groupby(&quot;year&quot;).agg(
+    mean_score=(&quot;score&quot;, &quot;mean&quot;), total=(&quot;score&quot;, &quot;sum&quot;)
+)
+</code></pre>
+<ul>
+<li>函数吃/回传一整列或一整行时用 <code>apply</code>；吃 scalar 时用 <code>map</code>。题目要保留原表时先 <code>.copy()</code>。</li>
+<li><code>groupby</code> 先 split 成分组对象，再 <code>.sum()</code>/<code>.mean()</code>/<code>.count()</code>/<code>.agg()</code>；多键会形成组合 index。只 aggregate 数值列，避免无关 object 列。要把 group key 变回列时再 <code>reset_index()</code>。</li>
+</ul>
+<h2>字符串、datetime、category</h2>
+<pre><code class="language-python">parts = df[&quot;Genre&quot;].str.split(&quot;,&quot;, expand=True)
+parts[1] = parts[1].str.strip()
+
+df[&quot;Date&quot;] = pd.to_datetime(df[&quot;Date&quot;])
+ts = pd.read_csv(&quot;cycling.csv&quot;, parse_dates=True, index_col=0)
+ts.sort_index().loc[&quot;2019-10-01&quot;:&quot;2019-10-13&quot;]
+by_day = ts[[&quot;Time&quot;, &quot;Distance&quot;]].resample(&quot;1D&quot;).mean()
+
+s = pd.Series(pd.date_range(&quot;2020-01-01&quot;, periods=3))
+years = s.dt.year
+df[&quot;Class&quot;] = df[&quot;Class&quot;].astype(&quot;category&quot;)
+df[&quot;level&quot;] = pd.Categorical(df[&quot;level&quot;],
+    categories=[&quot;low&quot;, &quot;medium&quot;, &quot;high&quot;], ordered=True)
+</code></pre>
+<ul>
+<li>Series 的文本方法由 <code>.str</code> 进入；拆分后常要 <code>.str.strip()</code> 去分隔符后的空白。</li>
+<li><code>Timestamp</code> 是时间点；<code>Period</code> 是时间段；<code>Timedelta</code> 是时长；缺失 datetime 是 <code>NaT</code>。<code>pd.date_range</code>/<code>pd.period_range</code> 建时间 index。</li>
+<li>DatetimeIndex 可用部分字符串，如 <code>.loc["2019-10"]</code>；日期范围 slice 先 <code>sort_index()</code>。按日内时刻选 <code>.between_time("00:00", "01:00")</code>。DatetimeIndex 直接 <code>.weekday</code>/<code>.day_name()</code>；datetime Series 用 <code>.dt.year</code>，不是 <code>s.year</code>。</li>
+<li><code>.resample(freq)</code> 是时间专用 groupby，必须再 aggregate；<code>"1D"</code> 日、<code>"h"</code> 时、<code>"min"</code> 分、<code>"B"</code> 工作日、<code>"MS"</code> 月初、<code>"ME"</code> 月末。空时间桶常为 NaN，是否填值看语义。</li>
+<li>有限且稳定取值适合 <code>category</code>；它可省内存、加速部分 groupby/sort，并表达非字母业务顺序。先清理文本再转 category，否则大小写/拼写变成不同 level。</li>
+</ul>
+<h2>快速查错顺序</h2>
+<ol>
+<li>先写对象类型、shape、index、列名和 dtype。</li>
+<li>再问选择按 label 还是 position、需要 Series 还是 DataFrame。</li>
+<li>变换后检查是否返回新表、是否已赋值；筛选条件逐项加括号。</li>
+<li>reshape 先定 observation；merge 先定 key 和基数；datetime 先转换、范围切片先排序。</li>
+</ol></main></body></html>
