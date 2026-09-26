@@ -2,11 +2,10 @@
 
 ## 1. 范围证据与材料边界
 
-- 当前学年课程 README 只明确列出 Quiz 2 占课程总评 **30%**，window 为 **2026-09-29–10-02**；没有给出 Quiz 2 的 lecture 范围、题型、practice quiz 或专门 scope sheet。
-- 当前 `official/current/` 没有 Quiz 2 公告。当前已发布、且紧接 Quiz 1 之后的材料包括 Lecture 5–6 讲义、Lecture 5 课前 skeleton、Worksheet 5–6、Lab 3 和 section-002 的 Lecture 5–6 example problems。因此本复习稿以 **Lecture 5–6 及这些已发布练习中的非 optional 内容**为已发布复习边界。
-- **[未确认]** Lecture 7–8 是否属于 Quiz 2。虽然 current tree 里已有 `07-mapping-and-nested-data-frames.ipynb` 与 `08-lecture-tidy-evaluation.ipynb`，但本地没有把它们列为 Quiz 2 范围的说明，也没有对应已发布的 Worksheet 7–8 / Lab 4 练习作为边界证据；本稿不把 Lecture 7–8 当作已确认范围。若教师之后明确公布范围，应按公告补充。
-- Lecture 6 把 `...` 标作 **Optional – Advanced**；Worksheet 5 的练习 5–6、Worksheet 6 的练习 2/4/5、Lab 3 的练习 5–6 也标成 optional、challenging 或未计分。本文会标明状态，不把这些内容伪装成已确认核心范围；但其中反复出现的基础概念仍作为理解材料保留。
-- 只使用 `official/current/` 的当前学年材料；没有用 `official/public/` 历史材料填补范围空白。
+- 当前学年课程 README 列出 Quiz 2 占课程总评 **30%**，window 为 **2026-09-29–10-02**。本复习稿按当前已发布的 **Lecture 5–8** 及对应练习整理；Lecture 7–8 不再是未确认范围。
+- 当前最终材料的主题依次为：Lecture 5 tidy control flow，Lecture 6 functions and testing，Lecture 7 mapping and nested data frames，Lecture 8 tidy evaluation。下文保留 Lecture 5–6 的详细内容，并补足 Lecture 7–8 的核心概念、代码形状与易错点。
+- Lecture 6 与 Lecture 7/8 中标出的 **Optional / Optional–Advanced** 内容会明确标注；标为 optional 不等于核心要求，但需要能识别其用途和基本形状。对应 Worksheet 7–8 的练习用于核对最终材料边界。
+- 只使用当前学年发布的 `official/current/` 材料；不以历史 `official/public/` 材料填补范围，也不把 optional 内容写成必考核心。
 
 ---
 
@@ -287,7 +286,147 @@ Lab 3 要求从头实现样本方差，不调用 `var()`。对数值向量 `x`�
 
 ---
 
-## 6. 常见题面与易错对照
+## 6. Lecture 7：anonymous functions、mapping 与 nested data frames
+
+### 6.1 匿名函数与 `map()`
+
+匿名函数没有绑定到名字，直接作为 `.f` 传给 `map()`。完整写法是
+`function(x) expression`；短写法用 purrr 的公式 lambda：`~ expression`，其中
+`.x` 表示当前元素，`.y` 表示第二个输入的当前元素。
+
+```r
+map_dbl(mtcars, function(column) mean(column, na.rm = TRUE))
+map_dbl(mtcars, ~ mean(.x, na.rm = TRUE))
+```
+
+两种写法都要先确认 `.x` 的每个元素和结果的类型/长度。`~ .x + 1` 不是把整个
+data frame 加 1，而是对 map 正在遍历的每个元素操作。需要使用多个表达式或清楚的
+参数名时，优先用 `function(item) { ... }`，不要为了短而隐藏逻辑。
+
+### 6.2 `map2()`、`pmap()` 与输出形状
+
+`map2(.x, .y, .f)` 同时遍历两个等长输入，把每一对元素传给 `.f`；`pmap(.l, .f)`
+遍历一个 list of inputs，每次把同一位置的多个元素传给函数。两者都保留
+`map()` 的输出后缀规则：
+
+```r
+map2_dbl(x, y, ~ .x * .y)
+pmap_dbl(list(x, y, z), function(a, b, c) a + b + c)
+```
+
+使用 `map2_dbl()`/`pmap_dbl()` 时，每次调用必须返回长度为 1 的 double；若结果
+是任意形状则用 `map2()`/`pmap()`。输入长度、每个位置的对应关系，以及缺失值规则
+都应先写清楚。`map2()`/`pmap()` 在 Worksheet 或讲义中标为 **Optional** 时，
+知道它们分别对应“两路”和“多路”同步 mapping 即可，不要把 optional API 当作
+替代所有基础 `map*` 题的理由。
+
+### 6.3 nested data frame、list-column、`nest()`、`unnest()`
+
+一个 tibble 的列可以是 list-column：该列每一行保存一个向量、模型或 tibble，
+所以不同 row 的元素可以有不同长度。`nest()` 把同一组的多行收进一个 list-column，
+外层表保留分组 key；`unnest()` 把 list-column 中的内容展开回多行/多列。
+
+```r
+nested <- gapminder |>
+  group_by(continent) |>
+  nest()
+
+results <- nested |>
+  mutate(
+    avg_life_exp = map_dbl(data, ~ mean(.x$lifeExp, na.rm = TRUE))
+  )
+
+long_again <- nested |> unnest(data)
+```
+
+典型流程是 `group_by(key) |> nest()` → 对 `data` list-column 使用
+`mutate()` + `map()`/`map_dbl()` → 保留 key 和结果，必要时 `unnest()`。不要把
+list-column 误当成普通 atomic vector；先检查 `names()`, `map()` 后每项的 class/shape，
+再决定用 `map_*`、`unnest()` 或 `unnest_wider()`。若函数每次返回 tibble，常用
+`map()` 保留嵌套结果，确认结构后才展开；展开可能增加行数，必须复核 key 是否重复。
+
+---
+
+## 7. Lecture 8：tidy evaluation、data masking 与可复用函数
+
+### 7.1 data masking 与 tidy evaluation
+
+在 `dplyr` 的 data-masking 语境中，`mutate()`, `filter()`, `summarise()` 等表达式
+可以直接写列名，例如 `filter(df, mass > 10)`；列名优先于函数外层环境中的同名对象。
+这让交互式代码简洁，但在写“把列作为参数”的函数时，必须区分：
+
+1. **data-masked expression**：调用者写 `my_summary(df, mass)`，参数不是普通
+   字符串，而是要在数据上下文中捕获和重新注入的表达式；
+2. **字符串列名**：调用者传 `"mass"`，可以用 `.data[[col]]` 明确取列；
+3. **环境变量**：用 `.env$threshold` 明确表示来自函数环境的值，避免和列名混淆。
+
+```r
+summarise_mean <- function(data, col) {
+  col <- enquo(col)
+  data |> summarise(value = mean(!!col, na.rm = TRUE))
+}
+
+summarise_mean_chr <- function(data, col) {
+  stopifnot(is.character(col), length(col) == 1, col %in% names(data))
+  data |> summarise(value = mean(.data[[col]], na.rm = TRUE))
+}
+```
+
+`enquo(col)` 把调用者传来的 data-masked 表达式捕获成 quosure；`!!col`（bang-bang）
+在构造的新 tidy expression 中把它 unquote/evaluate。它们成对出现：先 capture，
+再 inject。若函数参数只需要一个普通字符串，直接使用 `.data[[col]]`，不要无故
+混用 quosure。
+
+### 7.2 `{{ }}`、动态名字 `:=` 与 `...`
+
+`{{ col }}` 是函数中常用的 embrace 简写：在接收列表达式的参数时，它等价于
+capture + injection 的常见组合，适合直接转交给 dplyr：
+
+```r
+mean_by <- function(data, group, value) {
+  data |>
+    group_by({{ group }}) |>
+    summarise(mean_value = mean({{ value }}, na.rm = TRUE), .groups = "drop")
+}
+```
+
+当新列名来自参数或表达式时，在 `mutate()`/`summarise()` 中用 `:=` 而不是普通
+`=`，例如 `summarise("{name}_mean" := mean({{ value }}, na.rm = TRUE))`。名字
+插值和列表达式是两个问题：`{{ value }}` 注入要计算的列，`"{name}_mean" :=`
+计算要创建的名字。
+
+函数中的 `...` 可以把多个列表达式或额外参数向下传给 tidyverse 函数；例如
+`summarise(.data, ..., .groups = "drop")` 允许调用者提供多个摘要。设计这种接口
+时要说明 `...` 的含义，避免把不支持的参数静默吞掉。Lecture 8 中标作 **Optional**
+的更复杂 tidy-eval/可变参数变体，先掌握 `{{ }}`、`.data[[ ]]`、`.env` 和
+`:=` 的基本读法，再按题目要求使用。
+
+### 7.3 defensive validation：让 tidy-eval 函数失败得清楚
+
+可复用函数在进入 tidyverse 动词前应检查 contract：输入是否为 data frame/tibble，
+字符串列名是否长度 1 且存在，数值参数是否为合法长度/范围，所选列是否为适合
+统计的类型。违反 contract 用 `stop()`（或明确的 `cli` error），不要让深层
+`dplyr` 错误或静默 `NA` 代替检查。
+
+```r
+summarise_mean_chr <- function(data, col) {
+  if (!is.data.frame(data)) stop("data must be a data frame")
+  if (!is.character(col) || length(col) != 1 || is.na(col) ||
+      !col %in% names(data)) {
+    stop("col must be one existing column name")
+  }
+  if (!is.numeric(data[[col]])) stop("col must be numeric")
+  data |> summarise(value = mean(.data[[col]], na.rm = TRUE))
+}
+```
+
+检查完仍要验证结果形状（每组一行、列名、类型和是否保留分组）。不要把
+`enquo()`/`!!` 当作字符串列名的替代；先确定调用者接口，再选择 capture/injection
+或 `.data[[ ]]`。
+
+---
+
+## 8. 常见题面与易错对照
 
 | 题目线索 | 优先想到 | 常见错误 |
 |---|---|---|
@@ -305,7 +444,7 @@ Lab 3 要求从头实现样本方差，不调用 `var()`。对数值向量 `x`�
 
 ---
 
-## 7. 考前作答检查
+## 9. 考前作答检查
 
 1. 先写清最终形状：每组一行、原行数保留、list、typed vector、tibble，还是单个值。
 2. 分组题确认 group keys、`summarise()`/`mutate()`、`n()`、`first()` 与 `na.rm`。
@@ -318,12 +457,12 @@ Lab 3 要求从头实现样本方差，不调用 `var()`。对数值向量 `x`�
 ## 主要来源（均为当前学年本地材料）
 
 - `official/current/DSCI_523_r-prog_students/README.md`：Lecture 主题、Quiz 2 日期/权重与课程政策。
-- `official/current/DSCI_523_r-prog_students/lec_learning_objectives.md`：Lecture 5–6 learning objectives；Lecture 7–8 仅作为未确认边界证据。
-- `official/current/DSCI_523_r-prog_students/jupyter-book/lecture-notes/05-tidy-control-flow.ipynb`：`case_when()`、`drop_na()`、分组汇总、分组 `mutate()` 与 `purrr::map*`。
-- `official/current/DSCI_523_r-prog_students/jupyter-book/lecture-notes/06-lecture-functions-and-testing.ipynb`：函数、默认参数、惰性求值、作用域、`testthat`、TDD、异常、roxygen2、`source()` 与 package。
+- `official/current/DSCI_523_r-prog_students/lec_learning_objectives.md`：Lecture 5–8 learning objectives 与 optional 标记。
+- `official/current/DSCI_523_r-prog_students/jupyter-book/lecture-notes/07-mapping-and-nested-data-frames.ipynb`：匿名函数、`map2()`/`pmap()`、nested data frames、list-columns、`nest()`、`map()` 与 `unnest()`。
+- `official/current/DSCI_523_r-prog_students/jupyter-book/lecture-notes/08-lecture-tidy-evaluation.ipynb`：data masking、tidy evaluation、`enquo()`/`!!`、`{{ }}`、`:=`、`...` 与可复用函数的 validation。
 - `official/current/DSCI_523_r-prog_students/section-001/lecture-5-skeleton-pre.ipynb`：`is.na()`、`group_by()`/`summarise()` 的形状与分组顺序提醒。
 - `official/current/DSCI_523_r-prog_students/section-002/lecture5-example-problems.md` 与 `lecture6-example-problems.Rmd`：按组汇总与从 specification 到测试再到函数实现的示例。
 - `official/current/DSCI_523_r-prog_students/release/worksheet5/worksheet5.Rmd`：`case_when()`、按列/全表 `drop_na()`、分组汇总与 map 练习。
 - `official/current/DSCI_523_r-prog_students/release/worksheet6/worksheet6.Rmd`：函数、数值/错误测试、roxygen2 与 package scavenger hunt。
-- `official/current/DSCI_523_r-prog_students/release/lab3/lab3.Rmd`：tidy control flow、`map*`、函数抽象、TDD、异常与样本方差题。
-- `DSCI_523/notes/resources.md`、`DSCI_523/notes/messages.md`：本地资源索引与课程公告索引；没有额外 Quiz 2 scope 公告。
+- `official/current/DSCI_523_r-prog_students/release/worksheet7/worksheet7.Rmd` 与 `release/worksheet8/worksheet8.Rmd`：Lecture 7–8 的最终练习、代码形状与 optional 标记。
+- `DSCI_523/notes/resources.md`、`DSCI_523/notes/messages.md`：本地资源索引与课程公告索引。

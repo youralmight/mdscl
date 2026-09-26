@@ -1,22 +1,21 @@
 # DSCI 551 Quiz 2 知识文档
 
-> 本文只使用当前课程已发布的本地材料。Quiz 2 的正式范围、日期、题数和允许资源在当前 checkout 中没有被明确发布；因此凡涉及正式考试范围均标为 `[未确认]`。在没有新的 assessment-specific instruction 前，本文以 Lecture 5–6 与已发布 Lab 3 的共同覆盖作为可审计的复习边界。
+> 本文覆盖当前 checkout 中已发布的 Lecture 5–8 与 Lab 4（Maximum Likelihood Estimation and Monte Carlo Simulation）材料。Lecture 7–8 和 Lab 4 已纳入 Quiz 2 的最终复习范围；正式考试的日期、题数、允许资源等行政信息仍以课程发布的 assessment-specific instructions 和 ORCA 规则为准。
 
 ## 范围证据、边界与学习路线
 
-### 已确认的材料边界
+### 已确认的最终材料边界
 
-- `official/current/.../website/learning-goals.qmd` 明确列出 Lecture 5 **Continuous Distributions** 与 Lecture 6 **Common Distribution Families and Conditioning** 的 learning goals。
-- 当前课程 `README.md` 把 Lab 3 明确标为 **Continuous Distribution Families (Lectures 5 and 6)**；Lab 3 学生版已发布，覆盖连续/离散比较、PDF、CDF、分位数、预测区间、连续分布族、二元密度、条件密度和连续变量变换。
-- `notes/resources.md` 说明当前学生版没有 worksheet；`notes/messages.md` 只有课程开场通知，没有 Quiz 2 范围通知。
-- 因而本稿的**工作覆盖**是 Lecture 5、Lecture 6 和 Lab 3 中的相关练习；Lecture 7–8（MLE 与 simulation）虽已在仓库中发布，但没有当前 Quiz 2 范围证据，暂不纳入核心复习。
+- `official/current/DSCI_551_stat-prob-dsci_students/website/learning-goals.qmd` 列出 Lecture 5 Continuous Distributions、Lecture 6 Common Distribution Families and Conditioning、Lecture 7 Maximum Likelihood Estimation，以及 Lecture 8 Simulation 的 learning goals。
+- 当前课程 README 将 Lecture 7–8 与最终 Lab 4 对应；Lab 4 明确练习 MLE、one-step Monte Carlo、multi-step/conditional simulation。
+- 本文保留 Lecture 5–6 的连续分布、常见分布族、二元 PDF、条件密度和变换，并补入 Lecture 7–8 与 Lab 4 的随机样本/iid、MLE、随机数生成、经验量、LLN 和多步骤模拟。
 
-### [未确认]
+### 范围内的边界与提醒
 
-- Quiz 2 是否恰好覆盖 Lecture 5–6、是否包含 Lecture 7–8、是否包含 Lab 3 的 challenging exercises：当前本地材料没有明示，不能猜测。
-- 题数、题型、日期/时间窗、ORCA reservation、计分方式、是否允许个人 cheat sheet、计算器、RStudio/网络/文件等：当前材料没有 Quiz 2-specific 说明。
-- 课程 README 只要求 Quiz 1/2 各占 25%，并让学生参考 MDS calendar；它不是 Quiz 2 的详细范围公告。
-- 因此做题时以之后发布的 assessment-specific instructions 和 ORCA 规则为准；本知识文档不是对考试许可的推断。
+- Lecture 7 的重点是单参数（univariate）MLE 的概念、likelihood/log-likelihood、经验网格搜索和 Exponential 参数的解析推导；多参数模型、回归/GLM 等只作为背景，不是本稿的解题主线。
+- Lecture 8 与 Lab 4 的重点是用 R/Python 生成离散随机样本、设置 seed/random state、用经验量近似理论量，以及处理有依赖步骤的模拟。课程明确不要求在 DSCI 551 自己设计图形；Lab 4 中的绘图代码是提供后运行。
+- Exponential 的 rate 参数化与 mean 参数化必须区分：本稿用 β 表示 mean、λ=1/β 表示 rate；R 的 `rexp`/`dexp` 使用 `rate`。
+- 日期、题数、计分、允许个人 cheat sheet、计算器、RStudio/网络/文件等考试行政规则不由本知识文档推断；以之后发布的 assessment-specific instructions 为准。
 
 ### 总路线
 
@@ -26,6 +25,12 @@
 4. 选择分布族必须依据过程假设，不要只凭“正值/右偏/等待时间”下结论。
 5. 二元连续题把概率看成密度曲面下的体积；边缘概率是对另一个变量积分，独立时联合 PDF 才能相乘。
 6. 连续条件分布用密度重新归一化；给定单点时用联合密度除以边缘密度，而不是把单点概率代入离散公式。
+7. MLE 题先明确观测数据、参数和分布假设，再由 iid 构造联合 likelihood；可用 log-likelihood 做网格搜索或解析最大化。
+8. Simulation 题先写“一次实验”的随机步骤，再重复许多次，用经验均值/方差/比例/分位数总结，并检查 seed、独立性和每一步的条件依赖。
+
+### Lecture 5–6 与 Lab 3 的原有重点
+
+以上第 1–6 步和下文第 1–5 节覆盖 Lecture 5–6 及 Lab 3 的原有重点；最终新增的 Lecture 7–8 与 Lab 4 内容见第 6–7 节。
 
 ---
 
@@ -211,21 +216,164 @@ Lab 3 的 challenging Exercise 7 用 `Y=X²` 与 `X~Exponential(λ=1)` 强调：
 
 ---
 
-## 来源清单与未确认事项
+## 6. Lecture 7：随机样本与最大似然估计（MLE）
 
-### 当前本地来源
+### 6.1 Random sample 与 iid
 
-- `official/current/DSCI_551_stat-prob-dsci_students/website/learning-goals.qmd`：Lecture 5–6 learning goals；同时列出后续 Lecture 7–8，说明其主题但没有 Quiz 2 范围标记。
+- 随机样本是来自目标 population/system 的随机结果集合；大小为 `n` 时写作 `X₁,…,Xₙ`。观测到的具体数据写作小写 `y₁,…,yₙ`。
+- 默认的 random sample 假设为 **iid（independent and identically distributed）**：任意观测之间相互独立，且每个观测来自同一个分布（同一参数）。
+- iid 是建模假设，不是现实中自动成立的事实。共享城市、时间段、个体或其他相关来源可能破坏 independence；不同来源/不同参数可能破坏 identical distribution。
+- MLE 的方向是：给定观测数据和选定的 parametric family，找使这些数据最可能出现的参数值。参数是未知的，观测值在 likelihood 中固定。
+
+### 6.2 从单个 PDF/PMF 到 likelihood
+
+1. 先根据数据类型、支持集和生成过程选择模型，例如非负等待时间可考虑 Exponential，但“正值/右偏”单独不足以决定分布族。
+2. 写一个观测的 PDF 或 PMF，例如 Exponential(mean 参数 β)：
+   `f(y_i | β) = (1/β) exp(-y_i/β)`，其中 `β > 0`。
+3. iid 带来联合 PDF/PMF 的乘积：
+   `f(y₁,…,yₙ | β) = ∏ᵢ f(yᵢ | β)`。
+4. 把同一个数学表达式换成“参数的函数、数据已观察”的视角：
+   `L(β | y₁,…,yₙ) = ∏ᵢ f(yᵢ | β)`。
+   因此 likelihood 在数值上等于观测样本的 joint PDF/PMF，但它不是关于 β 的概率分布；不要把 likelihood 的高度当成 `P(β)`。
+
+### 6.3 Log-likelihood 与两条 MLE 路径
+
+- likelihood 是许多小的概率/密度值的乘积，样本大时可能下溢；取自然对数把乘积变成和，也让求导更容易：
+  `ℓ(θ) = log L(θ | y) = Σᵢ log f(yᵢ | θ)`。
+- `log` 是严格递增变换，所以使 `L` 最大的参数也使 `ℓ` 最大；log-likelihood 的值可能是负数，比较时“较大”（较不负）才是较好。
+- **经验（empirical/grid）MLE**：选定合法参数网格；对每个候选值计算 likelihood 或直接计算 log-likelihood；用 `which.max()`/`argmax` 取最大者。网格步长越小，网格估计通常越精细，但它仍是近似，不等于解析解。
+- **解析 MLE**：对 log-likelihood 对参数求一阶导数，令其等于 0 并解出候选值；再用参数支持、边界和二阶导数检查它是否为 maximum。Lab 4 中 Bernoulli 的 analytical derivation 标为 optional，但“模型 → likelihood → log-likelihood → 最大化”的逻辑是核心。
+
+### 6.4 Exponential(mean β) 的完整例子
+
+假设 `Y₁,…,Yₙ iid ~ Exponential(β)`，且 `β` 是平均等待时间（不是 rate）。由 iid：
+
+`L(β | y) = ∏ᵢ [β⁻¹ exp(-yᵢ/β)] = β⁻ⁿ exp[-(Σᵢ yᵢ)/β]`。
+
+所以
+
+`ℓ(β) = -n log(β) - (Σᵢ yᵢ)/β`；
+
+`ℓ′(β) = -n/β + (Σᵢ yᵢ)/β²`。
+
+令一阶导数为 0：
+
+`β̂ = (Σᵢ yᵢ)/n = ȳ`。
+
+这表示 Exponential(mean 参数) 的 MLE 是 observed sample mean。注意样本平均是估计量时可写 `β̂ = X̄`，代入具体 observed data 时写 `mean(y)`。
+
+二阶导数为
+
+`ℓ″(β) = n/β² - 2(Σᵢ yᵢ)/β³`。
+
+在 `β̂ = Σyᵢ/n` 处，`ℓ″(β̂) = -n³/(Σyᵢ)² < 0`（只要样本和为正），所以该驻点是局部 maximum。还要检查 `β > 0` 的支持。
+
+R 中 Exponential 使用 `rate = λ = 1/β`：
+
+```r
+y <- c(0.8, 2.1, 2.4)
+beta_hat <- mean(y)                         # analytical MLE
+log_lik <- function(beta) sum(dexp(y, rate = 1 / beta, log = TRUE))
+grid <- seq(0.1, 10, by = 0.01)
+empirical_beta <- grid[which.max(sapply(grid, log_lik))]
+```
+
+经验网格结果可能和 `mean(y)` 略有不同，因为候选网格通常不恰好包含解析解。计算大样本 likelihood 时优先使用 `sum(..., log = TRUE)`，避免先乘很多很小的数。
+
+### 6.5 Lab 4 的 Bernoulli MLE 连接
+
+若 `Yᵢ iid ~ Bernoulli(p)`，观测为 0/1，令 `s = Σᵢ yᵢ`，则
+
+`L(p | y) = ∏ᵢ pʸⁱ (1-p)^(1-yᵢ)`；
+
+`ℓ(p) = s log(p) + (n-s) log(1-p)`，且 `0 ≤ p ≤ 1`。网格上对 `p` 计算 log-likelihood 并取最大值；解析结果为 `p̂ = s/n`（样本中 1 的比例）。这是 Lab 4 中“observed Bernoulli data → estimate p → simulate future rush”的桥梁。
+
+Lab 4 的 Exercise 3 也用 Poisson 模型练习“先选模型、再写 likelihood、最后做网格 MLE”：若 `Yᵢ iid ~ Poisson(λ)`，则
+
+`ℓ(λ) = -nλ + (Σᵢ yᵢ) log(λ) - Σᵢ log(yᵢ!)`，`λ > 0`。实际练习可在例如 `0.3, 0.4, …, 5.0` 的候选网格上直接比较 log-likelihood；解析结果（Lab 4 标作 optional derivation）为 `λ̂ = mean(y)`。不要混淆 likelihood 最高的候选参数与该参数的概率。
+
+---
+
+## 7. Lecture 8 与 Lab 4：Simulation / Monte Carlo
+
+### 7.1 Pseudorandom、seed 与可复现性
+
+- 计算机通常生成的是 deterministic pseudorandom sequence，而不是真正不可预测的随机数。seed（或 random state）是决定该序列的初始状态。
+- 每次在**同一语言、同一 RNG 设置**下使用同一 seed，代码会产生相同样本，便于复现、调试和检查答案；R 与 Python 即使 seed 数值相同，也不保证产生相同序列。
+- seed 只能保证生成过程可重现，不会自动保证 iid。人为递推的序列可能相邻相关；要检查模拟步骤是否真的符合模型假设。
+
+R 生成有限类别离散样本：
+
+```r
+set.seed(551)
+outcomes <- c("banana", "coin", "shell")
+probs <- c(0.12, 0.75, 0.13)
+sample(outcomes, size = 10, replace = TRUE, prob = probs)
+rbinom(n = 10, size = 5, prob = 0.6)  # 10 个 Binomial 观测
+rpois(n = 20, lambda = 10)
+```
+
+Python 生成有限类别或分布样本：
+
+```python
+import numpy as np
+from scipy import stats
+
+rng = np.random.default_rng(551)  # random state
+rng.choice(["banana", "coin", "shell"], size=10,
+           replace=True, p=[0.12, 0.75, 0.13])
+stats.binom.rvs(n=5, p=0.6, size=10, random_state=rng)
+stats.poisson.rvs(mu=10, size=20, random_state=rng)
+```
+
+注意 `rbinom(n = 10, size = 5, ...)` 中第一个 `n` 是要生成的观测个数，`size` 是每个 Binomial 变量的 trial 数；Python `size=10` 通常是生成的观测个数。R `sample()` 会自动重新缩放不加和为 1 的 `prob`，而 `numpy.choice` 要求概率和为 1。
+
+### 7.2 Theoretical quantity 与 empirical quantity
+
+- **Theoretical/distribution-based** quantity 使用已知的分布和参数，例如 `E(X)`、`Var(X)`、`P(X=x)`；它是模型下的真值。
+- **Empirical/data-based** quantity 使用一个随机样本，例如 `mean(x)`、`var(x)`、`mean(x == 0)`、`quantile(x, 0.95)`；它是对真值的近似，会随样本改变。
+- R 的 `var()` 是分母为 `n−1` 的 sample variance；不要在它和理论 variance 之间无提示地混用。`sd()` 是 `sqrt(var())`。
+- 对事件概率，逻辑值的平均数就是经验比例：`mean(x == 0)` 估计 `P(X=0)`。经验 PMF 可用各类别频率（`table(x) / length(x)`）。
+- Simulation 的基本流程：定义一次随机实验 → 重复很多次得到 simulated sample → 用经验量总结 → 与理论值（若可得）比较并解释误差。
+
+### 7.3 Law of Large Numbers（LLN）
+
+若重复产生来自同一分布的 iid 样本，样本平均 `X̄ₙ = (1/n)Σᵢ Xᵢ` 随 `n` 增加趋近理论均值 `E(X)`。因此更大的 simulation replication 数通常使经验 mean、variance、probability 更稳定、更接近理论量，但有限样本不会保证恰好相等。
+
+LLN 解释了 Monte Carlo：每次模拟都带有随机误差，增加独立重复次数通常减小近似误差；一组重复实验的 Monte Carlo estimate 本身也仍是随机的。模拟只能逼近它所指定的概率模型，不能自动修正错误的分布或依赖假设。
+
+### 7.4 Multi-step / conditional simulation
+
+当目标变量由多个随机变量组合而成，按生成机制分阶段模拟：
+
+1. 明确一次 replicate 的目标和所有随机输入。
+2. 先生成第一阶段（如每位客人是否出席的 Bernoulli）。
+3. 根据第一阶段结果生成第二阶段；只有满足条件的对象才生成其条件结果（如出席者的 Poisson cupcake count）。
+4. 汇总一次 replicate 的总量，再重复很多次；最后对 totals 计算 mean、variance、概率或 quantile。
+
+例如，客人出席概率为 `p_attend`，且“在出席条件下”消费 `Poisson(mean = cupcakes)`。不能把 `cupcakes` 直接当无条件消费量，也不能对缺席者照样加入第二阶段随机消费。若第一阶段决定第二阶段参数，必须在每个 replicate 内更新；有新信息时只修改受影响的阶段并保持其他独立步骤。
+
+Lab 4 同时练习 one-step Monte Carlo（例如重复模拟两次投篮并估计 miss-both 概率）和 multi-step/conditional simulation（party attendance/cupcake demand）。绘图不是 DSCI 551 的学习目标；复习重点是随机机制、重复、经验总结和与理论结果的比较。
+
+### 7.5 Simulation 查错清单
+
+- 先区分“样本大小/replication 数”和分布自身的参数（特别是 Binomial 的 trial 数）。
+- 先设置 seed，再运行需要复现的完整随机流程；不要在每次循环内部重复重置 seed，否则每次 replicate 可能完全相同。
+- 检查每一步是否使用正确的分布、参数化和支持；Exponential 的 R 函数传 `rate`。
+- 理论量和经验量使用同一对象：`mean` 对 `mean`、`var` 对 `var`，并注明 variance 的分母约定。
+- 结果不必与理论值完全相同；小的 Monte Carlo 样本波动正常，增加独立 replication 后通常更接近。
+
+---
+
+## 来源清单
+
+本文只引用当前课程的最终发布材料：
+
+- `official/current/DSCI_551_stat-prob-dsci_students/website/learning-goals.qmd`：Lecture 5–8 的 learning goals。
 - `official/current/DSCI_551_stat-prob-dsci_students/notes/05_lecture-continuous.qmd`：连续/离散区分、PDF、连续摘要、median/quantile/prediction interval、skewness、CDF、survival、quantile function 及合法性。
 - `official/current/DSCI_551_stat-prob-dsci_students/notes/06_lecture-continuous-families.qmd`：Uniform、Normal、Log-Normal、Exponential、Beta、Weibull、Gamma；R 的 d/p/q/r；二元 PDF、区域概率和连续条件密度。
-- `official/current/DSCI_551_stat-prob-dsci_students/release/lab3/student/lab3.Rmd`：已发布 Lab 3 的练习边界、模型识别决策、二元密度、CDF 检查、PDF/分位数/预测区间、条件密度和变换。
-- `official/current/DSCI_551_stat-prob-dsci_students/README.md`：当前课程 lecture/lab map、Lab 3 对应 Lectures 5–6、Quiz 1/2 权重和 Quiz 仅指向 MDS calendar。
-- `notes/resources.md`：当前学生版无 worksheet；Lab 3 主题与 Lecture 5–6 对应。
-- `notes/messages.md`：当前课程开场通知；未提供 Quiz 2 范围。
-
-### 明确排除
-
-- 未使用 `official/public/` 历史材料替代当前材料。
-- 未把 Lecture 7–8 的 MLE/simulation 当作 Quiz 2 核心，因为没有本地 scope evidence。
-- 未把 optional 内容（例如 Lecture 5 的其他分布表示、特殊分位数命名）升级成正式必考范围；相关定义若服务于已发布 Lab 3 或 Lecture 5 learning goals，才在文中保留。
-- 未复制课程平台、诚信或 ORCA 操作细节到考试稿；这些应以 assessment-specific instructions 为准。
+- `official/current/DSCI_551_stat-prob-dsci_students/notes/07_lecture-maximum-likelihood-estimation.qmd`：random sample/iid、likelihood、log-likelihood、经验与解析 MLE、Exponential mean 参数 β 的估计和二阶导数检查。
+- `official/current/DSCI_551_stat-prob-dsci_students/notes/08_lecture-simulation.qmd`：seed、R/Python 随机样本生成、经验与理论量、LLN 和 multi-step simulation。
+- `official/current/DSCI_551_stat-prob-dsci_students/release/lab3/student/lab3.Rmd`：Lecture 5–6 的模型识别、二元密度、CDF、PDF/分位数/预测区间、条件密度和变换练习。
+- `official/current/DSCI_551_stat-prob-dsci_students/release/lab4/student/lab4.Rmd`：Bernoulli/Poisson MLE、one-step Monte Carlo、重复实验、multi-step/conditional simulation；其中分析推导与绘图 construction 的标注边界按 Lab 4 原文保留。
+- `official/current/DSCI_551_stat-prob-dsci_students/README.md`：当前课程的 lecture/lab 对应关系。

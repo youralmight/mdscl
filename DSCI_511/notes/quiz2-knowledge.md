@@ -1,16 +1,15 @@
 # DSCI 511 Quiz 2：Pandas 数据处理知识复习
 
-## 范围状态（2026-09-18）
+## 范围状态（2026-09-25）
 
-**Quiz 2 的逐项考试范围、练习题与专门 logistics 均尚未由本学期教师发布。** 当前 `official/current/` 的课程 README 只确认 Quiz 2 占总评 25%；课程网站配置把 Lecture 5–7 列为已发布章节，把 Lecture 8 注释掉。`_quarto.yml` 中虽预留了 Quiz 2 practice notebook 的路径，但实际仓库没有该题目；`notes/messages.md` 也没有 Quiz 2 公告。
+**Quiz 2 复习范围按当前课程仓库中已发布的 Lecture 5–8 最终材料整理。** 课程 README 将 Quiz 2 列为总评 25%；本文是基于课程材料的复习笔记，不替代教师另行发布的考试说明。
 
-因此，本文以**已发布、Quiz 1 后的教学材料**建立可审计的复习边界：
-
-- **覆盖：**Lecture 5（DataFrames）、Lecture 6（Pandas data wrangling）、Lecture 7（strings、datetimes、categoricals）；Worksheet 5 的 DataFrame 操作练习、Worksheet 6 的 reshape/map/groupby 练习，以及明确说明练习 Lecture 5–6 核心 Pandas 技能的 Lab 3。
-- **不纳入：**Lecture 8（课程表仍标为 testing/generators，且 notebook 未发布）、`appendix_numpy.ipynb` 和 `appendix_plotting.ipynb`，以及尚未发布的 Quiz 2 practice questions。
-- **[未确认]：**上述 Lecture 5–7 是否正好等于 Quiz 2 全部范围；其中是否有排除主题；Quiz 2 是否会回考 Quiz 1 的 Python/NumPy 基础。本笔记不是教师公布的范围声明。
+- **覆盖：** Lecture 5（DataFrames）、Lecture 6（Pandas data wrangling）、Lecture 7（strings、datetimes、categoricals）和 Lecture 8（generators、streaming、numpy.memmap、unit testing/TDD）；Worksheet 5 的 DataFrame 操作练习、Worksheet 6 的 reshape/map/groupby 练习，以及明确说明练习 Lecture 5–6 核心 Pandas 技能的 Lab 3。
+- **不纳入：** `appendix_numpy.ipynb` 和 `appendix_plotting.ipynb`；Lecture 7 的 regex 段仍标为 **OPTIONAL**，不把 regex 语法列为本次复习重点。
+- **范围提示：** 仍应以教师发布的 quiz logistics 和题目措辞为准；本笔记覆盖上述最终 Lecture 5–8 教学材料中的可考概念与代码模式。
 
 ---
+
 
 ## 1. DataFrame 的结构、读入与快速检查
 
@@ -323,9 +322,135 @@ category 适用于取值数有限、通常固定的变量。它内部以 categor
 - `pd.Categorical(..., categories=order, ordered=True)` 明确指定 categories 和排序语义；字符串默认按字母排序，不代表业务顺序。
 - **先清理、后转 category。** 如 `'comics'` 与 `'Comics'` 实为同一类别，先标准化文本；否则 category 会把它们当不同 level。
 
+## 8. Lecture 8：大数据、生成器、memmap 与测试
+
+### 8.1 RAM、disk 与 streaming
+
+运行中的程序变量必须放在 RAM；disk 保存文件且断电后仍持久。数据集、模型和中间对象加起来超过 RAM 会导致 out-of-memory。**Streaming** 的核心是只在内存中保留当前可处理的小块，其余内容留在 disk 上；生成器逐项产生数据、memmap 按需读取数组，都是这种思路。语言模型训练的典型管线是：很大的文本文件 → token ids → 固定大小的 batch。
+
+### 8.2 generator：`yield`、`next` 与耗尽
+
+生成器函数用 `yield` 逐个产生值，而不是一次 `return` 一个结果。调用生成器函数时，函数体尚未执行，只得到一个 generator object；每次 `next(gen)` 才从暂停处继续执行到下一个 `yield`，返回值后暂停。`for` 循环、comprehension 也会逐步消费 generator。
+
+```python
+def xsquared_generator(values):
+    for x in values:
+        yield x ** 2
+
+gen = xsquared_generator([1, 2, 3])
+next(gen)       # 1
+next(gen)       # 4
+list(gen)       # [9]：剩余值被消费
+# 再 next(gen) 会 raise StopIteration
+```
+
+生成器是单向、一次性的 iterable：不能用 `gen[i]` 索引，也没有可靠的 `len(gen)`；转成 `list` 会把所有结果一次放进 RAM，失去 streaming 的优点。生成器执行题要追踪每次 `next()` 到哪个 `yield`，并注意循环结束后的 `StopIteration`。普通 iterator class 通过 `__iter__` 和 `__next__` 实现同样的逐项协议，但本课重点是 generator function。
+
+### 8.3 文件行迭代与 tokenizer
+
+`open(filename, "r")` 返回可逐行迭代的 file object；每次只读取下一行，不必将整个文件载入 RAM。用 context manager 保证即使提前停止迭代，文件也会关闭：
+
+```python
+def words_generator(filename):
+    with open(filename, "r") as f:
+        for line in f:
+            line = line.strip()
+            if line == "":
+                continue
+            yield line.split(" ")
+```
+
+不要把 `for line in open(...)` 写成长期持有且没有清理的资源；`with` 的退出会负责 close。tokenization 是把文本 token（这里的 word）映射成神经网络可用的整数 token id。最简单的 tokenizer 用 dictionary 记录已见 token，并为新 token 分配下一个 id；它同样可以边读边 yield 每行的 id list：
+
+```python
+def tokens_generator(filename):
+    token_to_id = {}
+    next_id = 0
+    with open(filename, "r") as f:
+        for line in f:
+            words = line.strip().split(" ")
+            if words == [""]:
+                continue
+            for word in words:
+                if word not in token_to_id:
+                    token_to_id[word] = next_id
+                    next_id += 1
+            yield [token_to_id[word] for word in words]
+```
+
+### 8.4 dataset、data loader、batch 与 zero-padding
+
+**Dataset** 是数据本身及其访问方式：iterable dataset 只能顺序迭代（例如上面的 token generator），map-style dataset 则支持按 index 取任意样本。**Data loader** 负责从 dataset 取数据并按训练需要交付 batch，通常还决定 batch size、顺序/是否 shuffle 等。
+
+一个简单的 batch loader 可先收集 `batch_size` 条 token list，找出该 batch 的最长序列，建立矩形 NumPy array；较短序列剩余位置用 0 填充（zero-padding）：
+
+```python
+import numpy as np
+
+def batch_loader(token_gen, batch_size):
+    pending = []
+    for token_ids in token_gen:
+        pending.append(token_ids)
+        if len(pending) == batch_size:
+            width = max(len(ids) for ids in pending)
+            batch = np.zeros((batch_size, width))
+            for i, ids in enumerate(pending):
+                batch[i, :len(ids)] = ids
+            yield batch
+            pending = []
+```
+
+这会保留输入顺序，并可能浪费 padding 的空间；只 yield 完整 batch 时，末尾不足 `batch_size` 的样本会被丢弃，需按题目要求判断是否处理 remainder。
+
+### 8.5 `numpy.memmap`：disk 上的可索引数组
+
+`np.memmap` 让文件在 disk 上表现得像 NumPy array：程序可按 index 或 slice 读取/修改需要的部分，而不用把整个数组放进 RAM。它适合构造 map-style dataset，使 shuffle 和随机取样可行。创建时必须保持 `dtype`、`shape` 与文件布局一致；写入后调用 `.flush()`，确保修改回写文件。
+
+```python
+mm = np.memmap("tokens.mmap", dtype=np.int32,
+               mode="w+", shape=(num_tokens,))
+mm[start:stop] = token_ids
+mm.flush()
+item = mm[100:120]       # 按索引/切片取所需数据
+```
+
+课程示例的 `MemmapTokenDataset` 会先统计 token 数量、建立 memmap、写入 token ids 并保存 tokenizer dictionary，再用 `change_seq_len` 规定每条序列长度：
+
+```python
+class MemmapTokenDataset:
+    def __len__(self):
+        assert self.seq_len > 0
+        return self.num_tokens // self.seq_len
+
+    def __getitem__(self, index):
+        assert 0 <= index < len(self)
+        start = index * self.seq_len
+        return np.array(self.memmap[start:start + self.seq_len])
+```
+
+`len(dataset)` 是可切出的完整序列数；`dataset[i]` 是第 `i` 条序列。越界访问必须明确防护：Lecture 8 提醒 memmap 本身的边界错误处理有限，不能把它当成自动验证输入的普通 list。随机顺序的 data loader 可先建立 `range(len(dataset))`、在 `shuffle=True` 时打乱，再按 batch 取样。
+
+### 8.6 `assert`、浮点比较与单元测试
+
+`assert expression, "message"` 在条件为假时抛出 `AssertionError`，可快速检验函数结果。浮点数受表示误差影响，不要轻易用 `==`：
+
+```python
+import math
+
+assert math.isclose(0.1 + 0.2, 0.3, abs_tol=0.001)
+assert "apple" in result
+```
+
+单元测试的 AAA 原则是 **Arrange**（准备输入）、**Act**（调用被测对象）、**Assert**（检查结果）。断言要精确表达需求，但不要把不需要的顺序/格式限制写进断言；同时避免在测试中加入 `if`、`for` 等逻辑，因为测试本身可能引入 bug 或掩盖错误。要覆盖合理的 corner cases（空输入、单元素、偶数长度等），也要警惕“所有测试通过”仍可能漏测错误，例如只测了奇数长度的 median。
+
+TDD（Test Driven Development）先写期望，再写实现：可先写接受参数并返回正确类型的 stub，写设计规格对应的测试，再用 pseudocode 实现并频繁测试、补文档。课程说明 TDD 在 MDS 中不是强制要求，但可帮助把复杂任务拆成小步。
+
+EAFP（Easier to Ask for Forgiveness than Permission）先尝试操作、失败时捕获预期异常；LBYL（Look Before You Leap）先检查条件再操作。比如读取可能不存在的 dictionary key 可选择 `try/except KeyError`（EAFP），或先检查 key 是否存在（LBYL）；根据上下文选择，不是绝对的对错。
+
 ---
 
-## 8. 读题与查错清单
+
+## 9. 读题与查错清单
 
 1. **先写出对象结构。** 是 DataFrame 还是 Series？列名、index、shape、dtype 分别是什么？
 2. **选择前确认基准。** 题目给的是 label 还是从 0 开始的位置？要一列 Series 还是一列 DataFrame？
@@ -342,9 +467,9 @@ category 适用于取值数有限、通常固定的变量。它内部以 categor
 ## 主要来源
 
 - 本学期课程 README：课程学习目标、Lecture 5–8 主题表、Quiz 2 评分权重，`official/current/DSCI_511_py-prog_students/README.md`。
-- 已发布课程章节边界及 Quiz 2 practice/Lecture 8 未发布状态：`official/current/DSCI_511_py-prog_students/_quarto.yml`。
 - 本学期 Lecture 5：DataFrame 读入、检查、indexing、向量化、排序、清理、过滤，`official/current/DSCI_511_py-prog_students/lecture-notes/lecture5.ipynb`。
 - 本学期 Lecture 6：tidy data、reshape、concat/merge、apply/map、groupby/agg，`official/current/DSCI_511_py-prog_students/lecture-notes/lecture6.ipynb`。
-- 本学期 Lecture 7：`Series.str`、datetime、resample、categorical；其中 regex 段明确为 OPTIONAL，`official/current/DSCI_511_py-prog_students/lecture-notes/lecture7.ipynb`。
-- 已发布练习：Worksheet 5（DataFrames）与 Worksheet 6（filter/melt/pivot/reset_index/map/groupby），分别在 `official/current/DSCI_511_py-prog_students/worksheets/worksheet5/student/worksheet5.ipynb`、`worksheets/worksheet6/student/worksheet6.ipynb`。
+- 本学期 Lecture 7：`Series.str`、datetime、resample、categorical；其中 regex 段明确为 **OPTIONAL**，`official/current/DSCI_511_py-prog_students/lecture-notes/lecture7.ipynb`。
+- 本学期 Lecture 8：RAM/disk 与 streaming、generators、文件/context manager、tokenization、dataset/data loader、batching/zero-padding、`numpy.memmap`、unit testing/TDD，`official/current/DSCI_511_py-prog_students/lecture-notes/lecture8.ipynb`。
+- 已发布练习：Worksheet 5（DataFrames）与 Worksheet 6（filter/melt/pivot/reset_index/map/groupby），分别在 `official/current/DSCI_511_py-prog_students/worksheets/worksheet5/student/worksheet5.ipynb`、`official/current/DSCI_511_py-prog_students/worksheets/worksheet6/student/worksheet6.ipynb`。
 - 已发布 Lab 3：明示练习 Lectures 5–6 的 core Pandas skills，`official/current/DSCI_511_py-prog_students/labs/lab3/student/lab3.ipynb`。

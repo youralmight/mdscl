@@ -1,37 +1,20 @@
-# DSCI 523 Quiz 2 Cheat Sheet — Companion Explanation
+# DSCI 523 Quiz 2 Cheat Sheet — 范围、来源与压缩
 
-**不进入考场。**本文件保存不应放入考试用 [Cheat Sheet](quiz2-cheatsheet.md) 的范围、来源和压缩决定；完整解释见 [Quiz 2 知识复习](quiz2-knowledge.md)。
+**不进入考场。** 本说明记录 [知识文档](quiz2-knowledge.md) 与 [考试用速查表](quiz2-cheatsheet.md) 的最终课程覆盖和单页取舍。
 
-## 范围证据与不确定性
+## 覆盖边界
 
-- 当前学年 `official/current/DSCI_523_r-prog_students/README.md` 明确 Quiz 2 占总评 **30%**、window 为 **2026-09-29–10-02**，但没有明示 lecture 范围、题型、资源许可或 practice quiz。
-- 本地 current tree 没有单独 Quiz 2 公告或 scope sheet。Quiz 1 后已发布、与下一阶段直接相关的材料是 Lecture 5–6 讲义、Lecture 5 section-001 skeleton、Worksheet 5–6、Lab 3 和 section-002 的 Lecture 5–6 examples。因此知识稿和 Cheat Sheet 以 **Lecture 5–6 的已发布非 optional 内容**为可审计的复习边界。
-- **[未确认]** Lecture 7–8 是否被纳入 Quiz 2：07/08 lecture notebooks 虽已存在于 current tree，但本地没有把它们列为 Quiz 2 的教师说明，也没有相应已发布的 Worksheet 7–8 / Lab 4 练习作为本次范围证据。它们未进入知识稿或 Cheat Sheet；教师后续公告应优先于此边界。
-- `...` 的手动处理在 Lecture 6 标为 Optional – Advanced；Worksheet 5 的 5–6 题、Worksheet 6 的 2/4/5 题和 Lab 3 的 5–6 题也明确为 optional/challenging/未计分。Cheat Sheet 仅保留理解 `map*` 传参所必需的一行提醒，不把这些扩展练习作为已确认考点。
-- 只用当前学年 `official/current/` 材料；没有以 `official/public/` 历史课程替代未发布范围。
+速查稿覆盖已完成课程的 Lecture 5–8：tidy control flow、functions/testing、mapping/nested data frames、tidy evaluation。Optional / Optional–Advanced 内容仍有显式标记；题目要求与教师规定优先。
 
-## Cheat Sheet 的内容选择与压缩
+Quiz 2 的行政规定及正式考试细目按课程/ORCA 最新说明；本说明不推断未提供的事项。
 
-Cheat Sheet 留下会决定代码结果或输出形状的规则：
+## 单页内容取舍
 
-- `case_when()` 默认分支、factor 转 character、`is.na()`、按列或全表的 `drop_na()`；
-- `group_by()`、`summarise()` 和 grouped `mutate()` 的行数差异、`n()`、`na.rm` 和 `ungroup()`；
-- `map`/`map_*` 的返回形状、类型后缀和 `...` 传参；
-- 函数定义、默认值、最后表达式返回、惰性求值与作用域；
-- `testthat` expectation 选择、TDD、`stop()`/`warning()`/`try()`；
-- roxygen2 contract、`source()`、样本方差和提交前的形状检查。
+速查稿按 Letter 单面一页、正文统一 8 pt 压缩。为让 523 的页面空间更充分地服务于查阅，补充了分组/映射输出形状对照、映射参数与嵌套对象模板、map2/pmap 的迭代规则、函数与 testthat contract、scope/roxygen 要点，以及 tidy-eval 接口选择与 `...` 的边界。仍删除重复案例和长篇解释；完整推理回看知识文档。
 
-删除了课程日期、权重、范围状态、作业平台说明、练习 rubric、完整背景解释、来源清单和重复示例。这会使条目密集；需要判断“为什么”或补看 `case_when`、分组状态、作用域与 TDD 的完整上下文时，应回到知识稿。
+## 来源
 
-## 打印与渲染约束
-
-Cheat Sheet 只使用纯文本、代码和 Unicode，不含 `$...$`、`$$...$$`、`\(...\)`、`\[...\]` 等 LaTeX 数学分隔符，以兼容本地 `mdscl-cheatsheet` 渲染器。渲染产物与 Markdown 并列保存：HTML 供浏览器检查，PDF 用于打印，PNG 为每个 PDF 页面提供快速预览。
-
-## 当前学年来源
-
-- `official/current/DSCI_523_r-prog_students/README.md` 与 `lec_learning_objectives.md`。
-- `jupyter-book/lecture-notes/05-tidy-control-flow.ipynb`、`06-lecture-functions-and-testing.ipynb`。
-- `section-001/lecture-5-skeleton-pre.ipynb`。
-- `section-002/lecture5-example-problems.md`、`lecture6-example-problems.Rmd`。
-- `release/worksheet5/worksheet5.Rmd`、`release/worksheet6/worksheet6.Rmd`、`release/lab3/lab3.Rmd`。
-- `DSCI_523/notes/resources.md`、`DSCI_523/notes/messages.md`：未记录额外的 Quiz 2 scope 公告。
+- `official/current/DSCI_523_r-prog_students/lec_learning_objectives.md`
+- `official/current/DSCI_523_r-prog_students/jupyter-book/lecture-notes/05-tidy-control-flow.ipynb` 至 `08-lecture-tidy-evaluation.ipynb`
+- `official/current/DSCI_523_r-prog_students/release/worksheet5/worksheet5.Rmd` 至 `worksheet8/worksheet8.Rmd`
+- `official/current/DSCI_523_r-prog_students/release/lab3/lab3.Rmd`

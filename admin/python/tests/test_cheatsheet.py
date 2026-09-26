@@ -37,6 +37,57 @@ def test_render_cheatsheet_outputs_html_pdf_and_png(tmp_path: Path) -> None:
     assert (columns, font_size_pt) == (2, 8)
 
 
+def test_code_block_is_kept_in_one_column(tmp_path: Path) -> None:
+    source = tmp_path / "source.md"
+    filler = "\n".join(
+        f"- filler item {index}: ordinary reference text keeps a stable line height."
+        for index in range(84)
+    )
+    code_rows = "\n".join(f"CODE_ROW_{index}" for index in range(1, 7))
+    source.write_text(
+        f"# Layout probe\n\n## Dense section\n\n{filler}\n\n"
+        f"```python\n{code_rows}\n```\n\nEnd marker.\n",
+        encoding="utf-8",
+    )
+
+    _, pdf_path, _, page_count, _, _ = render_cheatsheet(source, tmp_path / "sheet")
+
+    assert page_count == 1
+    with pymupdf.open(pdf_path) as pdf:
+        words = pdf[0].get_text("words")
+    marker_x = {
+        marker: next((word[0] for word in words if word[4] == marker), None)
+        for marker in (f"CODE_ROW_{index}" for index in range(1, 7))
+    }
+    assert all(x is not None for x in marker_x.values())
+    assert len({round(x, 1) for x in marker_x.values() if x is not None}) == 1
+
+
+def test_section_heading_stays_with_first_content_block(tmp_path: Path) -> None:
+    source = tmp_path / "source.md"
+    filler = "\n".join(
+        f"- filler item {index}: ordinary reference text keeps a stable line height."
+        for index in range(84)
+    )
+    source.write_text(
+        f"# Layout probe\n\n{filler}\n\n"
+        "## SECTION_MARKER\n\nFIRST_BLOCK_MARKER stays with its heading.\n",
+        encoding="utf-8",
+    )
+
+    _, pdf_path, _, page_count, _, _ = render_cheatsheet(source, tmp_path / "sheet")
+
+    assert page_count == 1
+    with pymupdf.open(pdf_path) as pdf:
+        words = pdf[0].get_text("words")
+    marker_x = {
+        marker: next((word[0] for word in words if word[4] == marker), None)
+        for marker in ("SECTION_MARKER", "FIRST_BLOCK_MARKER")
+    }
+    assert all(x is not None for x in marker_x.values())
+    assert round(marker_x["SECTION_MARKER"], 1) == round(marker_x["FIRST_BLOCK_MARKER"], 1)
+
+
 def test_render_cheatsheet_outputs_png_for_every_pdf_page(tmp_path: Path) -> None:
     source = tmp_path / "source.md"
     source.write_text(

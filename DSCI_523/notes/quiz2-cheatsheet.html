@@ -2,15 +2,17 @@
 @page { size: Letter; margin: 0.25in; }
 html { font-family: Arial, "PingFang SC", sans-serif; }
 body { margin: 0; color: #111; font-size: 8pt; line-height: 1; }
-main { column-count: 2; column-fill: auto; column-gap: 0.08in; }
+main { column-count: 2; column-fill: balance; column-gap: 0.08in; }
 h1 { column-span: all; margin: 0 0 2pt; font-size: 1.5em; line-height: 1; }
-h2 { margin: 2pt 0 0.5pt; font-size: 1.25em; line-height: 1; break-after: avoid; }
+section.cheatsheet-heading-block { break-inside: avoid; }
+h2 { margin: 2pt 0 0.5pt; font-size: 1.25em; line-height: 1; }
 h3 { margin: 1.5pt 0 0.5pt; font-size: 1.0625em; line-height: 1; break-after: avoid; }
 p, ul, ol { margin: 0.5pt 0; }
 ul, ol { padding-left: 10pt; }
-li { margin: 0; }
+li { margin: 0; break-inside: avoid; }
 pre {
     margin: 1pt 0;
+    break-inside: avoid;
     padding: 1pt;
     border: 0.4pt solid #bbb;
     background: #f5f5f5;
@@ -29,189 +31,113 @@ tr { break-inside: avoid; }
 th, td { border: 0.4pt solid #999; padding: 0.5pt; vertical-align: top; overflow-wrap: anywhere; }
 hr { margin: 1pt 0; border: 0; border-top: 0.4pt solid #999; }
 </style></head><body><main><h1>DSCI 523 Quiz 2</h1>
-<h2>Tidy control flow: groups, missingness, values</h2>
-<pre><code class="language-r"># Change selected values; preserve all other values
-fixed &lt;- fix_me |&gt;
-  mutate(province = case_when(
-    province == &quot;Alberta&quot; ~ &quot;AB&quot;,
-    province == &quot;British Columbia&quot; ~ &quot;BC&quot;,
-    TRUE ~ province
-  ))
-
-# Drop rows using only selected columns, or using every column
-penguins |&gt; drop_na(body_mass_g)
-penguins |&gt; drop_na()
-
-# Check missingness; never compare with == NA
-is.na(x)
-</code></pre>
+<section class="cheatsheet-heading-block"><h2>Tidy control flow</h2>
 <ul>
-<li><code>case_when(condition ~ value, ..., TRUE ~ old_col)</code>: rowwise branches; without the final default, unmatched values become <code>NA</code>. Results must have compatible types. For a factor column, <code>as.character()</code> before text replacement.</li>
-<li><code>drop_na(x:y)</code>: remove rows missing in any listed column only. <code>drop_na()</code>: remove rows missing anywhere. Decide whether to drop, replace, or preserve missingness.</li>
-</ul>
-<pre><code class="language-r"># One row per group
-planes |&gt;
-  group_by(engine) |&gt;
-  summarise(
-    avg_seats = mean(seats, na.rm = TRUE),
-    planes = n()
-  )
-
-# Keep original rows; calculate within each group
-gapminder |&gt;
-  group_by(country) |&gt;
-  mutate(life_exp_gain = lifeExp - first(lifeExp)) |&gt;
-  ungroup()
+<li><code>group_by(a, b)</code> marks groups; rows stay. <code>summarise()</code> → one row/group; grouped <code>mutate()</code> → rows retained. <code>n()</code> counts group. Ungroup before global operations.</li>
+<li><code>mean()</code>/<code>max()</code>/<code>median()</code> propagate <code>NA</code>; use <code>na.rm = TRUE</code> inside function. <code>drop_na(x, y)</code> drops rows missing those columns; <code>drop_na()</code> checks all. Choose drop, replace, or preserve deliberately; detect missing with <code>is.na(x)</code>, never <code>x == NA</code>.</li>
+<li><code>case_when(test ~ value, ..., TRUE ~ old)</code> applies rowwise; unmatched values otherwise become <code>NA</code>. Branch types must agree; convert factors with <code>as.character()</code> before text replacement.</li>
+</ul></section>
+<pre><code class="language-r">df |&gt; group_by(g) |&gt; summarise(avg = mean(x, na.rm = TRUE), n = n())
+df |&gt; group_by(g) |&gt; mutate(delta = x - first(x)) |&gt; ungroup()
 </code></pre>
+<section class="cheatsheet-heading-block"><h2>Output-shape quick rules</h2>
 <ul>
-<li><code>group_by(a, b)</code>: each <code>(a, b)</code> combination is a group; it marks data but does not collapse rows. <code>summarise()</code> gives one row/group; grouped <code>mutate()</code> usually keeps the original rows. <code>n()</code> counts the current group.</li>
-<li><code>mean()</code>/<code>max()</code>/<code>median()</code> etc. propagate <code>NA</code> unless <code>na.rm = TRUE</code> is passed inside that function. Use <code>ungroup()</code> before later global operations.</li>
-<li>Order: desired output observation → group keys → <code>summarise()</code> or grouped <code>mutate()</code> → missing-value rule → <code>select()</code>/<code>arrange()</code> → check shape.</li>
-</ul>
-<h2><code>purrr::map*</code>: suffix = output shape</h2>
-<pre><code class="language-r">library(purrr)
-map(mtcars, median)                         # list
-map_dbl(mtcars, median, na.rm = TRUE)       # double vector
-map_lgl(mixed_bag, is.numeric)              # logical vector
-map_chr(x, function(item) paste0(&quot;id-&quot;, item))
-map_df(mtcars, median)                      # tibble (classroom convention)
+<li><code>group_by(g) |&gt; summarise(...)</code>: one row/group; <code>grouped mutate(...)</code>: original rows remain; <code>nest()</code>: one outer row/group + list-column <code>data</code>.</li>
+<li><code>map_dbl(data, f)</code>: one scalar per item; <code>map(data, f)</code>: arbitrary objects/list-column. Only <code>unnest()</code> when the inner shapes are compatible; it may expand rows.</li>
+</ul></section>
+<section class="cheatsheet-heading-block"><h2>Mapping and nested data</h2>
+<ul>
+<li><code>map(.x, .f, ...)</code> returns a list; <code>map_dbl/int/lgl/chr()</code> requires one output of that type per item; <code>map_df()</code> combines rows as a tibble. <code>...</code> supplies arguments to each call (<code>na.rm = TRUE</code>). Choose suffix from output shape; <code>map()</code> remains a list.</li>
+<li><code>.f</code> may be a named function or anonymous <code>function(x) ...</code> / <code>~ ...</code> (<code>.x</code> current item, <code>.y</code> second input). Use <code>map*</code> when requested, not <code>across()</code>.</li>
+<li><code>map2*</code> maps paired positions of two inputs; <code>pmap*</code> maps corresponding positions across inputs. Check lengths and output shape. <strong>Optional:</strong> multi-input mapping; prefer basic <code>map*</code> unless needed.</li>
+<li>A list-column holds one object per row. <code>nest()</code> keeps group keys and puts rows in <code>data</code>; <code>mutate(..., map(data, ...))</code> computes per nested object; <code>unnest(data)</code> expands rows—check shape.</li>
+</ul></section>
+<pre><code class="language-r">nested &lt;- df |&gt; group_by(g) |&gt; nest()
+nested |&gt; mutate(avg = map_dbl(data, ~ mean(.x$x, na.rm = TRUE)))
+nested |&gt; unnest(data)
+map2_dbl(x, y, ~ .x + .y)   # two inputs
+pmap_dbl(list(x, y, z), function(a, b, c) a + b + c) # many
 </code></pre>
-<table>
-<thead>
-<tr>
-<th>Desired result from every <code>.x</code> element</th>
-<th>Use</th>
-<th>Check</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>arbitrary/variable</td>
-<td><code>map(.x, .f, ...)</code></td>
-<td>list</td>
-</tr>
-<tr>
-<td>one double</td>
-<td><code>map_dbl</code></td>
-<td>length-1 numeric</td>
-</tr>
-<tr>
-<td>one integer</td>
-<td><code>map_int</code></td>
-<td>length-1 integer</td>
-</tr>
-<tr>
-<td>TRUE/FALSE</td>
-<td><code>map_lgl</code></td>
-<td>length-1 logical</td>
-</tr>
-<tr>
-<td>one string</td>
-<td><code>map_chr</code></td>
-<td>length-1 character</td>
-</tr>
-<tr>
-<td>combined tibble</td>
-<td><code>map_df</code></td>
-<td>results combine as a tibble</td>
-</tr>
-</tbody>
-</table>
+<section class="cheatsheet-heading-block"><h2>Functions, tests, errors</h2>
 <ul>
-<li><code>.f</code> can be <code>median</code>, <code>is.numeric</code>, or <code>function(item) ...</code>; <code>...</code> passes extra arguments to every call, e.g. <code>na.rm = TRUE</code>.</li>
-<li>Before mapping: identify <code>.x</code>, per-element output type/length, suffix, and missing-value arguments. <code>map()</code> is still a list even when displayed elements are numeric.</li>
-<li><code>for</code> needs manual preallocation, iteration extent and index management. If asked for <code>map*</code>, use <code>map*</code>, not <code>across()</code>.</li>
-</ul>
-<h2>Functions, returns, lazy evaluation, scope</h2>
+<li><code>f &lt;- function(x, n = 2) { ... }</code>; defaults apply only when omitted. Last expression is returned; <code>return(value)</code> exits early. Arguments are lazy (evaluated when used). Inner names mask outer names; prefer explicit inputs over mutable globals.
+Roxygen2 function contract: <code>@param</code>, <code>@return</code>, <code>@examples</code>; document interface, not each line.</li>
+<li><strong>Optional–Advanced:</strong> manually handling <code>...</code>. <code>pkg::fun()</code> calls without attaching; <code>source()</code> loads a script.</li>
+<li>Validate at entry; <code>stop("useful message")</code> errors, <code>warning()</code> continues. <code>try()</code> permits continued execution after error; it does not validate input.</li>
+<li>TDD: specify normal, edge, and error behavior → implement → test again. Use <code>test_that()</code> with <code>expect_equal()</code> (numeric; tolerance only if allowed), <code>expect_identical()</code> (type/attributes), <code>expect_true/false()</code>, <code>expect_error()</code> / <code>expect_warning()</code> / <code>expect_output()</code>.</li>
+<li>Lab 3 sample variance (not <code>var()</code>): <code>sum((x - mean(x))^2) / (length(x) - 1)</code>; one numeric result; reject list/data-frame inputs.</li>
+</ul></section>
 <pre><code class="language-r">mpg_to_kml &lt;- function(mpg) {
-  if (!is.numeric(mpg)) {
-    stop(&quot;mpg must be numeric&quot;)
-  }
-  mpg * 0.425144              # last expression is returned
+  if (!is.numeric(mpg)) stop(&quot;mpg must be numeric&quot;)
+  mpg * 0.425144
 }
-
-repeat_string &lt;- function(x, n = 2) {
-  out &lt;- &quot;&quot;
-  for (i in seq_len(n)) out &lt;- paste0(out, x)
-  out
-}
-</code></pre>
-<ul>
-<li>Definition: <code>name &lt;- function(parameters) { body }</code>. Functions are objects and can be passed to <code>map</code>.</li>
-<li>Last expression returns; <code>return(value)</code> exits early. A default is used only when its argument is omitted.</li>
-<li>Lazy evaluation: an argument is evaluated only when the body accesses it. <code>...</code> accepts extra arguments; Lecture 6 marks manual <code>...</code> handling Optional–Advanced.</li>
-<li>Scope: inner names mask outer names; missing names are found in enclosing/global/package environments at call time (dynamic lookup). Each call gets a fresh execution environment. Prefer explicit parameters to mutable globals.</li>
-<li><code>pkg::fun()</code> calls one package function without attaching the package. <code>source("src/functions.R")</code> loads functions from a script.</li>
-</ul>
-<h2>Tests, TDD, errors</h2>
-<pre><code class="language-r">library(testthat)
-
-test_that(&quot;conversion works&quot;, {
+test_that(&quot;conversion and input contract&quot;, {
   expect_equal(mpg_to_kml(1), 0.425144)
-  expect_equal(mpg_to_kml(2), 0.850288)
-})
-
-test_that(&quot;invalid input errors&quot;, {
   expect_error(mpg_to_kml(&quot;A&quot;))
-  expect_error(mpg_to_kml(list(1, 2)))
-  expect_error(mpg_to_kml(data.frame(x = 1)))
 })
 </code></pre>
-<table>
-<thead>
-<tr>
-<th>Assert</th>
-<th>Expectation</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>exact value/type/attributes</td>
-<td><code>expect_identical(x, y)</code></td>
-</tr>
-<tr>
-<td>equal or near-equal values</td>
-<td><code>expect_equal(x, y, tolerance = ...)</code></td>
-</tr>
-<tr>
-<td>equality without attribute emphasis</td>
-<td><code>expect_equivalent(x, y)</code></td>
-</tr>
-<tr>
-<td>logical result</td>
-<td><code>expect_true(x)</code> / <code>expect_false(x)</code></td>
-</tr>
-<tr>
-<td>error / warning / printed output</td>
-<td><code>expect_error(expr)</code> / <code>expect_warning(expr)</code> / <code>expect_output(expr, ...)</code></td>
-</tr>
-</tbody>
-</table>
+<section class="cheatsheet-heading-block"><h2>Tidy evaluation</h2>
 <ul>
-<li>TDD: write normal, edge and error specifications → implement the smallest function → add cases and rerun. A failed test is evidence about the contract or implementation; do not delete it blindly.</li>
-<li>Check bad inputs at function entry and <code>stop("useful message")</code>; <code>warning()</code> allows continuation. <code>try({ ... })</code> continues after an error but does not make bad input valid.</li>
-<li>Use a meaningful numeric <code>tolerance</code> only when the contract allows floating-point error.</li>
-</ul>
-<h2>Documentation, variance, and final checks</h2>
-<pre><code class="language-r">#' Convert miles per gallon to kilometres per litre.
-#'
-#' @param mpg numeric vector in miles per gallon
-#' @return numeric vector in kilometres per litre
-#' @examples
-#' mpg_to_kml(1)
-mpg_to_kml &lt;- function(mpg) mpg * 0.425144
+<li>Data masking: verbs resolve bare names as columns. In reusable functions, <code>{{ col }}</code> captures/injects a bare column argument; equivalently capture with <code>enquo(col)</code> and inject <code>!!col</code>.</li>
+<li>String column name: <code>.data[[col]]</code> (validate one existing string name); outside variable: <code>.env$threshold</code>. These differ from bare masked columns.</li>
+<li>Computed output name: <code>:=</code> (e.g. <code>"{name}_mean" := ...</code>). <code>...</code> passes arguments through only when contract is clear. <strong>Optional:</strong> elaborate <code>...</code>/tidy-eval interfaces.</li>
+<li>Validate inputs (data, column, type, parameter); fail clearly, then check output type, names, rows, and grouping.</li>
+</ul></section>
+<pre><code class="language-r">mean_by &lt;- function(data, group, value) {
+  data |&gt; group_by({{ group }}) |&gt;
+    summarise(mean_value = mean({{ value }}, na.rm = TRUE), .groups = &quot;drop&quot;)
+}
+mean_col &lt;- function(data, col) {
+  stopifnot(is.character(col), length(col) == 1, !is.na(col), col %in% names(data))
+  summarise(data, value = mean(.data[[col]], na.rm = TRUE))
+}
+</code></pre>
+<pre><code class="language-r"># Add an argument to each mapped call: use ... or an anonymous function
+map_df(data_entry, str_replace, pattern = &quot;Cdn&quot;, replacement = &quot;Canadian&quot;)
+map_chr(month, ~ paste0(.x, &quot;, 2020&quot;))
+
+# A nested tibble can hold a scalar and a more complex result per group
+nested |&gt; mutate(n = map_int(data, nrow),
+                 stats = map(data, ~ summarise(.x, avg = mean(value, na.rm = TRUE))))
 </code></pre>
 <ul>
-<li>roxygen2: description + <code>@param</code> + <code>@return</code> + <code>@examples</code> (Worksheet 6 also shows <code>@export</code>). Document the contract, not every obvious line.</li>
-<li>Lab 3 sample variance (write from scratch, not <code>var()</code>): <code>sum((x - mean(x))^2) / (length(x) - 1)</code>. Return one numeric value; reject list/data-frame inputs with a tested error.</li>
-<li>Function review: explicit inputs/outputs/errors; one coherent task; readable names/indentation; no accidental global dependency or repeated work.</li>
+<li><code>map2(.x, .y, .f)</code> pairs corresponding positions; <code>.y</code> of length 1 can recycle. <code>pmap(list(...), .f)</code> maps matching positions across inputs; <code>pmap(df, .f)</code> is row-wise. These multi-input forms are <strong>Optional</strong> in Lecture 7.</li>
+<li>In the short formula function, <code>.</code> is the current item in the lecture examples; <code>.x</code>/<code>.y</code> are clearer for one/two inputs. For 3+ inputs use a named <code>function(a, b, c)</code> or <code>..1</code>, <code>..2</code>, ... in formula form.</li>
+<li><code>nest()</code> rows represent groups, not individual observations. <code>unnest()</code> can multiply rows; inspect <code>nrow()</code>, columns, and key duplication afterward.</li>
 </ul>
-<ol>
-<li>“Each group” → group keys + <code>summarise</code>; “retain rows” → grouped <code>mutate</code>.</li>
-<li>Missing value → choose <code>drop_na(columns)</code>, <code>drop_na()</code>, <code>na.rm = TRUE</code>, or <code>case_when</code> replacement.</li>
-<li><code>case_when</code> → include <code>TRUE ~ old</code>; check factor/character type and use <code>is.na()</code> for missingness.</li>
-<li>map → suffix equals required output; pass <code>na.rm</code> through <code>...</code>.</li>
-<li>Function → parameters/defaults → input check → return shape → clear error message.</li>
-<li>Test → expectation matches contract; include a hand-checkable edge/error; tolerance only with reason.</li>
-<li>Before submitting code, check parentheses, commas, names, arguments, grouping state and final type/shape.</li>
-</ol></main></body></html>
+<section class="cheatsheet-heading-block"><h2>Function and testing reminders</h2>
+<pre><code class="language-r"># Last expression returns; validate the contract at entry
+f &lt;- function(x, scale = 1) {
+  if (!is.numeric(x)) stop(&quot;x must be numeric&quot;)
+  x * scale
+}
+
+test_that(&quot;scales values and rejects invalid input&quot;, {
+  expect_equal(f(c(2, 3), 2), c(4, 6))
+  expect_error(f(&quot;2&quot;))
+})
+</code></pre></section>
+<ul>
+<li><code>expect_identical()</code> checks value/type/attributes; <code>expect_equal()</code> allows numeric tolerance; <code>expect_true/false()</code>, <code>expect_error()</code>, <code>expect_warning()</code>, <code>expect_output()</code> assert other contracts. Use tolerance only when rounding error is permitted.</li>
+<li>TDD: specify normal + boundary + invalid cases → implement → rerun all tests. Keep tests simple; tests can pass while missing cases.</li>
+<li>Lazy arguments are evaluated only when used; a function's local name masks an outer name, and unresolved names are looked up in enclosing environments. Pass changing dependencies explicitly rather than relying on globals.</li>
+<li>Roxygen contract: description + <code>@param</code> for each argument + <code>@return</code> + <code>@examples</code> (Worksheet 6 also shows <code>@export</code>). <code>pkg::fun()</code> avoids attaching a package; <code>source(path)</code> loads script definitions.</li>
+</ul>
+<section class="cheatsheet-heading-block"><h2>Tidy-eval interface chooser</h2>
+<pre><code class="language-r"># Bare column/expression from caller: embrace at the dplyr boundary
+filter_rows &lt;- function(data, condition) filter(data, {{ condition }})
+filter_rows(penguins, body_mass_g &gt; 3000)
+
+# Dynamic result name: :=; string column: .data[[name]]
+summary &lt;- function(data, col, out) {
+  stopifnot(is.character(col), length(col) == 1, col %in% names(data))
+  summarise(data, &quot;{out}&quot; := mean(.data[[col]], na.rm = TRUE))
+}
+</code></pre></section>
+<ul>
+<li>Use <code>{{ arg }}</code> when a wrapper takes an unquoted column/expression. Equivalent explicit route: <code>q &lt;- enquo(arg)</code> then use <code>!!q</code> inside the tidy verb.</li>
+<li>Use <code>.data[[name]]</code> for a string column name and <code>.env$limit</code> for an ordinary environment value; avoids a same-named column masking a local variable.</li>
+<li>Use <code>...</code> to forward multiple selectors/arguments unchanged to one verb (e.g. <code>select(data, ...)</code>). Put it last when callers should pass it positionally. Do not reuse the same dots as both a column expression and an unrelated selection; embrace separately named arguments instead.</li>
+<li>When the function must change a column's value type, inspect it with <code>pull({{ col }})</code>/<code>is.numeric()</code> and <code>stop()</code> before <code>mutate()</code>. For string-name APIs, validate one existing name and its type first.
+```</li>
+</ul></main></body></html>

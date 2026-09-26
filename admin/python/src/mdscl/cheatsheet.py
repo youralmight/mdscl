@@ -41,21 +41,38 @@ def _reject_math_markup(source: Path, text: str) -> None:
             "instead — see admin/quiz-cheatsheet-workflow.md."
         )
 
+def _keep_heading_with_first_block(body: str) -> str:
+    """Keep each section heading with its first content block, not the whole section."""
+    heading_and_block = re.compile(
+        r"(<h2\b[^>]*>.*?</h2>\s*)(<(p|ul|ol|pre|table|blockquote)\b.*?</\3>)",
+        re.DOTALL,
+    )
+    return heading_and_block.sub(
+        lambda match: (
+            '<section class="cheatsheet-heading-block">'
+            f"{match.group(1)}{match.group(2)}</section>"
+        ),
+        body,
+    )
+
+
 
 def _css(columns: int, font_size_pt: int) -> str:
     return f"""
 @page {{ size: Letter; margin: 0.25in; }}
 html {{ font-family: Arial, "PingFang SC", sans-serif; }}
 body {{ margin: 0; color: #111; font-size: {font_size_pt}pt; line-height: 1; }}
-main {{ column-count: {columns}; column-fill: auto; column-gap: 0.08in; }}
+main {{ column-count: {columns}; column-fill: balance; column-gap: 0.08in; }}
 h1 {{ column-span: all; margin: 0 0 2pt; font-size: 1.5em; line-height: 1; }}
-h2 {{ margin: 2pt 0 0.5pt; font-size: 1.25em; line-height: 1; break-after: avoid; }}
+section.cheatsheet-heading-block {{ break-inside: avoid; }}
+h2 {{ margin: 2pt 0 0.5pt; font-size: 1.25em; line-height: 1; }}
 h3 {{ margin: 1.5pt 0 0.5pt; font-size: 1.0625em; line-height: 1; break-after: avoid; }}
 p, ul, ol {{ margin: 0.5pt 0; }}
 ul, ol {{ padding-left: 10pt; }}
-li {{ margin: 0; }}
+li {{ margin: 0; break-inside: avoid; }}
 pre {{
     margin: 1pt 0;
+    break-inside: avoid;
     padding: 1pt;
     border: 0.4pt solid #bbb;
     background: #f5f5f5;
@@ -98,6 +115,7 @@ def render_cheatsheet(
     text = source.read_text(encoding="utf-8")
     _reject_math_markup(source, text)
     body = markdown.markdown(text, extensions=["extra", "sane_lists"])
+    body = _keep_heading_with_first_block(body)
     html = f"<!doctype html><html><body><main>{body}</main></body></html>"
 
     # Minimize pages; ties retain the earlier, wider column layout.
