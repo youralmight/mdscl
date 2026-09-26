@@ -327,6 +327,6 @@ Please state below:
     i. describe how you used AI
     ii. cite the AI tool(s) you used.
   
-> AI STATEMENT GOES HERE.
+> I read the assignment prompt and planned how I would write the solutions. I then asked OpenAI Codex to write the R code based on my plan. AI tool cited: OpenAI Codex.
 
 Congratulations! You are done the lab!!! Pat yourself on the back, and submit your lab to **GitHub** and Gradescope! Make sure you have 3 Git commits!
