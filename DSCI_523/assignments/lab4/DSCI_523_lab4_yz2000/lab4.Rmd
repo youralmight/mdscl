@@ -1,0 +1,196 @@
+---
+title: "DSCI 523 Lab 4"
+subtitle: "Mapping & nested data frames, as well as tidy evaluation"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Lab Mechanics
+**rubric={completeness:5}**
+
+- Follow the [MDS general lab instructions](https://ubc-mds.github.io/resources_pages/general_lab_instructions/).
+- Submit both the `.Rmd` file and the rendered `pdf` in this worksheet to Gradescope.
+- All files necessary to run your work must be pushed to your GitHub.ubc.ca repository for this lab.
+- You need to have a minimum of 3 commit messages associated with your GitHub.ubc.ca repository for this lab.
+- Do not include software installation code in this worksheet (i.e., DO NOT have `install.packages(...)` or `devtools::install_github(...)` in your homework!). Run the installation commands in the console instead.)
+- We recommend you try answering each question on your own before asking AI for help.
+- There are software tests you can run to help check that you obtained the correct answer.
+- Remember to complete the last question that asks you to disclose whether you used AI or not. If you did use AI in any way, you are expected to describe how and cite the AI tool(s) you used.
+
+## Setup
+Run the cell below to load the libraries needed for this lab, as well as the test file so you can check your answers as you go!
+
+```{r}
+library(ggthemes)
+library(nycflights13)
+library(palmerpenguins)
+library(rlang)
+library(testthat)
+library(tidyverse)
+```
+
+## Exercise 1: nesting
+**rubric={completeness:23}**
+
+Using the {palmerpenguins} `penguins` data set, demonstrate the use of `nest` and `unnest`. First create a data frame where all data, except for the `species` and `island` columns are nested into one column named `data`. Then demonstrate how you can unnest this data frame so that you get back the original data frame.
+
+In 2-3 sentences, explain what kind of column the nested data became. What was the type of the elements inside that column? Comment on their dimensions.
+
+
+penguins_nested <- penguins |>
+  nest(data = -c(species, island))
+
+penguins_unnested <- penguins_nested |>
+  unnest(data)
+
+penguins_unnested
+
+> The `data` column is a list-column, and each element is a tibble/data frame. Each nested tibble has 6 columns and a number of rows equal to the observations for its `species`-`island` combination; `unnest(data)` restores the original row-level structure.
+
+
+
+
+## Exercise 2: mapping and nesting
+**rubric={completeness:23}**
+
+Working with the {nycflights13} `weather` data set which contains hourly
+meterological data for LGA, JFK and EWR, obtain the minimum, maximum and
+average temperature for each month for each origin without dropping the 
+rest of the data in the data frame. Keep all the data associated with the 
+monthly records for each origin in the same row as the summary statistics 
+you calculate for that record. You will have to nest the data to do this.
+Name your tibble `weather_nested`.
+
+The {tidyr} `nest`, {dplyr} `mutate` and {purrr} `map` functions should 
+allow you to accomplish this. Your resultant data frame should contain the following 6
+columns: `origin`, `month`, `data` (nested data frames), `min_temp`,
+`max_temp` and `avg_temp`.
+
+Look at your output, and consider the other way you could have arrived at your
+summary statistics (`group_by` + `summarise`). What would have been different 
+about your results had you obtained them that way instead? Explain this in 1-2 
+sentences.
+
+
+```{r}
+weather_nested <- NULL
+
+weather_nested
+```
+
+> *YOUR EXPLANATION HERE.*
+
+
+
+```{r}
+# TESTS
+test_that("weather_nested loads successfully", {
+  expect_true(exists("weather_nested"))
+  expect_s3_class(weather_nested, "tbl_df")
+})
+
+test_that("weather_nested has the correct dimensions", {
+  expect_equal(nrow(weather_nested), 36)
+  expect_equal(ncol(weather_nested), 6)
+})
+
+test_that("weather_nested has the correct column names and types", {
+  expect_named(weather_nested, c("origin", "month", "data", "min_temp", "max_temp", "avg_temp"), ignore.order = TRUE)
+  expect_type(weather_nested$origin, "character")
+  expect_type(weather_nested$min_temp, "double")
+  expect_type(weather_nested$data, "list")
+})
+
+test_that("weather_nested keeps the rest of the data nested", {
+  expect_equal(ncol(weather_nested$data[[1]]), 13)
+  expect_equal(nrow(weather_nested$data[[1]]), 742)
+  expect_equal(round(sum(arrange(weather_nested, origin, month)$data[[1]]$wind_speed, na.rm = TRUE)), 7327)
+})
+
+test_that("weather_nested has the correct summary statistics", {
+  expect_equal(round(sum(weather_nested$min_temp, na.rm = TRUE)), 1292)
+  expect_equal(round(sum(weather_nested$max_temp, na.rm = TRUE)), 2814)
+  expect_equal(round(sum(weather_nested$avg_temp, na.rm = TRUE)), 1983)
+})
+```
+
+
+## Exercise 3: programming with {dplyr}
+**rubric={completeness:22}**
+
+Write a wrapper function for the {dplyr} `filter` + {stringr} `str_detect` functions to create a function to filter for rows that contain a full or partial string match. Your function should take a data frame, an unquoted column name (not as a string), and a string pattern to search for. It should return a data frame with rows that match the pattern searched for in the column specified. Follow good software development practices:
+- document your function using `roxygen2`
+- deal with erroneous user inputs
+- write tests to ensure that your function works as expected
+
+*Hint: yet again you will want to generate some helper data for your tests...*
+
+
+```{r, error = TRUE}
+
+```
+
+
+## Exercise 4: programming with {dplyr} when there is reassignment
+**rubric={completeness:22}**
+
+Write a wrapper function for the {dplyr} `mutate` + {stringr} `str_replace` functions to create a function that can change a single value in an **already existing** character vector in a data frame in a less verbose way. As inputes, your function should take a data frame, an unquoted column name (not as a string), a string pattern to search for, and a string replacement value. It should return a data frame with the specified column modified. Follow good software development practices:
+
+- document your function using `roxygen2`
+- deal with erroneous user inputs
+- write tests to ensure that your function works as expected
+
+*Hint: yet again you will want to generate some helper data for your tests...*
+
+
+```{r, error = TRUE}
+
+```
+
+
+## (Optional) Exercise 5: (Challenging question)
+**rubric={0}**
+
+This same tidy evaluation can be used to program with {ggplot2} functions! Take the code below to make a two dimensional scatter plot where the points are coloured by a categorical variable, with the economist theme and turn it into a single function call where all the user needs to specify is:
+
+```
+economist_scatter(data, x, y, colour_by)
+```
+
+Which should return a plot object the user could save using `ggsave` or call to display in a rendered document. Important - this function should work for any data frame that has two (or more) quantitative variables and one (or more) categorical variables. 
+
+```
+library(ggthemes)
+library(palmerpenguins)
+ggplot(penguins, aes(x = body_mass_g, y = flipper_length_mm)) +
+    geom_point(alpha = 0.5, size = 2, aes(colour = sex)) +
+    theme_economist()
+```
+
+> Note: You do not have to write tests for this function (this is challenging and we will learn how to do this DSCI 524)
+
+
+```{r}
+
+```
+
+
+> Note - there is a new {tidyverse} function, `across`, that is also useful for applying a function across columns (docs: https://dplyr.tidyverse.org/reference/across.html), however we focus on teaching `map_*` in MDS as it is more general. Feel free to use either in future if the use of `map_*` is not specified.
+
+### AI Usage statement
+**rubric={completeness:5}**
+
+Please state below:
+
+1. Whether you used AI in any way to assist you with completing this assignment. If you did not use AI, write: *"I did not use AI in any way to assist me with completing this assignment."*
+2. If you used AI, state:
+
+    i. describe how you used AI
+    ii. cite the AI tool(s) you used.
+  
+> AI STATEMENT GOES HERE.
+
+Congratulations! You are done the lab!!! Pat yourself on the back, and submit your lab to **GitHub** and Gradescope! Make sure you have 3 Git commits!
