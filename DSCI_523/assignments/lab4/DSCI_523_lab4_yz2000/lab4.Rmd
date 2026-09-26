@@ -208,7 +208,82 @@ Write a wrapper function for the {dplyr} `mutate` + {stringr} `str_replace` func
 
 
 ```{r, error = TRUE}
+#' Replace the first occurrence of a string in an existing character column.
+#'
+#' @param data A data frame to modify.
+#' @param column An unquoted character column name to modify.
+#' @param pattern A single string pattern passed to `stringr::str_replace()`.
+#' @param replacement A single string used to replace the first match.
+#' @return A data frame with the selected column modified.
+#' @examples
+#' replace_string(
+#'   tibble::tibble(name = c("Ada Lovelace", "Grace Hopper")),
+#'   name,
+#'   "Grace",
+#'   "Rear Admiral Grace"
+#' )
+#'
+#' @export
+replace_string <- function(data, column, pattern, replacement) {
+  if (!is.data.frame(data)) {
+    stop("`data` must be a data frame.", call. = FALSE)
+  }
 
+  if (!is.character(pattern) || length(pattern) != 1L || is.na(pattern)) {
+    stop("`pattern` must be one non-missing character string.", call. = FALSE)
+  }
+
+  if (!is.character(replacement) || length(replacement) != 1L || is.na(replacement)) {
+    stop("`replacement` must be one non-missing character string.", call. = FALSE)
+  }
+
+  column_quo <- rlang::enquo(column)
+  if (!rlang::quo_is_symbol(column_quo)) {
+    stop("`column` must be an unquoted column name.", call. = FALSE)
+  }
+
+  column_name <- rlang::as_name(column_quo)
+  if (!column_name %in% names(data)) {
+    stop("`column` must refer to a column in `data`.", call. = FALSE)
+  }
+
+  if (!is.character(data[[column_name]])) {
+    stop("The selected column must be a character vector.", call. = FALSE)
+  }
+
+  data |>
+    dplyr::mutate({{ column }} := stringr::str_replace({{ column }}, pattern, replacement))
+}
+
+replace_helper_data <- tibble::tibble(
+  name = c("Ada Lovelace", "Grace Hopper", "Alan Turing"),
+  role = c("mathematician", "computer scientist", "mathematician"),
+  year = c(1815L, 1906L, 1912L)
+)
+
+testthat::test_that("replace_string modifies the selected character column", {
+  result <- replace_string(replace_helper_data, name, "Grace", "Rear Admiral Grace")
+  testthat::expect_equal(
+    result$name,
+    c("Ada Lovelace", "Rear Admiral Grace Hopper", "Alan Turing")
+  )
+  testthat::expect_equal(result$role, replace_helper_data$role)
+  testthat::expect_equal(result$year, replace_helper_data$year)
+})
+
+testthat::test_that("replace_string replaces only the first match per value", {
+  data <- tibble::tibble(label = "banana banana")
+  result <- replace_string(data, label, "banana", "pear")
+  testthat::expect_equal(result$label, "pear banana")
+})
+
+testthat::test_that("replace_string rejects erroneous inputs", {
+  testthat::expect_error(replace_string(list(name = "Ada"), name, "Ada", "Grace"))
+  testthat::expect_error(replace_string(replace_helper_data, missing_column, "Ada", "Grace"))
+  testthat::expect_error(replace_string(replace_helper_data, name, c("Ada", "Grace"), "X"))
+  testthat::expect_error(replace_string(replace_helper_data, name, "Ada", c("X", "Y")))
+  testthat::expect_error(replace_string(replace_helper_data, year, "19", "XX"))
+})
 ```
 
 
