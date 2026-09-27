@@ -7,5 +7,4 @@ uv run quarto render *.ipynb --to pdf --execute
 uv run quarto render *.ipynb --to html --execute
 quarto render *.Rmd --to typst
 quarto render *.Rmd --to pdf
-make all || true
-apack $(basename $PWD)_yizhang_$(date +"%Y-%m-%d_%H-%M-%S").zip *.Rmd *.ipynb *.pdf *.md *.html
+make all && apack $(basename $PWD)_yizhang_$(date +"%Y-%m-%d_%H-%M-%S").zip *.Rmd *.ipynb *.pdf *.md *.html

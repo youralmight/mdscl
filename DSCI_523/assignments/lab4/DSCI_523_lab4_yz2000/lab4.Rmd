@@ -78,12 +78,19 @@ sentences.
 
 
 ```{r}
-weather_nested <- NULL
+weather_nested <- weather |>
+  nest(data = -c(origin, month)) |>
+  mutate(
+    min_temp = map_dbl(data, ~ min(.x$temp, na.rm = TRUE)),
+    max_temp = map_dbl(data, ~ max(.x$temp, na.rm = TRUE)),
+    avg_temp = map_dbl(data, ~ mean(.x$temp, na.rm = TRUE))
+  ) |>
+  select(origin, month, data, min_temp, max_temp, avg_temp)
 
 weather_nested
 ```
 
-> *YOUR EXPLANATION HERE.*
+> `group_by(origin, month) |> summarise(...)` would return one row per airport-month combination with only the grouping columns and summary statistics. It would discard the complete monthly weather records, whereas nesting retains them in the `data` column.
 
 
 
@@ -193,6 +200,7 @@ testthat::test_that("filter_string rejects erroneous inputs", {
   testthat::expect_error(filter_string(helper_data, name, NA_character_))
   testthat::expect_error(filter_string(helper_data, year, "19"))
 })
+```
 
 
 ## Exercise 4: programming with {dplyr} when there is reassignment

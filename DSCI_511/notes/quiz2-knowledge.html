@@ -1,0 +1,1134 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.10.18">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>quiz2-knowledge</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="quiz2-knowledge_files/libs/clipboard/clipboard.min.js"></script>
+<script src="quiz2-knowledge_files/libs/quarto-html/quarto.js" type="module"></script>
+<script src="quiz2-knowledge_files/libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="quiz2-knowledge_files/libs/quarto-html/popper.min.js"></script>
+<script src="quiz2-knowledge_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="quiz2-knowledge_files/libs/quarto-html/anchor.min.js"></script>
+<link href="quiz2-knowledge_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="quiz2-knowledge_files/libs/quarto-html/quarto-syntax-highlighting-64a204ab8560d761af7679ceaba22944.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="quiz2-knowledge_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="quiz2-knowledge_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="quiz2-knowledge_files/libs/bootstrap/bootstrap-917079515d91bccb85b543faf8aa8bb6.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+
+
+</head>
+
+<body class="fullcontent quarto-light">
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+
+<main class="content" id="quarto-document-content">
+
+
+
+
+<section id="dsci-511-quiz-2pandas-数据处理知识复习" class="level1">
+<h1>DSCI 511 Quiz 2：Pandas 数据处理知识复习</h1>
+<section id="范围状态2026-09-25" class="level2">
+<h2 class="anchored" data-anchor-id="范围状态2026-09-25">范围状态（2026-09-25）</h2>
+<p><strong>Quiz 2 复习范围按当前课程仓库中已发布的 Lecture 5–8 最终材料整理。</strong> 课程 README 将 Quiz 2 列为总评 25%；本文是基于课程材料的复习笔记，不替代教师另行发布的考试说明。</p>
+<ul>
+<li><strong>覆盖：</strong> Lecture 5（DataFrames）、Lecture 6（Pandas data wrangling）、Lecture 7（strings、datetimes、categoricals）和 Lecture 8（generators、streaming、numpy.memmap、unit testing/TDD）；Worksheet 5 的 DataFrame 操作练习、Worksheet 6 的 reshape/map/groupby 练习，以及明确说明练习 Lecture 5–6 核心 Pandas 技能的 Lab 3。</li>
+<li><strong>不纳入：</strong> <code>appendix_numpy.ipynb</code> 和 <code>appendix_plotting.ipynb</code>；Lecture 7 的 regex 段仍标为 <strong>OPTIONAL</strong>，不把 regex 语法列为本次复习重点。</li>
+<li><strong>范围提示：</strong> 仍应以教师发布的 quiz logistics 和题目措辞为准；本笔记覆盖上述最终 Lecture 5–8 教学材料中的可考概念与代码模式。</li>
+</ul>
+<hr>
+</section>
+<section id="dataframe-的结构读入与快速检查" class="level2">
+<h2 class="anchored" data-anchor-id="dataframe-的结构读入与快速检查">1. DataFrame 的结构、读入与快速检查</h2>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><code>DataFrame</code> 是 pandas 表格对象：<strong>列</strong>通常是变量，<strong>行</strong>通常是观测，<strong>index</strong> 是行标签。<code>Series</code> 是带 index 的一维列；一个 DataFrame 可视为多个 Series 的集合。两者的区别会直接影响选择后的 type、可用方法和题目答案。</p>
+<section id="读文件先弄清分隔符表头与-index" class="level3">
+<h3 class="anchored" data-anchor-id="读文件先弄清分隔符表头与-index">1.1 读文件：先弄清分隔符、表头与 index</h3>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>任务</th>
+<th>常用写法</th>
+<th>要点</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>普通 CSV</td>
+<td><code>pd.read_csv("data.csv")</code></td>
+<td>默认首行是列名、逗号是分隔符。</td>
+</tr>
+<tr class="even">
+<td>TSV</td>
+<td><code>pd.read_csv("data.tsv", sep="\t")</code></td>
+<td>忘记 <code>sep</code> 会把整行误读成一列。</td>
+</tr>
+<tr class="odd">
+<td>无表头文件</td>
+<td><code>pd.read_csv("x.tsv", sep="\t", header=None)</code></td>
+<td>不把首行数据误当列名；pandas 用整数列标签。</td>
+</tr>
+<tr class="even">
+<td>无表头且要命名</td>
+<td><code>pd.read_csv("x.tsv", header=None, names=[...])</code></td>
+<td><code>names</code> 的顺序必须对应文件列顺序。</td>
+</tr>
+<tr class="odd">
+<td>表头不在首行</td>
+<td><code>pd.read_csv("x.csv", header=2)</code></td>
+<td><code>header</code> 是从 0 开始的位置；空行是否被读取会影响实际位置，读后检查。</td>
+</tr>
+<tr class="even">
+<td>Excel</td>
+<td><code>pd.read_excel("x.xlsx", sheet_name="Sheet2")</code></td>
+<td>默认第一张 sheet；也可传从 0 开始的 sheet 编号。</td>
+</tr>
+<tr class="odd">
+<td>读入时指定 index</td>
+<td><code>pd.read_csv("x.csv", index_col="id")</code></td>
+<td>该列成为行标签，不再是普通数据列。</td>
+</tr>
+</tbody>
+</table>
+<p><code>read_csv()</code> 的第一个参数也可为 URL。读入后不要只凭代码“看起来合理”就继续：先检查列名、shape 和前几行，确认 CSV/TSV、表头和编码设定真的匹配文件。</p>
+</section>
+<section id="attribute-不加括号method-要加括号" class="level3">
+<h3 class="anchored" data-anchor-id="attribute-不加括号method-要加括号">1.2 attribute 不加括号；method 要加括号</h3>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>表达式</th>
+<th>返回/用途</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>df.shape</code></td>
+<td><code>(n_rows, n_cols)</code>；<strong>attribute</strong>，不要写 <code>()</code>。</td>
+</tr>
+<tr class="even">
+<td><code>df.columns</code> / <code>df.columns.to_list()</code></td>
+<td>列标签 Index / 普通 list。</td>
+</tr>
+<tr class="odd">
+<td><code>df.head(n)</code> / <code>df.tail(n)</code></td>
+<td>前/后 <code>n</code> 行；默认 5。</td>
+</tr>
+<tr class="even">
+<td><code>df.info()</code></td>
+<td>行数、非缺失计数、dtype、内存等结构信息。</td>
+</tr>
+<tr class="odd">
+<td><code>df.describe()</code></td>
+<td>默认数值列的统计摘要；<code>include="all"</code> 可包含非数值列。</td>
+</tr>
+<tr class="even">
+<td><code>s.value_counts()</code> / <code>s.nunique()</code></td>
+<td>值频数 / 不同值个数。</td>
+</tr>
+</tbody>
+</table>
+<p>方法通常产生新结果；不要把“看到了输出”误认成原对象已改变。题目若要求保存变换结果，必须赋回名字或赋给新名字。</p>
+<hr>
+</section>
+</section>
+<section id="选择index-与向量化列操作" class="level2">
+<h2 class="anchored" data-anchor-id="选择index-与向量化列操作">2. 选择、index 与向量化列操作</h2>
+<section id="loc.iloc先问按什么定位" class="level3">
+<h3 class="anchored" data-anchor-id="loc.iloc先问按什么定位">2.1 <code>[]</code>、<code>.loc</code>、<code>.iloc</code>：先问“按什么定位？”</h3>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>目的</th>
+<th>写法</th>
+<th>基准</th>
+<th>常见返回</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>一列</td>
+<td><code>df["city"]</code></td>
+<td>列标签</td>
+<td><code>Series</code></td>
+</tr>
+<tr class="even">
+<td>多列</td>
+<td><code>df[["city", "region"]]</code></td>
+<td>列标签</td>
+<td><code>DataFrame</code></td>
+</tr>
+<tr class="odd">
+<td>按标签取</td>
+<td><code>df.loc[row_label, col_label]</code></td>
+<td>行/列<strong>标签</strong></td>
+<td>单值、Series 或 DataFrame</td>
+</tr>
+<tr class="even">
+<td>按位置取</td>
+<td><code>df.iloc[row_int, col_int]</code></td>
+<td>从 0 开始的整数位置</td>
+<td>单值、Series 或 DataFrame</td>
+</tr>
+<tr class="odd">
+<td>按位置切片</td>
+<td><code>df.iloc[0:5, 1:3]</code></td>
+<td>整数位置</td>
+<td>stop 不含，取第 0–4 行、第 1–2 列</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>单一选择通常降维：<code>df["city"]</code> 是 Series；<code>df[["city"]]</code> 才保留 DataFrame。相同原则适用于单行 <code>df.loc[label]</code> 与 <code>df.loc[[label]]</code>。</li>
+<li><code>.iloc</code> 只能用整数位置（或相应 slice/list/boolean array）；把列名传给 <code>.iloc</code> 是错误。</li>
+<li><code>.loc</code> 用 label。默认 RangeIndex 为 <code>0, 1, ...</code> 时 <code>.loc[0]</code> 与 <code>.iloc[0]</code> 恰好看似相同；一旦 <code>set_index("iso_code")</code>，二者语义立即不同。</li>
+<li><code>df.set_index("key")</code> <strong>返回新 DataFrame</strong>；<code>df = df.set_index("key")</code> 才会让后续 <code>df.loc[...]</code> 使用新 index。</li>
+<li>需要“第 i 个行位置 + 某列名”时写 <code>df.loc[df.index[i], "col"]</code>；需要“某行标签 + 第 j 列位置”时写 <code>df.loc[label, df.columns[j]]</code>。</li>
+</ul>
+</section>
+<section id="不用逐行-loop整列向量化" class="level3">
+<h3 class="anchored" data-anchor-id="不用逐行-loop整列向量化">2.2 不用逐行 loop：整列向量化</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>scores[<span class="st">"Student Mean"</span>] <span class="op">=</span> scores.mean(axis<span class="op">=</span><span class="dv">1</span>)       <span class="co"># 每行均值</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>scores[<span class="st">"Scaled Chemistry"</span>] <span class="op">=</span> scores[<span class="st">"Chemistry"</span>] <span class="op">*</span> <span class="fl">1.03</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>scores[<span class="st">"Science Mean"</span>] <span class="op">=</span> (</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    scores[<span class="st">"Biology"</span>] <span class="op">+</span> scores[<span class="st">"Chemistry"</span>] <span class="op">+</span> scores[<span class="st">"Physics"</span>]</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>) <span class="op">/</span> <span class="dv">3</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>列与 scalar、两列之间的运算按相同 index 对齐后逐元素进行。<code>axis</code> 决定归约方向：对表 <code>df</code>，默认 <code>axis=0</code> 给<strong>每列</strong>一个结果；<code>axis=1</code> 给<strong>每行</strong>一个结果。因而 <code>scores.idxmax()</code> 是每列最大值的行标签，<code>scores.idxmax(axis=1)</code> 是每行最大值所在列名；<code>mean</code>、<code>min</code>、<code>max</code> 也遵循相同 axis 规则。</p>
+</section>
+<section id="排序过滤与-query" class="level3">
+<h3 class="anchored" data-anchor-id="排序过滤与-query">2.3 排序、过滤与 <code>query</code></h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>recent <span class="op">=</span> df.sort_values(by<span class="op">=</span><span class="st">"year_formed"</span>, ascending<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>selected <span class="op">=</span> df[(df[<span class="st">"region"</span>] <span class="op">==</span> <span class="st">"Cariboo"</span>) <span class="op">|</span> (df[<span class="st">"region"</span>] <span class="op">==</span> <span class="st">"Kootenay"</span>)]</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>selected <span class="op">=</span> df[(df[<span class="st">"industry_sector"</span>] <span class="op">==</span> <span class="st">"Construction"</span>) <span class="op">&amp;</span> (df[<span class="st">"year_formed"</span>] <span class="op">&gt;</span> <span class="dv">2015</span>)]</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>selected <span class="op">=</span> df.query(<span class="st">"industry_sector == 'Construction' and year_formed &gt; 2015"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<ul>
+<li><code>sort_values(by=...)</code> 默认升序；<code>ascending=False</code> 降序。</li>
+<li>用 boolean mask 时，pandas 用逐元素逻辑运算符 <code>&amp;</code>、<code>|</code>、<code>~</code>，<strong>不用</strong> Python 的 <code>and</code>、<code>or</code>、<code>not</code>；每个比较条件都必须用圆括号包住，避免优先级错误。</li>
+<li><code>.query()</code> 把条件写为字符串，内部可用 <code>and</code>/<code>or</code>/<code>not</code>；列名直接写，不重复 <code>df[...]</code>。含空格的列名须用反引号包住；匹配的字符串值用引号。</li>
+<li><code>query()</code> 对长的普通列条件较易读；涉及 Series method（如 <code>.isin()</code>、<code>.str.contains()</code>）时，boolean mask 更灵活。</li>
+</ul>
+<hr>
+</section>
+</section>
+<section id="清理与保存缺失值删除改名" class="level2">
+<h2 class="anchored" data-anchor-id="清理与保存缺失值删除改名">3. 清理与保存：缺失值、删除、改名</h2>
+<section id="nan-是数据先检测再决定规则" class="level3">
+<h3 class="anchored" data-anchor-id="nan-是数据先检测再决定规则">3.1 <code>NaN</code> 是数据，先检测再决定规则</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>has_na_by_col <span class="op">=</span> df.isna().<span class="bu">any</span>()</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>only_complete <span class="op">=</span> df.dropna()</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>filled <span class="op">=</span> df.fillna(<span class="st">"No source"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><code>NaN</code> 表示缺失值；不要凭肉眼把空格、空字符串与 NaN 混为一谈。<code>df.isna()</code> 返回同 shape 的 bool DataFrame；再用 <code>.any()</code> 可按列判断是否至少有一个缺失。<code>dropna()</code> 删除含 NaN 的行，<code>fillna(value)</code> 用给定值替换 NaN；Lecture 5 的示例中它们都<strong>返回 copy</strong>，不赋值就不会改变 <code>df</code>。删除前须判断“缺失的行应该删掉吗？”而不是把 <code>dropna()</code> 当成无条件清理。</p>
+</section>
+<section id="droprename-与列名" class="level3">
+<h3 class="anchored" data-anchor-id="droprename-与列名">3.2 <code>drop</code>、<code>rename</code> 与列名</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> df.drop([<span class="dv">14379</span>, <span class="dv">54578</span>])          <span class="co"># 按 index 标签删行</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> df.drop([<span class="st">"Art"</span>, <span class="st">"Drama"</span>], axis<span class="op">=</span><span class="dv">1</span>)  <span class="co"># 删列</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> df.rename(columns<span class="op">=</span>{<span class="st">"language_name"</span>: <span class="st">"name"</span>, <span class="st">"area"</span>: <span class="st">"region"</span>})</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>df.columns <span class="op">=</span> [<span class="st">"col_a"</span>, <span class="st">"col_b"</span>, <span class="st">"col_c"</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<ul>
+<li><code>.drop()</code> 按 index label 删除行；<code>axis=1</code> 表示删除列。它返回 copy。</li>
+<li><code>.rename(columns=mapping)</code> 只改指定列；mapping 的 key 是旧名、value 是新名，返回 copy。</li>
+<li>直接赋 <code>df.columns = [...]</code> 是整体替换，长度与顺序必须完整匹配当前列，适合确定所有新列名时。reshape 后的 MultiIndex columns 常需先 <code>reset_index()</code>，再明确检查/设置列名。</li>
+<li>保存为 CSV 用 <code>df.to_csv("out.csv")</code>；写出前检查是否应同时输出 pandas index，以免意外多出索引列。</li>
+</ul>
+<hr>
+</section>
+</section>
+<section id="tidy-data-与-reshape" class="level2">
+<h2 class="anchored" data-anchor-id="tidy-data-与-reshape">4. Tidy data 与 reshape</h2>
+<section id="先从分析问题判断tidy不是机械追求-long-格式" class="level3">
+<h3 class="anchored" data-anchor-id="先从分析问题判断tidy不是机械追求-long-格式">4.1 先从分析问题判断“tidy”，不是机械追求 long 格式</h3>
+<p>一份 tidy 数据满足：</p>
+<ol type="1">
+<li>每个变量是一列；</li>
+<li>每个 observation 是一行；</li>
+<li>每种 observational unit 是一张表。</li>
+</ol>
+<p><strong>wide</strong> 与 <strong>long</strong> 只是结构；不是任何场景下谁更“好”。问题若要比较同一 <code>country</code>、<code>food_category</code> 下的 consumption 与 emissions，这两个测量应成为两列；若原表把同一变量的多个取值塞在列名里，则通常需转 long。先说清“每行应代表什么”，再选操作。</p>
+</section>
+<section id="转置pivotpivot_table-与-melt" class="level3">
+<h3 class="anchored" data-anchor-id="转置pivotpivot_table-与-melt">4.2 转置、<code>pivot</code>、<code>pivot_table</code> 与 <code>melt</code></h3>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>目标</th>
+<th>写法</th>
+<th>约束/结果</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>行列互换</td>
+<td><code>df.transpose()</code></td>
+<td>行和列互换；返回 copy。</td>
+</tr>
+<tr class="even">
+<td>long → wide</td>
+<td><code>df.pivot(index="id", columns="kind", values="value")</code></td>
+<td>每个 <code>(index, columns)</code> 组合必须唯一；否则报 duplicate-entry 错。参数中的列成为 index/columns。</td>
+</tr>
+<tr class="odd">
+<td>long → wide，容许重复</td>
+<td><code>df.pivot_table(index="id", columns="kind", values="score")</code></td>
+<td>相同组合有多行时用它；默认聚合为 mean。可形成多层 columns。</td>
+</tr>
+<tr class="even">
+<td>wide → long</td>
+<td><code>df.melt(id_vars=[...], value_vars=[...], var_name="...", value_name="...")</code></td>
+<td><code>id_vars</code> 保留并随值复制；原列名进 <code>var_name</code>，单元格值进 <code>value_name</code>。</td>
+</tr>
+</tbody>
+</table>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 每行 country × sport，列是 medal total：需要唯一的 country/sport 组合</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>wide <span class="op">=</span> olympics.pivot(index<span class="op">=</span><span class="st">"NOC"</span>, columns<span class="op">=</span><span class="st">"Competitions"</span>, values<span class="op">=</span><span class="st">"Total"</span>)</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="co"># 若同一 FirstLanguage × Accent 有多位参与者，pivot_table 默认求平均</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>means <span class="op">=</span> results.pivot_table(</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>    index<span class="op">=</span><span class="st">"FirstLanguage"</span>, columns<span class="op">=</span><span class="st">"Accent"</span>, values<span class="op">=</span><span class="st">"TestPct"</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a><span class="bu">long</span> <span class="op">=</span> imdb.melt(</span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>    id_vars<span class="op">=</span>[<span class="st">"Director"</span>],</span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>    value_vars<span class="op">=</span>[<span class="st">"Star1"</span>, <span class="st">"Star2"</span>, <span class="st">"Star3"</span>, <span class="st">"Star4"</span>],</span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>    var_name<span class="op">=</span><span class="st">"Billing_Order"</span>,</span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>    value_name<span class="op">=</span><span class="st">"Actor"</span>,</span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<ul>
+<li><code>pivot()</code> 产生的缺格是 <code>NaN</code>；这未必表示原数据错误，例如没有获奖牌的国家/项目组合。若业务含义是 0，才使用 <code>.fillna(0)</code>；若后续需要整数再用 <code>.astype(int)</code>。</li>
+<li><code>pivot_table()</code> 的“默认 mean”是重要考点：它不是凭空选一条重复记录，而是聚合。选择 index/columns 前先识别潜在重复组合。</li>
+<li>需要保留更细粒度时，<code>columns=["Accent", "Test"]</code> 会产生多层 columns；这也会增加缺少组合的 NaN。</li>
+<li>reshape 后想让参与 index 的变量重新成为普通列，写 <code>result.reset_index()</code>；它返回 copy。</li>
+<li><code>melt()</code> 若省略 <code>value_vars</code>，会 melt 所有不在 <code>id_vars</code> 中的列。若要保留某些测量列不被 melt，务必显式写 <code>value_vars</code>。</li>
+</ul>
+<hr>
+</section>
+</section>
+<section id="合并-dataframeconcat-和-merge-回答不同问题" class="level2">
+<h2 class="anchored" data-anchor-id="合并-dataframeconcat-和-merge-回答不同问题">5. 合并 DataFrame：<code>concat</code> 和 <code>merge</code> 回答不同问题</h2>
+<section id="pd.concat沿某个-axis-直接接起来" class="level3">
+<h3 class="anchored" data-anchor-id="pd.concat沿某个-axis-直接接起来">5.1 <code>pd.concat</code>：沿某个 axis 直接接起来</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>all_days <span class="op">=</span> pd.concat([w1, w2, w3, w4])       <span class="co"># 默认 axis=0，接行</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>combined_columns <span class="op">=</span> pd.concat([w1, w3], axis<span class="op">=</span><span class="dv">1</span>)  <span class="co"># 接列，按 index 对齐</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><code>concat</code> 的核心是沿共享 axis 拼接：默认叠行，<code>axis=1</code> 并列列。它不会理解“两个日期相同就应是同一观测”这一业务关系：列集合不同会产生 NaN，index 相同也可能留下重复行/重复列。应先决定这些表是否真的已按位置和 index 对齐。</p>
+<p>每次 <code>pd.concat</code> 都创建新的 DataFrame；要合并多个同类表时，先收集为一个 list、一次性 concat，而不是在 loop 中逐个 concat。</p>
+</section>
+<section id="pd.merge按-key-做关系型匹配" class="level3">
+<h3 class="anchored" data-anchor-id="pd.merge按-key-做关系型匹配">5.2 <code>pd.merge</code>：按 key 做关系型匹配</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>outer <span class="op">=</span> pd.merge(w1, w4, how<span class="op">=</span><span class="st">"outer"</span>, on<span class="op">=</span>[<span class="st">"Date/Time"</span>, <span class="st">"Month"</span>, <span class="st">"Year"</span>])</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>by_index <span class="op">=</span> pd.merge(w1, w4, how<span class="op">=</span><span class="st">"outer"</span>, left_index<span class="op">=</span><span class="va">True</span>, right_index<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>with_season <span class="op">=</span> pd.merge(</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>    left<span class="op">=</span>weather, right<span class="op">=</span>seasons, how<span class="op">=</span><span class="st">"left"</span>, left_on<span class="op">=</span><span class="st">"Month"</span>, right_on<span class="op">=</span><span class="st">"month"</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><code>merge</code> 适用于“哪些行是同一个实体/观测”由 key 决定的情形；不是按物理行号粘贴。<code>on</code> 用两表同名 key；名称不同则用 <code>left_on</code>/<code>right_on</code>；要按 index 匹配用 <code>left_index=True</code> 与 <code>right_index=True</code>。</p>
+<ul>
+<li><code>how="outer"</code> 保留两边的全部 key；只能在一边找到的资料在另一边字段为 NaN。</li>
+<li><code>how="left"</code> 以左表的 key 为主，常用于为主表加 lookup 属性。</li>
+<li><code>how="right"</code> 以右表的 key 为主。</li>
+<li>按列 <code>on</code> merge 会建立新的默认 index；原 index 不会自动保留。</li>
+<li>join 前检查 key 的含义和重复：<code>merge</code> 可进行 one-to-one、one-to-many 或 many-to-many；重复 key 会使行数增长。行数突然暴增首先检查 key 是否唯一，而不是盲目删重。</li>
+</ul>
+<hr>
+</section>
+</section>
+<section id="自定义函数map-与分组聚合" class="level2">
+<h2 class="anchored" data-anchor-id="自定义函数map-与分组聚合">6. 自定义函数、<code>map</code> 与分组聚合</h2>
+<section id="apply-与-.map输入形状决定选择" class="level3">
+<h3 class="anchored" data-anchor-id="apply-与-.map输入形状决定选择">6.1 <code>.apply()</code> 与 <code>.map()</code>：输入形状决定选择</h3>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>操作</th>
+<th>函数接收什么</th>
+<th>作用范围</th>
+<th>典型写法</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>df.apply(func, axis=0)</code></td>
+<td>一列 Series（默认）</td>
+<td>DataFrame 按列</td>
+<td><code>df[["a", "b"]].apply(np.sum)</code></td>
+</tr>
+<tr class="even">
+<td><code>df.apply(func, axis=1)</code></td>
+<td>一行 Series</td>
+<td>DataFrame 按行</td>
+<td>用行内多列计算时</td>
+</tr>
+<tr class="odd">
+<td><code>df.map(func)</code></td>
+<td>一个 scalar</td>
+<td>DataFrame 每个元素</td>
+<td><code>df.map(round)</code></td>
+</tr>
+<tr class="even">
+<td><code>s.apply(func)</code></td>
+<td>一个 Series 的逐值应用</td>
+<td>Series</td>
+<td><code>s.apply(int)</code></td>
+</tr>
+<tr class="odd">
+<td><code>s.map(mapping_or_func)</code></td>
+<td>单值；也可查 dict</td>
+<td>Series</td>
+<td><code>s.map({"Winter": "Cold"})</code></td>
+</tr>
+</tbody>
+</table>
+<p>对能接收/返回单个值的函数（如 <code>round</code>），<code>apply</code> 与 <code>map</code> 可能看似一样；但 <code>np.sum</code> 这类接收 array/Series、返回单值的函数会显露差别：<code>df.apply(np.sum)</code> 给按列 summary，<code>df.map(np.sum)</code> 是错误的形状匹配。<code>Series.map(dict)</code> 中找不到的 key 会变成 <code>NaN</code>，所以 map 后要检查是否每个类别都有映射。</p>
+<p>给既有 DataFrame 新增列会改变对象。题目若要求保留原表，先写 <code>new_df = df.copy()</code>，再在 <code>new_df</code> 上赋值。</p>
+</section>
+<section id="groupbysplit-aggregate而不是一个普通-dataframe" class="level3">
+<h3 class="anchored" data-anchor-id="groupbysplit-aggregate而不是一个普通-dataframe">6.2 <code>groupby</code>：split → aggregate，而不是一个普通 DataFrame</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>co2_by_country <span class="op">=</span> (</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>    df.groupby(<span class="st">"country"</span>)[<span class="st">"co2_emmission"</span>]</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>      .<span class="bu">sum</span>()</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>      .sort_values(ascending<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>summary <span class="op">=</span> (</span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>    imdb.loc[:, [<span class="st">"Released_Year"</span>, <span class="st">"IMDB_Rating"</span>, <span class="st">"Meta_score"</span>, <span class="st">"No_of_Votes"</span>]]</span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>        .groupby(<span class="st">"Released_Year"</span>)</span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>        .agg([<span class="st">"mean"</span>, <span class="st">"sum"</span>, <span class="st">"count"</span>])</span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>custom_summary <span class="op">=</span> imdb.groupby(<span class="st">"Released_Year"</span>).agg(</span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>    imdb_avg<span class="op">=</span>(<span class="st">"IMDB_Rating"</span>, <span class="st">"mean"</span>),</span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>    meta_score_avg<span class="op">=</span>(<span class="st">"Meta_score"</span>, <span class="st">"mean"</span>),</span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><code>df.groupby(by=...)</code> 先创建 <code>DataFrameGroupBy</code>：每个 group key 对应一组原行。通常不直接阅读该对象，而是选定值列并 aggregate：<code>.mean()</code>、<code>.sum()</code>、<code>.count()</code>，或 <code>.agg()</code>/<code>.aggregate()</code>。</p>
+<ul>
+<li>先选择数值列再 aggregate，可避免非数值列干扰；<code>mean(numeric_only=True)</code> 也可明确忽略非数值列。</li>
+<li><code>.agg(["mean", "sum", "count"])</code> 对选择的每个数值列施加多个函数；传 dict 可为不同列指定不同函数。</li>
+<li><code>groupby(["Released_Year", "Certificate"])</code> 按两个变量的已出现组合分组；结果 index 是这些组合。</li>
+<li>未 <code>groupby</code> 的 <code>df.agg(...)</code> 是对整张表进行 summary；可用于多项整体统计。</li>
+<li>分组结果是否要 <code>reset_index()</code> 取决于后续是否把 group key 当普通列使用；题目要的 <code>Series</code> 不要无故转为 DataFrame。</li>
+</ul>
+<hr>
+</section>
+</section>
+<section id="字符串日期时间与类别变量" class="level2">
+<h2 class="anchored" data-anchor-id="字符串日期时间与类别变量">7. 字符串、日期时间与类别变量</h2>
+<section id="pandas-字符串操作在-series-前加-.str" class="level3">
+<h3 class="anchored" data-anchor-id="pandas-字符串操作在-series-前加-.str">7.1 pandas 字符串操作：在 Series 前加 <code>.str</code></h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>genres <span class="op">=</span> imdb[<span class="st">"Genre"</span>].<span class="bu">str</span>.split(<span class="st">","</span>, expand<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>genres[<span class="dv">1</span>] <span class="op">=</span> genres[<span class="dv">1</span>].<span class="bu">str</span>.strip()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>普通 Python 字符串有 <code>.find()</code>、<code>.replace()</code>、<code>.join()</code> 等 method；列是 Series 时，不能把它当一个 string 调用这些 method，而是经 <code>Series.str</code> 向量化调用。上例 <code>split(..., expand=True)</code> 将每条字符串拆为多列；分隔符后出现的空白仍在结果中，故再对相应列使用 <code>.str.strip()</code>。做清理前后都应检查一个具体单元格，确认去的是空白而非有效字符。</p>
+<p>Lecture 7 的 regex 示例标为 <strong>OPTIONAL</strong>，并明确写明 DSCI 521 会进一步教授 regex；本材料不把 regex 语法列为本次复习内容。</p>
+</section>
+<section id="pandas-的时间对象与创建" class="level3">
+<h3 class="anchored" data-anchor-id="pandas-的时间对象与创建">7.2 pandas 的时间对象与创建</h3>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>对象</th>
+<th>表示什么</th>
+<th>创建/例子</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>Timestamp</code></td>
+<td>一个时间点</td>
+<td><code>pd.Timestamp("2005-07-29")</code></td>
+</tr>
+<tr class="even">
+<td><code>Period</code></td>
+<td>一段时间（如一天）</td>
+<td><code>pd.Period("2005-07-09")</code>；有 <code>.start_time</code>、<code>.end_time</code></td>
+</tr>
+<tr class="odd">
+<td><code>Timedelta</code></td>
+<td>时间间隔/持续时间</td>
+<td><code>pd.Timedelta("1.5 hours")</code>；可加到 date/period range</td>
+</tr>
+<tr class="even">
+<td><code>DateOffset</code></td>
+<td>日历偏移规则</td>
+<td>时间运算所用的 offset 类型</td>
+</tr>
+<tr class="odd">
+<td><code>DatetimeIndex</code> / <code>PeriodIndex</code></td>
+<td>一列/数组式时间 index</td>
+<td><code>pd.date_range(...)</code> / <code>pd.period_range(...)</code></td>
+</tr>
+<tr class="even">
+<td><code>NaT</code></td>
+<td>缺失的日期时间</td>
+<td>pandas 的 datetime 缺失值</td>
+</tr>
+</tbody>
+</table>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>point <span class="op">=</span> pd.Timestamp(year<span class="op">=</span><span class="dv">2005</span>, month<span class="op">=</span><span class="dv">7</span>, day<span class="op">=</span><span class="dv">9</span>)</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>span <span class="op">=</span> pd.Period(<span class="st">"2005-07-09"</span>)</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>dates <span class="op">=</span> pd.date_range(<span class="st">"2020-09-01 12:00"</span>, <span class="st">"2020-09-11 12:00"</span>, freq<span class="op">=</span><span class="st">"2D"</span>)</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>periods <span class="op">=</span> pd.period_range(<span class="st">"2020-09-01"</span>, <span class="st">"2020-09-11"</span>, freq<span class="op">=</span><span class="st">"D"</span>)</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>df[<span class="st">"Date"</span>] <span class="op">=</span> pd.to_datetime(df[<span class="st">"Date"</span>])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><code>Timestamp</code> 是点，<code>Period</code> 是有边界的 span；不要把两者混作同一个概念。字符串日期先由 <code>pd.to_datetime()</code> 转换；一列日期格式混杂时，Lecture 7 给出的 <code>format="mixed"</code> 可逐值推断。也可在 <code>read_csv</code> 时解析日期并以其为 index，例如 <code>parse_dates=True, index_col=0</code>，但读入后仍需检查得到的 index 是否真是 datetime。</p>
+</section>
+<section id="datetimeindex选取拆分和重采样" class="level3">
+<h3 class="anchored" data-anchor-id="datetimeindex选取拆分和重采样">7.3 DatetimeIndex：选取、拆分和重采样</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>cycling.loc[<span class="st">"2019-10"</span>]                         <span class="co"># 2019 年 10 月</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>cycling.sort_index().loc[<span class="st">"2019-10-01"</span>:<span class="st">"2019-10-13"</span>]</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>cycling.between_time(<span class="st">"00:00"</span>, <span class="st">"01:00"</span>)</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>s.dt.year                                       <span class="co"># Series 的 datetime accessor</span></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>cycling.index.weekday                           <span class="co"># DatetimeIndex attribute</span></span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>weekly <span class="op">=</span> cycling[[<span class="st">"Time"</span>, <span class="st">"Distance"</span>]].resample(<span class="st">"1D"</span>).mean()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<ul>
+<li>DatetimeIndex 支持<strong>部分字符串索引</strong>（年月等）和普通 selection。按日期范围 slice 前需 index 有序；未排序的 index 可能报错，<code>sort_index()</code> 后再切。</li>
+<li>对 DatetimeIndex 直接取 <code>.weekday</code>、<code>.second</code>、<code>.day_name()</code>、<code>.month_name()</code> 等；对 datetime <strong>Series</strong> 用 <code>.dt</code>，如 <code>s.dt.year</code>。<code>s.year</code> 不可用。</li>
+<li><code>.between_time(start, end)</code> 按一天中的时刻选记录。</li>
+<li><code>.resample(freq)</code> 类似专为时间 index 设计的 <code>groupby</code>，先产生 Resampler；必须接 aggregate（如 <code>.mean()</code>）才得到每个时间桶的结果。<code>"1D"</code> 表示每天；课程列出 <code>h</code>、<code>min</code>、<code>s</code>、<code>B</code>、<code>MS</code>、<code>ME</code> 等常用频率。没有观测的桶常得到 NaN，是否填 0 要由业务含义决定。</li>
+</ul>
+</section>
+<section id="category有限取值顺序和清理次序" class="level3">
+<h3 class="anchored" data-anchor-id="category有限取值顺序和清理次序">7.4 <code>category</code>：有限取值、顺序和清理次序</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>bean[<span class="st">"Class"</span>] <span class="op">=</span> bean[<span class="st">"Class"</span>].astype(<span class="st">"category"</span>)</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>bean[<span class="st">"Class"</span>].cat.categories</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>order <span class="op">=</span> [<span class="st">"single author"</span>, <span class="st">"indie"</span>, <span class="st">"small/medium"</span>, <span class="st">"big five"</span>]</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>pub[<span class="st">"publisher.type"</span>] <span class="op">=</span> pd.Categorical(</span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>    pub[<span class="st">"publisher.type"</span>], categories<span class="op">=</span>order, ordered<span class="op">=</span><span class="va">True</span></span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>pub <span class="op">=</span> pub.sort_values(<span class="st">"publisher.type"</span>, ascending<span class="op">=</span><span class="va">False</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>category 适用于取值数有限、通常固定的变量。它内部以 categories 和 codes 存储，重复值多时可减少内存，并可改善某些 <code>groupby</code>/sort 操作；最关键的是可表达<strong>非字母顺序</strong>的有序等级。</p>
+<ul>
+<li><code>astype("category")</code> 将现有列转为 category；用 <code>s.cat.categories</code> 查看 level。</li>
+<li><code>pd.Categorical(..., categories=order, ordered=True)</code> 明确指定 categories 和排序语义；字符串默认按字母排序，不代表业务顺序。</li>
+<li><strong>先清理、后转 category。</strong> 如 <code>'comics'</code> 与 <code>'Comics'</code> 实为同一类别，先标准化文本；否则 category 会把它们当不同 level。</li>
+</ul>
+</section>
+</section>
+<section id="lecture-8大数据生成器memmap-与测试" class="level2">
+<h2 class="anchored" data-anchor-id="lecture-8大数据生成器memmap-与测试">8. Lecture 8：大数据、生成器、memmap 与测试</h2>
+<section id="ramdisk-与-streaming" class="level3">
+<h3 class="anchored" data-anchor-id="ramdisk-与-streaming">8.1 RAM、disk 与 streaming</h3>
+<p>运行中的程序变量必须放在 RAM；disk 保存文件且断电后仍持久。数据集、模型和中间对象加起来超过 RAM 会导致 out-of-memory。<strong>Streaming</strong> 的核心是只在内存中保留当前可处理的小块，其余内容留在 disk 上；生成器逐项产生数据、memmap 按需读取数组，都是这种思路。语言模型训练的典型管线是：很大的文本文件 → token ids → 固定大小的 batch。</p>
+</section>
+<section id="generatoryieldnext-与耗尽" class="level3">
+<h3 class="anchored" data-anchor-id="generatoryieldnext-与耗尽">8.2 generator：<code>yield</code>、<code>next</code> 与耗尽</h3>
+<p>生成器函数用 <code>yield</code> 逐个产生值，而不是一次 <code>return</code> 一个结果。调用生成器函数时，函数体尚未执行，只得到一个 generator object；每次 <code>next(gen)</code> 才从暂停处继续执行到下一个 <code>yield</code>，返回值后暂停。<code>for</code> 循环、comprehension 也会逐步消费 generator。</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> xsquared_generator(values):</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> x <span class="kw">in</span> values:</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>        <span class="cf">yield</span> x <span class="op">**</span> <span class="dv">2</span></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>gen <span class="op">=</span> xsquared_generator([<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>])</span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a><span class="bu">next</span>(gen)       <span class="co"># 1</span></span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a><span class="bu">next</span>(gen)       <span class="co"># 4</span></span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a><span class="bu">list</span>(gen)       <span class="co"># [9]：剩余值被消费</span></span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a><span class="co"># 再 next(gen) 会 raise StopIteration</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>生成器是单向、一次性的 iterable：不能用 <code>gen[i]</code> 索引，也没有可靠的 <code>len(gen)</code>；转成 <code>list</code> 会把所有结果一次放进 RAM，失去 streaming 的优点。生成器执行题要追踪每次 <code>next()</code> 到哪个 <code>yield</code>，并注意循环结束后的 <code>StopIteration</code>。普通 iterator class 通过 <code>__iter__</code> 和 <code>__next__</code> 实现同样的逐项协议，但本课重点是 generator function。</p>
+</section>
+<section id="文件行迭代与-tokenizer" class="level3">
+<h3 class="anchored" data-anchor-id="文件行迭代与-tokenizer">8.3 文件行迭代与 tokenizer</h3>
+<p><code>open(filename, "r")</code> 返回可逐行迭代的 file object；每次只读取下一行，不必将整个文件载入 RAM。用 context manager 保证即使提前停止迭代，文件也会关闭：</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> words_generator(filename):</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">with</span> <span class="bu">open</span>(filename, <span class="st">"r"</span>) <span class="im">as</span> f:</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> line <span class="kw">in</span> f:</span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>            line <span class="op">=</span> line.strip()</span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> line <span class="op">==</span> <span class="st">""</span>:</span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>                <span class="cf">continue</span></span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>            <span class="cf">yield</span> line.split(<span class="st">" "</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>不要把 <code>for line in open(...)</code> 写成长期持有且没有清理的资源；<code>with</code> 的退出会负责 close。tokenization 是把文本 token（这里的 word）映射成神经网络可用的整数 token id。最简单的 tokenizer 用 dictionary 记录已见 token，并为新 token 分配下一个 id；它同样可以边读边 yield 每行的 id list：</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> tokens_generator(filename):</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>    token_to_id <span class="op">=</span> {}</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>    next_id <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">with</span> <span class="bu">open</span>(filename, <span class="st">"r"</span>) <span class="im">as</span> f:</span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> line <span class="kw">in</span> f:</span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>            words <span class="op">=</span> line.strip().split(<span class="st">" "</span>)</span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> words <span class="op">==</span> [<span class="st">""</span>]:</span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>                <span class="cf">continue</span></span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>            <span class="cf">for</span> word <span class="kw">in</span> words:</span>
+<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a>                <span class="cf">if</span> word <span class="kw">not</span> <span class="kw">in</span> token_to_id:</span>
+<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a>                    token_to_id[word] <span class="op">=</span> next_id</span>
+<span id="cb16-12"><a href="#cb16-12" aria-hidden="true" tabindex="-1"></a>                    next_id <span class="op">+=</span> <span class="dv">1</span></span>
+<span id="cb16-13"><a href="#cb16-13" aria-hidden="true" tabindex="-1"></a>            <span class="cf">yield</span> [token_to_id[word] <span class="cf">for</span> word <span class="kw">in</span> words]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+<section id="datasetdata-loaderbatch-与-zero-padding" class="level3">
+<h3 class="anchored" data-anchor-id="datasetdata-loaderbatch-与-zero-padding">8.4 dataset、data loader、batch 与 zero-padding</h3>
+<p><strong>Dataset</strong> 是数据本身及其访问方式：iterable dataset 只能顺序迭代（例如上面的 token generator），map-style dataset 则支持按 index 取任意样本。<strong>Data loader</strong> 负责从 dataset 取数据并按训练需要交付 batch，通常还决定 batch size、顺序/是否 shuffle 等。</p>
+<p>一个简单的 batch loader 可先收集 <code>batch_size</code> 条 token list，找出该 batch 的最长序列，建立矩形 NumPy array；较短序列剩余位置用 0 填充（zero-padding）：</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> batch_loader(token_gen, batch_size):</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>    pending <span class="op">=</span> []</span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> token_ids <span class="kw">in</span> token_gen:</span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>        pending.append(token_ids)</span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="bu">len</span>(pending) <span class="op">==</span> batch_size:</span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>            width <span class="op">=</span> <span class="bu">max</span>(<span class="bu">len</span>(ids) <span class="cf">for</span> ids <span class="kw">in</span> pending)</span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a>            batch <span class="op">=</span> np.zeros((batch_size, width))</span>
+<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a>            <span class="cf">for</span> i, ids <span class="kw">in</span> <span class="bu">enumerate</span>(pending):</span>
+<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a>                batch[i, :<span class="bu">len</span>(ids)] <span class="op">=</span> ids</span>
+<span id="cb17-12"><a href="#cb17-12" aria-hidden="true" tabindex="-1"></a>            <span class="cf">yield</span> batch</span>
+<span id="cb17-13"><a href="#cb17-13" aria-hidden="true" tabindex="-1"></a>            pending <span class="op">=</span> []</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>这会保留输入顺序，并可能浪费 padding 的空间；只 yield 完整 batch 时，末尾不足 <code>batch_size</code> 的样本会被丢弃，需按题目要求判断是否处理 remainder。</p>
+</section>
+<section id="numpy.memmapdisk-上的可索引数组" class="level3">
+<h3 class="anchored" data-anchor-id="numpy.memmapdisk-上的可索引数组">8.5 <code>numpy.memmap</code>：disk 上的可索引数组</h3>
+<p><code>np.memmap</code> 让文件在 disk 上表现得像 NumPy array：程序可按 index 或 slice 读取/修改需要的部分，而不用把整个数组放进 RAM。它适合构造 map-style dataset，使 shuffle 和随机取样可行。创建时必须保持 <code>dtype</code>、<code>shape</code> 与文件布局一致；写入后调用 <code>.flush()</code>，确保修改回写文件。</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>mm <span class="op">=</span> np.memmap(<span class="st">"tokens.mmap"</span>, dtype<span class="op">=</span>np.int32,</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>               mode<span class="op">=</span><span class="st">"w+"</span>, shape<span class="op">=</span>(num_tokens,))</span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>mm[start:stop] <span class="op">=</span> token_ids</span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>mm.flush()</span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>item <span class="op">=</span> mm[<span class="dv">100</span>:<span class="dv">120</span>]       <span class="co"># 按索引/切片取所需数据</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>课程示例的 <code>MemmapTokenDataset</code> 会先统计 token 数量、建立 memmap、写入 token ids 并保存 tokenizer dictionary，再用 <code>change_seq_len</code> 规定每条序列长度：</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> MemmapTokenDataset:</span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__len__</span>(<span class="va">self</span>):</span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>        <span class="cf">assert</span> <span class="va">self</span>.seq_len <span class="op">&gt;</span> <span class="dv">0</span></span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="va">self</span>.num_tokens <span class="op">//</span> <span class="va">self</span>.seq_len</span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__getitem__</span>(<span class="va">self</span>, index):</span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>        <span class="cf">assert</span> <span class="dv">0</span> <span class="op">&lt;=</span> index <span class="op">&lt;</span> <span class="bu">len</span>(<span class="va">self</span>)</span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a>        start <span class="op">=</span> index <span class="op">*</span> <span class="va">self</span>.seq_len</span>
+<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> np.array(<span class="va">self</span>.memmap[start:start <span class="op">+</span> <span class="va">self</span>.seq_len])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><code>len(dataset)</code> 是可切出的完整序列数；<code>dataset[i]</code> 是第 <code>i</code> 条序列。越界访问必须明确防护：Lecture 8 提醒 memmap 本身的边界错误处理有限，不能把它当成自动验证输入的普通 list。随机顺序的 data loader 可先建立 <code>range(len(dataset))</code>、在 <code>shuffle=True</code> 时打乱，再按 batch 取样。</p>
+</section>
+<section id="assert浮点比较与单元测试" class="level3">
+<h3 class="anchored" data-anchor-id="assert浮点比较与单元测试">8.6 <code>assert</code>、浮点比较与单元测试</h3>
+<p><code>assert expression, "message"</code> 在条件为假时抛出 <code>AssertionError</code>，可快速检验函数结果。浮点数受表示误差影响，不要轻易用 <code>==</code>：</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> math</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> math.isclose(<span class="fl">0.1</span> <span class="op">+</span> <span class="fl">0.2</span>, <span class="fl">0.3</span>, abs_tol<span class="op">=</span><span class="fl">0.001</span>)</span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> <span class="st">"apple"</span> <span class="kw">in</span> result</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>单元测试的 AAA 原则是 <strong>Arrange</strong>（准备输入）、<strong>Act</strong>（调用被测对象）、<strong>Assert</strong>（检查结果）。断言要精确表达需求，但不要把不需要的顺序/格式限制写进断言；同时避免在测试中加入 <code>if</code>、<code>for</code> 等逻辑，因为测试本身可能引入 bug 或掩盖错误。要覆盖合理的 corner cases（空输入、单元素、偶数长度等），也要警惕“所有测试通过”仍可能漏测错误，例如只测了奇数长度的 median。</p>
+<p>TDD（Test Driven Development）先写期望，再写实现：可先写接受参数并返回正确类型的 stub，写设计规格对应的测试，再用 pseudocode 实现并频繁测试、补文档。课程说明 TDD 在 MDS 中不是强制要求，但可帮助把复杂任务拆成小步。</p>
+<p>EAFP（Easier to Ask for Forgiveness than Permission）先尝试操作、失败时捕获预期异常；LBYL（Look Before You Leap）先检查条件再操作。比如读取可能不存在的 dictionary key 可选择 <code>try/except KeyError</code>（EAFP），或先检查 key 是否存在（LBYL）；根据上下文选择，不是绝对的对错。</p>
+<hr>
+</section>
+</section>
+<section id="读题与查错清单" class="level2">
+<h2 class="anchored" data-anchor-id="读题与查错清单">9. 读题与查错清单</h2>
+<ol type="1">
+<li><strong>先写出对象结构。</strong> 是 DataFrame 还是 Series？列名、index、shape、dtype 分别是什么？</li>
+<li><strong>选择前确认基准。</strong> 题目给的是 label 还是从 0 开始的位置？要一列 Series 还是一列 DataFrame？</li>
+<li><strong>每一步问“是否返回 copy？”</strong> <code>set_index</code>、<code>drop</code>、<code>fillna</code>、<code>rename</code>、<code>reset_index</code>、<code>sort_values</code> 和 reshape 的结果若不赋值，原变量不会自动替换。</li>
+<li><strong>过滤逐条件加括号。</strong> boolean mask 中使用 <code>&amp;</code>/<code>|</code>/<code>~</code>，不用 <code>and</code>/<code>or</code>/<code>not</code>；长条件可先分开命名 mask 再组合。</li>
+<li><strong>reshape 先定义一行代表什么。</strong> <code>pivot</code> 前检查 index/columns 组合是否唯一；重复时用 <code>pivot_table</code>，并说明它应如何 aggregate。</li>
+<li><strong>合并先说 key，再看行数。</strong> <code>concat</code> 是沿轴拼接；<code>merge</code> 是依 key 匹配。merge 后行数异常增长通常意味着重复 key 形成 many-to-many。</li>
+<li><strong><code>apply</code> 与 <code>map</code> 先看函数输入。</strong> 函数吃 Series/array 时选 <code>apply</code>；吃 scalar 时选 <code>map</code>；<code>Series.map(dict)</code> 的未映射值会成为 NaN。</li>
+<li><strong>日期先转换且排序。</strong> <code>pd.to_datetime</code> 后才有 datetime 操作；日期范围 slicing 先 <code>sort_index()</code>；Series 用 <code>.dt</code>，DatetimeIndex 直接用其属性。</li>
+<li><strong>类别先清理再排序。</strong> <code>category</code> 的顺序不是文本字母序时，明确给 <code>categories</code> 与 <code>ordered=True</code>。</li>
+</ol>
+<hr>
+</section>
+<section id="主要来源" class="level2">
+<h2 class="anchored" data-anchor-id="主要来源">主要来源</h2>
+<ul>
+<li>本学期课程 README：课程学习目标、Lecture 5–8 主题表、Quiz 2 评分权重，<code>official/current/DSCI_511_py-prog_students/README.md</code>。</li>
+<li>本学期 Lecture 5：DataFrame 读入、检查、indexing、向量化、排序、清理、过滤，<code>official/current/DSCI_511_py-prog_students/lecture-notes/lecture5.ipynb</code>。</li>
+<li>本学期 Lecture 6：tidy data、reshape、concat/merge、apply/map、groupby/agg，<code>official/current/DSCI_511_py-prog_students/lecture-notes/lecture6.ipynb</code>。</li>
+<li>本学期 Lecture 7：<code>Series.str</code>、datetime、resample、categorical；其中 regex 段明确为 <strong>OPTIONAL</strong>，<code>official/current/DSCI_511_py-prog_students/lecture-notes/lecture7.ipynb</code>。</li>
+<li>本学期 Lecture 8：RAM/disk 与 streaming、generators、文件/context manager、tokenization、dataset/data loader、batching/zero-padding、<code>numpy.memmap</code>、unit testing/TDD，<code>official/current/DSCI_511_py-prog_students/lecture-notes/lecture8.ipynb</code>。</li>
+<li>已发布练习：Worksheet 5（DataFrames）与 Worksheet 6（filter/melt/pivot/reset_index/map/groupby），分别在 <code>official/current/DSCI_511_py-prog_students/worksheets/worksheet5/student/worksheet5.ipynb</code>、<code>official/current/DSCI_511_py-prog_students/worksheets/worksheet6/student/worksheet6.ipynb</code>。</li>
+<li>已发布 Lab 3：明示练习 Lectures 5–6 的 core Pandas skills，<code>official/current/DSCI_511_py-prog_students/labs/lab3/student/lab3.ipynb</code>。</li>
+</ul>
+</section>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>
