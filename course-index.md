@@ -7,33 +7,50 @@
 
 - **CL 专属** = 只有 MDS-CL 学生上；其余是和 MDS-V 合班，分 001/002 两个 lecture section。
 
-| Block | 课程 | 名称 | 日期区间 | CL 专属 | Quiz | Lab | Worksheet | on-site | on-site total | 其他 off-site | grade remark |
+评分相关空白表示**尚未确认**，不表示 0 或没有该项。Block 2 主表统一按 **mds-2026-27 本学期官方 syllabus** 列评分，每项只计一次；531／552／571 的 Quiz、Lab、Worksheet、on-site、其他 off-site 五列相加均为 100%。`on-site total` 是说明性小计，**不另加到总分**；这三行不重复填写该小计。531 的 Canvas 配置差异单独记录在来源说明，不混入主表。
+
+Block 2 课表：[Cohort 3／L03 `.ics`](block2-l03-2026-10-05_2026-11-06.ics)（2026-10-04 核查；共享课逐日核对，含 10-16 的 571 补课。512 仅按 CL 周课表展开并标暂定；Quiz 2 仅有暂定窗口，不是个人预约）。[生成与验证记录](tmp/runs/20261004-173343_block2-index-calendar/agent_report.md)。
+
+自建 Google 日历 **`courses`** 使用 [Block 1＋2 合并 ICS](mdscl-courses-block1-2.ics)：Block 1 从已导入的日历原样恢复为 [单独 ICS](block1-l03-recovered.ics)，与 Block 2 合计 104 项。官方 `Yi Zhang Calendar (Canvas)` 和必修课筛选 `courses to attend` 不随本次更新。
+
+| Block | 课程 | 名称 | 日期区间 | CL 专属 | Quiz | Lab | Worksheet | on-site | on-site total（小计，不另加） | 其他 off-site | grade remark |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| 1 | DSCI 511 | Programming for Data Science | 2026-08-31 → 10-01 | ✅ | 25 + 25 = **50** | 7 × 4 = **28** | 1 × 8 = **8** | 口试 **14**（缺席即 0） | **14** | 无 | — |
+| 1 | DSCI 511 | Programming for Data Science | 2026-08-31 → 10-01 | ✅ | 25 + 25 = **50** | 7 × 4 = **28** | 8 份，共 **8**（丢最低 2 份） | 口试 **14**（缺席即 0） | **14** | 无 | — |
 | 1 | DSCI 521 | Computing Platforms for Data Science | 2026-08-31 → 10-01 | | 无 | lab0a + 0b = **2** | 无 | Practice **6** + group lab **10**（未确认是否必须到场） | **16** | Setup/问卷/Policies 各 1 = **3**；Milestone **19 / 25 / 35** | **项目课**，无 quiz 无常规 lab。整个 Block 建一个 Quarto 网站发 GitHub Pages |
-| 1 | DSCI 523 | Programming for Data Manipulation | 2026-08-31 → 10-01 | | 30 + 30 = **60** | 7 × 4 = **28** | 1 × 8 = **8** | pre-lecture quiz **4**（缺席即 0，无补考） | **4** | 无 | — |
+| 1 | DSCI 523 | Programming for Data Manipulation | 2026-08-31 → 10-01 | | 30 + 30 = **60** | 7 × 4 = **28** | 8 份，共 **8**（丢最低 2 份） | pre-lecture quiz **4**（缺席即 0，无补考；丢最低 2 次） | **4** | 无 | Canvas worksheet／pre-lecture quiz 均设置丢最低 2 项 |
 | 1 | DSCI 551 | Descriptive Statistics and Probability | 2026-08-31 → 10-01 | | 25 + 25 = **50** | 12.5 × 4 = **50** | 无 | 无 | **0** | 无 | 一分到场分都没有 |
-| 2 | DSCI 512 | Algorithms & Data Structures | 2026-10-05 → 11-05 | ✅ | ? | ? | ? | ? | ? | ? | ? |
-| 2 | DSCI 531 | Data Visualization I | 2026-10-05 → 11-05 | | ? | ? | ? | ? | ? | ? | ? |
-| 2 | DSCI 552 | Statistical Inference and Computation I | 2026-10-05 → 11-05 | | ? | ? | ? | ? | ? | ? | ? |
-| 2 | DSCI 571 | Supervised Learning I | 2026-10-05 → 11-05 | | ? | ? | ? | ? | ? | ? | ? |
-| 3 | COLX 521 | Corpus Linguistics | 2026-11-16 → 12-17 | ✅ | ? | ? | ? | ? | ? | ? | ? |
-| 3 | DSCI 513 | Databases & Data Retrieval | 2026-11-16 → 12-17 | | ? | ? | ? | ? | ? | ? | ? |
-| 3 | DSCI 561 | Regression I | 2026-11-16 → 12-17 | | ? | ? | ? | ? | ? | ? | ? |
-| 3 | DSCI 573 | Feature and Model Selection | 2026-11-16 → 12-17 | | ? | ? | ? | ? | ? | ? | ? |
-| 4 | COLX 535 | Parsing for Computational Linguistics | 2027-01-04 → 02-04 | ✅ | ? | ? | ? | ? | ? | ? | ? |
-| 4 | COLX 561 | Computational Semantics | 2027-01-04 → 02-04 | ✅ | ? | ? | ? | ? | ? | ? | ? |
-| 4 | DSCI 563 | Unsupervised Learning | 2027-01-04 → 02-04 | | ? | ? | ? | ? | ? | ? | ? |
-| 4 | DSCI 572 | Supervised Learning II | 2027-01-04 → 02-04 | | ? | ? | ? | ? | ? | ? | ? |
-| 5 | COLX 523 | Advanced Corpus Linguistics | 2027-02-08 → 03-11 | ✅ | ? | ? | ? | ? | ? | ? | ? |
-| 5 | COLX 525 | Computational Morphology | 2027-02-08 → 03-11 | ✅ | ? | ? | ? | ? | ? | ? | ? |
-| 5 | COLX 531 | Machine Translation | 2027-02-08 → 03-11 | ✅ | ? | ? | ? | ? | ? | ? | ? |
-| 5 | COLX 563 | Advanced Computational Semantics | 2027-02-08 → 03-11 | ✅ | ? | ? | ? | ? | ? | ? | ? |
-| 6 | COLX 565 | Sentiment Analysis | 2027-03-22 → 04-22 | ✅ | ? | ? | ? | ? | ? | ? | ? |
-| 6 | COLX 581 | NLP for Low-Resource Languages | 2027-03-22 → 04-22 | ✅ | ? | ? | ? | ? | ? | ? | ? |
-| 6 | COLX 585 | Trends in Computational Linguistics | 2027-03-22 → 04-22 | ✅ | ? | ? | ? | ? | ? | ? | ? |
-| 6 | DSCI 541 | Privacy, Ethics & Security | 2027-03-22 → 04-22 | | ? | ? | ? | ? | ? | ? | ? |
-| 7 | COLX 595 | Capstone Project | 2027-04-26 → 06-24 | ✅ | ? | ? | ? | ? | ? | ? | ? |
+| 2 | DSCI 512 | Algorithms & Data Structures | 2026-10-05 → 11-05 | ✅ | | | | | | | CL 003 独立课程，Canvas 尚未发布；不套用 001／002 评分表 |
+| 2 | DSCI 531 | Data Visualization I | 2026-10-05 → 11-05 | | 25 + 25 = **50** | 12 × 4 = **48** | 已含在 lab，不另计 | iClicker **2** | — | 无 | 按本学期 syllabus；Canvas 配置差异见下 |
+| 2 | DSCI 552 | Statistical Inference and Computation I | 2026-10-05 → 11-05 | | 30 + 30 = **60** | 10 × 4 = **40** | 无独立计分项 | 无 | — | 无 | syllabus 与 Canvas 权重一致 |
+| 2 | DSCI 571 | Supervised Learning I | 2026-10-05 → 11-05 | | 25 + 25 = **50** | **12 / 12 / 10 / 12 = 46** | 无独立计分项 | lab 内口头 reasoning check-in **4** | — | 无 | PrairieLearn reasoning 题用于准备口头 check-in，不另计分；syllabus 与 Canvas 权重一致 |
+| 3 | COLX 521 | Corpus Linguistics | 2026-11-16 → 12-17 | ✅ | | | | | | | |
+| 3 | DSCI 513 | Databases & Data Retrieval | 2026-11-16 → 12-17 | | | | | | | | |
+| 3 | DSCI 561 | Regression I | 2026-11-16 → 12-17 | | | | | | | | |
+| 3 | DSCI 573 | Feature and Model Selection | 2026-11-16 → 12-17 | | | | | | | | |
+| 4 | COLX 535 | Parsing for Computational Linguistics | 2027-01-04 → 02-04 | ✅ | | | | | | | |
+| 4 | COLX 561 | Computational Semantics | 2027-01-04 → 02-04 | ✅ | | | | | | | |
+| 4 | DSCI 563 | Unsupervised Learning | 2027-01-04 → 02-04 | | | | | | | | |
+| 4 | DSCI 572 | Supervised Learning II | 2027-01-04 → 02-04 | | | | | | | | |
+| 5 | COLX 523 | Advanced Corpus Linguistics | 2027-02-08 → 03-11 | ✅ | | | | | | | |
+| 5 | COLX 525 | Computational Morphology | 2027-02-08 → 03-11 | ✅ | | | | | | | |
+| 5 | COLX 531 | Machine Translation | 2027-02-08 → 03-11 | ✅ | | | | | | | |
+| 5 | COLX 563 | Advanced Computational Semantics | 2027-02-08 → 03-11 | ✅ | | | | | | | |
+| 6 | COLX 565 | Sentiment Analysis | 2027-03-22 → 04-22 | ✅ | | | | | | | |
+| 6 | COLX 581 | NLP for Low-Resource Languages | 2027-03-22 → 04-22 | ✅ | | | | | | | |
+| 6 | COLX 585 | Trends in Computational Linguistics | 2027-03-22 → 04-22 | ✅ | | | | | | | |
+| 6 | DSCI 541 | Privacy, Ethics & Security | 2027-03-22 → 04-22 | | | | | | | | |
+| 7 | COLX 595 | Capstone Project | 2027-04-26 → 06-24 | ✅ | | | | | | | |
+
+## Block 2 评分来源
+
+以下是 **mds-2026-27 本学期官方课程材料**，不是往年公开仓库或由总分倒推。README 在 2026-10-04 重新从 UBC GitHub Enterprise API 读取；Canvas 权重为同日已登录页面／assignment groups 的实际配置。
+
+- **DSCI 531**：主表采用 [官方 syllabus 的 Assessments](https://github.ubc.ca/mds-2026-27/DSCI_531_viz-1_students#assessments)，也是 [Canvas Syllabus](https://canvas.ubc.ca/courses/192034/external_tools/70954) 实际链接的来源：lab 48%＋quiz 50%＋iClicker 2%＝100%。worksheet 已含在 lab。另查 [Canvas Grades](https://canvas.ubc.ca/courses/192034/grades)，其配置为 R lab 20%＋Python lab 30%＋quiz 50%，另列 Optional lab activities 1% 和 Bonus 1%，合计 102%；该配置与 syllabus 不一致，最终用途尚未澄清，**不加入主表、也不与 syllabus 相加**。
+- **DSCI 552**：[官方 syllabus 的 Deliverables](https://github.ubc.ca/mds-2026-27/DSCI_552_stat-inf-1_students#deliverables) + [Canvas Grades](https://canvas.ubc.ca/courses/195281/grades)。两来源均为四份 lab 各 10%、两次 quiz 各 30%；Canvas 的 iClicker／worksheet 分组是 0%。
+- **DSCI 571**：[官方 syllabus 的 Deliverables](https://github.ubc.ca/mds-2026-27/DSCI_571_sup-learn-1_students#deliverables) + [Canvas Grades](https://canvas.ubc.ca/courses/190413/grades)。两来源均为 lab 12%／12%／10%／12%、quiz 25%／25%、口头 check-in 4%。
+
+[原始响应与来源核查记录](tmp/runs/20261004-184258_calendar-publish/agent_report.md)；[先前跨平台核查](tmp/runs/20261004-134557_block2-and-grades/agent_report.md)。来源冲突不通过归一化或重复计分解决；主表只展示上面明确选定的 syllabus 构成。
+
 
 ## 关于 on-site
 

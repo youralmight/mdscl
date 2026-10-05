@@ -8,12 +8,11 @@
 - **不纳入：** `appendix_numpy.ipynb` 和 `appendix_plotting.ipynb`；Lecture 7 的 regex 段仍标为 **OPTIONAL**，不把 regex 语法列为本次复习重点。
 - **范围提示：** 仍应以教师发布的 quiz logistics 和题目措辞为准；本笔记覆盖上述最终 Lecture 5–8 教学材料中的可考概念与代码模式。
 
----
-
+------------------------------------------------------------------------
 
 ## 1. DataFrame 的结构、读入与快速检查
 
-```python
+``` python
 import pandas as pd
 ```
 
@@ -22,7 +21,7 @@ import pandas as pd
 ### 1.1 读文件：先弄清分隔符、表头与 index
 
 | 任务 | 常用写法 | 要点 |
-|---|---|---|
+|------------------------|------------------------|------------------------|
 | 普通 CSV | `pd.read_csv("data.csv")` | 默认首行是列名、逗号是分隔符。 |
 | TSV | `pd.read_csv("data.tsv", sep="\t")` | 忘记 `sep` 会把整行误读成一列。 |
 | 无表头文件 | `pd.read_csv("x.tsv", sep="\t", header=None)` | 不把首行数据误当列名；pandas 用整数列标签。 |
@@ -36,7 +35,7 @@ import pandas as pd
 ### 1.2 attribute 不加括号；method 要加括号
 
 | 表达式 | 返回/用途 |
-|---|---|
+|------------------------------------|------------------------------------|
 | `df.shape` | `(n_rows, n_cols)`；**attribute**，不要写 `()`。 |
 | `df.columns` / `df.columns.to_list()` | 列标签 Index / 普通 list。 |
 | `df.head(n)` / `df.tail(n)` | 前/后 `n` 行；默认 5。 |
@@ -46,14 +45,14 @@ import pandas as pd
 
 方法通常产生新结果；不要把“看到了输出”误认成原对象已改变。题目若要求保存变换结果，必须赋回名字或赋给新名字。
 
----
+------------------------------------------------------------------------
 
 ## 2. 选择、index 与向量化列操作
 
 ### 2.1 `[]`、`.loc`、`.iloc`：先问“按什么定位？”
 
 | 目的 | 写法 | 基准 | 常见返回 |
-|---|---|---|---|
+|------------------|------------------|------------------|------------------|
 | 一列 | `df["city"]` | 列标签 | `Series` |
 | 多列 | `df[["city", "region"]]` | 列标签 | `DataFrame` |
 | 按标签取 | `df.loc[row_label, col_label]` | 行/列**标签** | 单值、Series 或 DataFrame |
@@ -68,7 +67,7 @@ import pandas as pd
 
 ### 2.2 不用逐行 loop：整列向量化
 
-```python
+``` python
 scores["Student Mean"] = scores.mean(axis=1)       # 每行均值
 scores["Scaled Chemistry"] = scores["Chemistry"] * 1.03
 scores["Science Mean"] = (
@@ -80,7 +79,7 @@ scores["Science Mean"] = (
 
 ### 2.3 排序、过滤与 `query`
 
-```python
+``` python
 recent = df.sort_values(by="year_formed", ascending=False)
 
 selected = df[(df["region"] == "Cariboo") | (df["region"] == "Kootenay")]
@@ -94,13 +93,13 @@ selected = df.query("industry_sector == 'Construction' and year_formed > 2015")
 - `.query()` 把条件写为字符串，内部可用 `and`/`or`/`not`；列名直接写，不重复 `df[...]`。含空格的列名须用反引号包住；匹配的字符串值用引号。
 - `query()` 对长的普通列条件较易读；涉及 Series method（如 `.isin()`、`.str.contains()`）时，boolean mask 更灵活。
 
----
+------------------------------------------------------------------------
 
 ## 3. 清理与保存：缺失值、删除、改名
 
 ### 3.1 `NaN` 是数据，先检测再决定规则
 
-```python
+``` python
 has_na_by_col = df.isna().any()
 only_complete = df.dropna()
 filled = df.fillna("No source")
@@ -110,7 +109,7 @@ filled = df.fillna("No source")
 
 ### 3.2 `drop`、`rename` 与列名
 
-```python
+``` python
 df = df.drop([14379, 54578])          # 按 index 标签删行
 df = df.drop(["Art", "Drama"], axis=1)  # 删列
 
@@ -123,7 +122,7 @@ df.columns = ["col_a", "col_b", "col_c"]
 - 直接赋 `df.columns = [...]` 是整体替换，长度与顺序必须完整匹配当前列，适合确定所有新列名时。reshape 后的 MultiIndex columns 常需先 `reset_index()`，再明确检查/设置列名。
 - 保存为 CSV 用 `df.to_csv("out.csv")`；写出前检查是否应同时输出 pandas index，以免意外多出索引列。
 
----
+------------------------------------------------------------------------
 
 ## 4. Tidy data 与 reshape
 
@@ -131,22 +130,22 @@ df.columns = ["col_a", "col_b", "col_c"]
 
 一份 tidy 数据满足：
 
-1. 每个变量是一列；
-2. 每个 observation 是一行；
-3. 每种 observational unit 是一张表。
+1.  每个变量是一列；
+2.  每个 observation 是一行；
+3.  每种 observational unit 是一张表。
 
 **wide** 与 **long** 只是结构；不是任何场景下谁更“好”。问题若要比较同一 `country`、`food_category` 下的 consumption 与 emissions，这两个测量应成为两列；若原表把同一变量的多个取值塞在列名里，则通常需转 long。先说清“每行应代表什么”，再选操作。
 
 ### 4.2 转置、`pivot`、`pivot_table` 与 `melt`
 
 | 目标 | 写法 | 约束/结果 |
-|---|---|---|
+|------------------------|------------------------|------------------------|
 | 行列互换 | `df.transpose()` | 行和列互换；返回 copy。 |
 | long → wide | `df.pivot(index="id", columns="kind", values="value")` | 每个 `(index, columns)` 组合必须唯一；否则报 duplicate-entry 错。参数中的列成为 index/columns。 |
 | long → wide，容许重复 | `df.pivot_table(index="id", columns="kind", values="score")` | 相同组合有多行时用它；默认聚合为 mean。可形成多层 columns。 |
 | wide → long | `df.melt(id_vars=[...], value_vars=[...], var_name="...", value_name="...")` | `id_vars` 保留并随值复制；原列名进 `var_name`，单元格值进 `value_name`。 |
 
-```python
+``` python
 # 每行 country × sport，列是 medal total：需要唯一的 country/sport 组合
 wide = olympics.pivot(index="NOC", columns="Competitions", values="Total")
 
@@ -169,13 +168,13 @@ long = imdb.melt(
 - reshape 后想让参与 index 的变量重新成为普通列，写 `result.reset_index()`；它返回 copy。
 - `melt()` 若省略 `value_vars`，会 melt 所有不在 `id_vars` 中的列。若要保留某些测量列不被 melt，务必显式写 `value_vars`。
 
----
+------------------------------------------------------------------------
 
 ## 5. 合并 DataFrame：`concat` 和 `merge` 回答不同问题
 
 ### 5.1 `pd.concat`：沿某个 axis 直接接起来
 
-```python
+``` python
 all_days = pd.concat([w1, w2, w3, w4])       # 默认 axis=0，接行
 combined_columns = pd.concat([w1, w3], axis=1)  # 接列，按 index 对齐
 ```
@@ -186,7 +185,7 @@ combined_columns = pd.concat([w1, w3], axis=1)  # 接列，按 index 对齐
 
 ### 5.2 `pd.merge`：按 key 做关系型匹配
 
-```python
+``` python
 outer = pd.merge(w1, w4, how="outer", on=["Date/Time", "Month", "Year"])
 by_index = pd.merge(w1, w4, how="outer", left_index=True, right_index=True)
 with_season = pd.merge(
@@ -202,14 +201,14 @@ with_season = pd.merge(
 - 按列 `on` merge 会建立新的默认 index；原 index 不会自动保留。
 - join 前检查 key 的含义和重复：`merge` 可进行 one-to-one、one-to-many 或 many-to-many；重复 key 会使行数增长。行数突然暴增首先检查 key 是否唯一，而不是盲目删重。
 
----
+------------------------------------------------------------------------
 
 ## 6. 自定义函数、`map` 与分组聚合
 
 ### 6.1 `.apply()` 与 `.map()`：输入形状决定选择
 
 | 操作 | 函数接收什么 | 作用范围 | 典型写法 |
-|---|---|---|---|
+|------------------|------------------|------------------|------------------|
 | `df.apply(func, axis=0)` | 一列 Series（默认） | DataFrame 按列 | `df[["a", "b"]].apply(np.sum)` |
 | `df.apply(func, axis=1)` | 一行 Series | DataFrame 按行 | 用行内多列计算时 |
 | `df.map(func)` | 一个 scalar | DataFrame 每个元素 | `df.map(round)` |
@@ -222,7 +221,7 @@ with_season = pd.merge(
 
 ### 6.2 `groupby`：split → aggregate，而不是一个普通 DataFrame
 
-```python
+``` python
 co2_by_country = (
     df.groupby("country")["co2_emmission"]
       .sum()
@@ -249,13 +248,13 @@ custom_summary = imdb.groupby("Released_Year").agg(
 - 未 `groupby` 的 `df.agg(...)` 是对整张表进行 summary；可用于多项整体统计。
 - 分组结果是否要 `reset_index()` 取决于后续是否把 group key 当普通列使用；题目要的 `Series` 不要无故转为 DataFrame。
 
----
+------------------------------------------------------------------------
 
 ## 7. 字符串、日期时间与类别变量
 
 ### 7.1 pandas 字符串操作：在 Series 前加 `.str`
 
-```python
+``` python
 genres = imdb["Genre"].str.split(",", expand=True)
 genres[1] = genres[1].str.strip()
 ```
@@ -267,7 +266,7 @@ Lecture 7 的 regex 示例标为 **OPTIONAL**，并明确写明 DSCI 521 会进�
 ### 7.2 pandas 的时间对象与创建
 
 | 对象 | 表示什么 | 创建/例子 |
-|---|---|---|
+|------------------------|------------------------|------------------------|
 | `Timestamp` | 一个时间点 | `pd.Timestamp("2005-07-29")` |
 | `Period` | 一段时间（如一天） | `pd.Period("2005-07-09")`；有 `.start_time`、`.end_time` |
 | `Timedelta` | 时间间隔/持续时间 | `pd.Timedelta("1.5 hours")`；可加到 date/period range |
@@ -275,7 +274,7 @@ Lecture 7 的 regex 示例标为 **OPTIONAL**，并明确写明 DSCI 521 会进�
 | `DatetimeIndex` / `PeriodIndex` | 一列/数组式时间 index | `pd.date_range(...)` / `pd.period_range(...)` |
 | `NaT` | 缺失的日期时间 | pandas 的 datetime 缺失值 |
 
-```python
+``` python
 point = pd.Timestamp(year=2005, month=7, day=9)
 span = pd.Period("2005-07-09")
 dates = pd.date_range("2020-09-01 12:00", "2020-09-11 12:00", freq="2D")
@@ -288,7 +287,7 @@ df["Date"] = pd.to_datetime(df["Date"])
 
 ### 7.3 DatetimeIndex：选取、拆分和重采样
 
-```python
+``` python
 cycling.loc["2019-10"]                         # 2019 年 10 月
 cycling.sort_index().loc["2019-10-01":"2019-10-13"]
 cycling.between_time("00:00", "01:00")
@@ -305,7 +304,7 @@ weekly = cycling[["Time", "Distance"]].resample("1D").mean()
 
 ### 7.4 `category`：有限取值、顺序和清理次序
 
-```python
+``` python
 bean["Class"] = bean["Class"].astype("category")
 bean["Class"].cat.categories
 
@@ -332,7 +331,7 @@ category 适用于取值数有限、通常固定的变量。它内部以 categor
 
 生成器函数用 `yield` 逐个产生值，而不是一次 `return` 一个结果。调用生成器函数时，函数体尚未执行，只得到一个 generator object；每次 `next(gen)` 才从暂停处继续执行到下一个 `yield`，返回值后暂停。`for` 循环、comprehension 也会逐步消费 generator。
 
-```python
+``` python
 def xsquared_generator(values):
     for x in values:
         yield x ** 2
@@ -350,7 +349,7 @@ list(gen)       # [9]：剩余值被消费
 
 `open(filename, "r")` 返回可逐行迭代的 file object；每次只读取下一行，不必将整个文件载入 RAM。用 context manager 保证即使提前停止迭代，文件也会关闭：
 
-```python
+``` python
 def words_generator(filename):
     with open(filename, "r") as f:
         for line in f:
@@ -362,7 +361,7 @@ def words_generator(filename):
 
 不要把 `for line in open(...)` 写成长期持有且没有清理的资源；`with` 的退出会负责 close。tokenization 是把文本 token（这里的 word）映射成神经网络可用的整数 token id。最简单的 tokenizer 用 dictionary 记录已见 token，并为新 token 分配下一个 id；它同样可以边读边 yield 每行的 id list：
 
-```python
+``` python
 def tokens_generator(filename):
     token_to_id = {}
     next_id = 0
@@ -384,7 +383,7 @@ def tokens_generator(filename):
 
 一个简单的 batch loader 可先收集 `batch_size` 条 token list，找出该 batch 的最长序列，建立矩形 NumPy array；较短序列剩余位置用 0 填充（zero-padding）：
 
-```python
+``` python
 import numpy as np
 
 def batch_loader(token_gen, batch_size):
@@ -406,7 +405,7 @@ def batch_loader(token_gen, batch_size):
 
 `np.memmap` 让文件在 disk 上表现得像 NumPy array：程序可按 index 或 slice 读取/修改需要的部分，而不用把整个数组放进 RAM。它适合构造 map-style dataset，使 shuffle 和随机取样可行。创建时必须保持 `dtype`、`shape` 与文件布局一致；写入后调用 `.flush()`，确保修改回写文件。
 
-```python
+``` python
 mm = np.memmap("tokens.mmap", dtype=np.int32,
                mode="w+", shape=(num_tokens,))
 mm[start:stop] = token_ids
@@ -416,7 +415,7 @@ item = mm[100:120]       # 按索引/切片取所需数据
 
 课程示例的 `MemmapTokenDataset` 会先统计 token 数量、建立 memmap、写入 token ids 并保存 tokenizer dictionary，再用 `change_seq_len` 规定每条序列长度：
 
-```python
+``` python
 class MemmapTokenDataset:
     def __len__(self):
         assert self.seq_len > 0
@@ -434,7 +433,7 @@ class MemmapTokenDataset:
 
 `assert expression, "message"` 在条件为假时抛出 `AssertionError`，可快速检验函数结果。浮点数受表示误差影响，不要轻易用 `==`：
 
-```python
+``` python
 import math
 
 assert math.isclose(0.1 + 0.2, 0.3, abs_tol=0.001)
@@ -447,22 +446,21 @@ TDD（Test Driven Development）先写期望，再写实现：可先写接受参
 
 EAFP（Easier to Ask for Forgiveness than Permission）先尝试操作、失败时捕获预期异常；LBYL（Look Before You Leap）先检查条件再操作。比如读取可能不存在的 dictionary key 可选择 `try/except KeyError`（EAFP），或先检查 key 是否存在（LBYL）；根据上下文选择，不是绝对的对错。
 
----
-
+------------------------------------------------------------------------
 
 ## 9. 读题与查错清单
 
-1. **先写出对象结构。** 是 DataFrame 还是 Series？列名、index、shape、dtype 分别是什么？
-2. **选择前确认基准。** 题目给的是 label 还是从 0 开始的位置？要一列 Series 还是一列 DataFrame？
-3. **每一步问“是否返回 copy？”** `set_index`、`drop`、`fillna`、`rename`、`reset_index`、`sort_values` 和 reshape 的结果若不赋值，原变量不会自动替换。
-4. **过滤逐条件加括号。** boolean mask 中使用 `&`/`|`/`~`，不用 `and`/`or`/`not`；长条件可先分开命名 mask 再组合。
-5. **reshape 先定义一行代表什么。** `pivot` 前检查 index/columns 组合是否唯一；重复时用 `pivot_table`，并说明它应如何 aggregate。
-6. **合并先说 key，再看行数。** `concat` 是沿轴拼接；`merge` 是依 key 匹配。merge 后行数异常增长通常意味着重复 key 形成 many-to-many。
-7. **`apply` 与 `map` 先看函数输入。** 函数吃 Series/array 时选 `apply`；吃 scalar 时选 `map`；`Series.map(dict)` 的未映射值会成为 NaN。
-8. **日期先转换且排序。** `pd.to_datetime` 后才有 datetime 操作；日期范围 slicing 先 `sort_index()`；Series 用 `.dt`，DatetimeIndex 直接用其属性。
-9. **类别先清理再排序。** `category` 的顺序不是文本字母序时，明确给 `categories` 与 `ordered=True`。
+1.  **先写出对象结构。** 是 DataFrame 还是 Series？列名、index、shape、dtype 分别是什么？
+2.  **选择前确认基准。** 题目给的是 label 还是从 0 开始的位置？要一列 Series 还是一列 DataFrame？
+3.  **每一步问“是否返回 copy？”** `set_index`、`drop`、`fillna`、`rename`、`reset_index`、`sort_values` 和 reshape 的结果若不赋值，原变量不会自动替换。
+4.  **过滤逐条件加括号。** boolean mask 中使用 `&`/`|`/`~`，不用 `and`/`or`/`not`；长条件可先分开命名 mask 再组合。
+5.  **reshape 先定义一行代表什么。** `pivot` 前检查 index/columns 组合是否唯一；重复时用 `pivot_table`，并说明它应如何 aggregate。
+6.  **合并先说 key，再看行数。** `concat` 是沿轴拼接；`merge` 是依 key 匹配。merge 后行数异常增长通常意味着重复 key 形成 many-to-many。
+7.  **`apply` 与 `map` 先看函数输入。** 函数吃 Series/array 时选 `apply`；吃 scalar 时选 `map`；`Series.map(dict)` 的未映射值会成为 NaN。
+8.  **日期先转换且排序。** `pd.to_datetime` 后才有 datetime 操作；日期范围 slicing 先 `sort_index()`；Series 用 `.dt`，DatetimeIndex 直接用其属性。
+9.  **类别先清理再排序。** `category` 的顺序不是文本字母序时，明确给 `categories` 与 `ordered=True`。
 
----
+------------------------------------------------------------------------
 
 ## 主要来源
 
