@@ -1,18 +1,22 @@
 # MDS-CL workspace
 
-Top level is course-first. Open a `DSCI_*` directory for daily study.
+Top level contains the active Block 2 courses. Open a `DSCI_*` directory for daily study; completed Block 1 courses are under `archived/block 1/`.
 
-## Course directories
-
-- `DSCI_511/` — Programming for Data Science
-- `DSCI_521/` — Computing Platforms for Data Science
-- `DSCI_523/` — Programming for Data Manipulation
-- `DSCI_551/` — Descriptive Statistics and Probability
+## Active course directories — Block 2
 - `DSCI_512/` — Algorithms and Data Structures
 - `DSCI_531/` — Data Visualization I
 - `DSCI_552/` — Statistical Inference and Computation I
 - `DSCI_571/` — Supervised Learning I
 - `course-index.md` — all-year course table
+
+## Archived course directories — Block 1
+
+- [`archived/block 1/DSCI_511/`](archived/block%201/DSCI_511/) — Programming for Data Science
+- [`archived/block 1/DSCI_521/`](archived/block%201/DSCI_521/) — Computing Platforms for Data Science
+- [`archived/block 1/DSCI_523/`](archived/block%201/DSCI_523/) — Programming for Data Manipulation
+- [`archived/block 1/DSCI_551/`](archived/block%201/DSCI_551/) — Descriptive Statistics and Probability
+
+Repository synchronization is configured for Block 2 only; archived courses are not fetched or recreated at the root.
 
 ## My MDS-CL course references (2026–27)
 
@@ -46,9 +50,9 @@ For the Week 3 collaborative slide-deck lab, Justice was assigned **Group 28**. 
 
 ### Personal lab assignment repositories
 
-The following are Justice's per-assignment GitHub repositories, as inventoried by [`tools/repository-sync/work.txt`](tools/repository-sync/work.txt); they are separate from the lab-section/group roster.
+The links below retain both active and archived course references. [`tools/repository-sync/work.txt`](tools/repository-sync/work.txt) is regenerated from the active-course configuration when synchronization runs; it is not the source of the historical links in this table.
 
-| Course | Current personal lab repositories |
+| Course | Personal lab repository links |
 |---|---|
 | DSCI 511 | [`lab1–lab4`, `worksheet1–worksheet8`](https://github.ubc.ca/mds-2026-27/DSCI_511_py-prog_students) |
 | DSCI 521 | [`lab0a`](https://github.ubc.ca/mds-2026-27/DSCI_521_lab0a_yz2000), [`lab0b`](https://github.ubc.ca/mds-2026-27/DSCI_521_lab0b_yz2000); group lab above |
@@ -62,9 +66,9 @@ The following are Justice's per-assignment GitHub repositories, as inventoried b
 
 ## Directory rules
 
-- Course-specific notes, messages, official material, assignments, and projects live in the course directory.
+- Course-specific notes, messages, official material, assignments, and projects stay together in their active or archived course directory.
 - `tools/` contains independent repository-sync, calendar, and cheatsheet capabilities; each owns its implementation, inputs, tests, and usage constraints.
-- Course repositories go directly into `<COURSE>/official/current/`; syncing a newly released course creates its course directory. Non-course repositories are skipped.
+- Active course repositories go directly into `<COURSE>/official/current/`; only courses allowed by `tools/repository-sync/sources.conf` are synchronized. Completed courses live under `archived/block 1/`, and nested repositories remain excluded from this workspace's Git tracking at either location.
 
 ## Sources
 

@@ -30,11 +30,13 @@ name ; api_base ; org ; include ; exclude ; family ; mode
 
 `include` / `exclude` 是 Python 正则；空 include 不限制，空 exclude 不排除。`family` 决定目录分类，`mode` 决定 Git 操作（`mirror` 对齐官方材料；`work` 保留个人工作）。
 
+当前活动范围是 **Block 2：DSCI 512、531、552、571**，官方材料、个人作业和公开镜像五条来源都限定在这四门课。以后换 Block，修改各行 `include` 中的课程号即可；保留各来源的 `_students`、`_yz2000` 限制和 512 来源排除规则，不需要改 `sync.py`。
+
 当前来源：
 
 - UBC GitHub 的 `mds-2026-27`：当期材料和 `_yz2000` 个人作业，排除 DSCI 512。
-- UBC GitHub 的 `MDS-CL-2026-27`：`DSCI_三位课程号_…_students` / `COLX_三位课程号_…_students` 教学仓库，以及 `_yz2000` 个人作业。**DSCI 512 的当期材料和作业只从这里获取。**
-- github.com 的 `UBC-MDS`：`DSCI_` / `COLX_` 开头的公开材料，只更新本地保留的历史镜像。
+- UBC GitHub 的 `MDS-CL-2026-27`：活动课程的 `_students` 教学仓库，以及 `_yz2000` 个人作业。**DSCI 512 的当期材料和作业只从这里获取。**
+- github.com 的 `UBC-MDS`：活动课程的公开材料，只更新本地保留的历史镜像。
 
 ```text
 <课程号>/official/current/<仓库名>
@@ -43,6 +45,8 @@ name ; api_base ; org ; include ; exclude ; family ; mode
 ```
 
 例如，个人仓库 `DSCI_512_lab1_yz2000` 放到 `DSCI_512/assignments/lab1/DSCI_512_lab1_yz2000/`。
+
+Block 1 的 511、521、523、551 放在 `archived/block 1/`。归档只是目录整理；停止更新靠 `sources.conf` 的活动范围，而不是脚本自动识别归档目录。当前配置不会 fetch 这些旧课，也不会在根目录重新 clone；以后若重新启用某门旧课，脚本仍按上面的根目录路径同步，不会直接更新归档副本。
 
 API 查询从 `~/.git-credentials` 读取对应主机的 token；Git clone/fetch 使用 Git 自身的认证配置。程序不打印 API token。
 

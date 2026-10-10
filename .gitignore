@@ -1,10 +1,10 @@
 # Upstream clones and personal assignment repos are nested Git repositories.
-DSCI_*/official/current/*/
-DSCI_*/official/public/*/
-DSCI_*/assignments/*/*/
-COLX_*/official/current/*/
-COLX_*/official/public/*/
-COLX_*/assignments/*/*/
+**/DSCI_*/official/current/*/
+**/DSCI_*/official/public/*/
+**/DSCI_*/assignments/*/*/
+**/COLX_*/official/current/*/
+**/COLX_*/official/public/*/
+**/COLX_*/assignments/*/*/
 assignments
 
 # Generated Python cache

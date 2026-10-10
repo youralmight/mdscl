@@ -7,6 +7,8 @@
 
 - **CL 专属** = 只有 MDS-CL 学生上；其余是和 MDS-V 合班，分 001/002 两个 lecture section。
 
+当前活动目录是根目录下的 Block 2 四门课；Block 1 的 511／521／523／551 已归档至 `archived/block 1/`，不再参与仓库同步。全年课程与评分构成仍保留在本表。
+
 评分以 **2026-10-05 已同步的 GitHub 课程原文** 为准，512 使用 `MDS-CL-2026-27`，其余来源见表后；不采用 Canvas gradebook 配置补全规则。评分空白表示尚未确认，不表示 0。预期 DDL 用课程/Block 内相对周次（W1 从该课 Block 开始），不列具体日期；按节奏推算的候选写“约”，实际截止可能跨到次周，以提交平台为准。每个评分项只计一次；`on-site total` 是小计，不另加。512／531／552／571 的基础构成各为 100%。
 
 Block 2 课表：[Cohort 3／L04 + CL 512-003/L05 `.ics`](block2-l04-2026-10-05_2026-11-06.ics)（逐日核对官方 Lecture 002／Lab L04 日历；531/552/571 已由 L03 改为 L04，CL 专属 512-003/L05 保持独立。Quiz 2 仅为暂定窗口，不是个人预约）。[L04 修正与验收记录](tmp/runs/20261005-144830_l04-calendar-root-readme/agent_report.md)。
@@ -47,10 +49,10 @@ Block 2 课表：[Cohort 3／L04 + CL 512-003/L05 `.ics`](block2-l04-2026-10-05_
 
 | 课程 | 本地来源 | 章节 |
 |---|---|---|
-| DSCI 511 | [README](DSCI_511/official/current/DSCI_511_py-prog_students/README.md) | Deliverables；Oral Check-ins |
-| DSCI 521 | [index.qmd](DSCI_521/official/public/DSCI_521_platforms-dsci/index.qmd) | Assessments（正文标明 2026/27） |
-| DSCI 523 | [README](DSCI_523/official/current/DSCI_523_r-prog_students/README.md) | Deliverables（含已公布日期）；Pre-lecture quizzes |
-| DSCI 551 | [README](DSCI_551/official/current/DSCI_551_stat-prob-dsci_students/README.md) | Deliverables；Lab Grade Computation |
+| DSCI 511 | [README](archived/block%201/DSCI_511/official/current/DSCI_511_py-prog_students/README.md) | Deliverables；Oral Check-ins |
+| DSCI 521 | [index.qmd](archived/block%201/DSCI_521/official/public/DSCI_521_platforms-dsci/index.qmd) | Assessments（正文标明 2026/27） |
+| DSCI 523 | [README](archived/block%201/DSCI_523/official/current/DSCI_523_r-prog_students/README.md) | Deliverables（含已公布日期）；Pre-lecture quizzes |
+| DSCI 551 | [README](archived/block%201/DSCI_551/official/current/DSCI_551_stat-prob-dsci_students/README.md) | Deliverables；Lab Grade Computation |
 | DSCI 512 | [CL README](DSCI_512/official/current/DSCI_512_alg-data-struct_students/README.md) | Weekly schedule；Lab Assignments；Quizzes（MDS-CL-2026-27） |
 | DSCI 531 | [README](DSCI_531/official/current/DSCI_531_viz-1_students/README.md) | Assessments |
 | DSCI 552 | [README](DSCI_552/official/current/DSCI_552_stat-inf-1_students/README.md) | Deliverables |
