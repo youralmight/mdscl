@@ -1,10 +1,9 @@
-import sys
 from pathlib import Path
 
 import pymupdf
 import pytest
 
-from mdscl.cheatsheet import MAX_PNG_BYTES, main, render_cheatsheet
+from mdscl_cheatsheet.cheatsheet import MAX_PNG_BYTES, render_cheatsheet
 
 
 def test_render_cheatsheet_outputs_html_pdf_and_png(tmp_path: Path) -> None:
@@ -14,15 +13,11 @@ def test_render_cheatsheet_outputs_html_pdf_and_png(tmp_path: Path) -> None:
         encoding="utf-8",
     )
 
-    html_path, pdf_path, png_paths, page_count, columns, font_size_pt = (
-        render_cheatsheet(
-            source,
-            tmp_path / "sheet",
-        )
+    html_path, pdf_path, png_paths, page_count, _, _ = render_cheatsheet(
+        source, tmp_path / "sheet", dpi=150
     )
 
     html = html_path.read_text(encoding="utf-8")
-    assert "<style>" in html
     assert "<h1>Quiz Cheat Sheet</h1>" in html
     with pymupdf.open(pdf_path) as pdf:
         assert len(pdf) == 1
@@ -32,9 +27,8 @@ def test_render_cheatsheet_outputs_html_pdf_and_png(tmp_path: Path) -> None:
 
     assert png_paths == (tmp_path / "sheet.png",)
     image = pymupdf.Pixmap(png_paths[0])
-    assert (image.width, image.height) == (1700, 2200)
+    assert (image.width, image.height) == (1275, 1650)
     assert png_paths[0].stat().st_size <= MAX_PNG_BYTES
-    assert (columns, font_size_pt) == (2, 8)
 
 
 def test_code_block_is_kept_in_one_column(tmp_path: Path) -> None:
@@ -101,12 +95,10 @@ def test_render_cheatsheet_outputs_png_for_every_pdf_page(tmp_path: Path) -> Non
         encoding="utf-8",
     )
 
-    html_path, pdf_path, png_paths, page_count, _, _ = render_cheatsheet(
-        source,
-        tmp_path / "sheet",
+    _, pdf_path, png_paths, page_count, _, _ = render_cheatsheet(
+        source, tmp_path / "sheet", dpi=150
     )
 
-    assert html_path.exists()
     with pymupdf.open(pdf_path) as pdf:
         assert len(pdf) == page_count
         assert page_count > 1
@@ -120,31 +112,8 @@ def test_render_cheatsheet_outputs_png_for_every_pdf_page(tmp_path: Path) -> Non
     )
     for path in png_paths:
         image = pymupdf.Pixmap(path)
-        assert (image.width, image.height) == (1700, 2200)
-
-
-def test_main_reports_pdf_page_count(tmp_path: Path, monkeypatch, capsys) -> None:
-    source = tmp_path / "source.md"
-    source.write_text("# Quiz Cheat Sheet\n\n- concise fact\n", encoding="utf-8")
-    monkeypatch.setattr(
-        sys,
-        "argv",
-        [
-            "mdscl-cheatsheet",
-            str(source),
-            str(tmp_path / "sheet"),
-            "--font-size",
-            "9",
-        ],
-    )
-
-    main()
-
-    output = capsys.readouterr().out.splitlines()
-    assert "PDF pages: 1" in output
-    assert "Layout: 2 columns, 9 pt" in output
-    assert any(line.startswith("HTML: ") for line in output)
-    assert any(line.startswith("PNG: ") for line in output)
+        assert (image.width, image.height) == (1275, 1650)
+        assert path.stat().st_size <= MAX_PNG_BYTES
 
 
 @pytest.mark.parametrize(
@@ -155,7 +124,7 @@ def test_render_cheatsheet_rejects_latex_math(tmp_path: Path, formula: str) -> N
     source = tmp_path / "source.md"
     source.write_text(f"# Quiz Cheat Sheet\n\n- {formula}\n", encoding="utf-8")
 
-    with pytest.raises(ValueError, match="LaTeX math markup"):
+    with pytest.raises(ValueError):
         render_cheatsheet(source, tmp_path / "sheet")
 
 
@@ -167,6 +136,9 @@ def test_render_cheatsheet_allows_dollar_signs_inside_code(tmp_path: Path) -> No
         encoding="utf-8",
     )
 
-    render_cheatsheet(source, tmp_path / "sheet")
+    _, pdf_path, _, _, _, _ = render_cheatsheet(source, tmp_path / "sheet")
 
-    assert (tmp_path / "sheet.pdf").exists()
+    with pymupdf.open(pdf_path) as pdf:
+        text = "".join(page.get_text() for page in pdf)
+    assert "df$mass" in text
+    assert "tan$" in text

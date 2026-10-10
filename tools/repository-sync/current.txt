@@ -1,3 +1,4 @@
+https://github.ubc.ca/MDS-CL-2026-27/DSCI_512_alg-data-struct_students.git
 https://github.ubc.ca/mds-2026-27/DSCI_511_py-prog_students.git
 https://github.ubc.ca/mds-2026-27/DSCI_521_Group_6_Repository_Public.git
 https://github.ubc.ca/mds-2026-27/DSCI_521_lab3-group_group01_public.git
@@ -36,7 +37,10 @@ https://github.ubc.ca/mds-2026-27/DSCI_521_lab3-group_group40.git
 https://github.ubc.ca/mds-2026-27/DSCI_521_lab3_group13_public.git
 https://github.ubc.ca/mds-2026-27/DSCI_521_platforms-dsci_students.git
 https://github.ubc.ca/mds-2026-27/DSCI_523_r-prog_students.git
+https://github.ubc.ca/mds-2026-27/DSCI_531_viz-1_students.git
 https://github.ubc.ca/mds-2026-27/DSCI_551_stat-prob-dsci_students.git
+https://github.ubc.ca/mds-2026-27/DSCI_552_stat-inf-1_students.git
+https://github.ubc.ca/mds-2026-27/DSCI_571_sup-learn-1_students.git
 https://github.ubc.ca/mds-2026-27/lab-sections.git
 https://github.ubc.ca/mds-2026-27/orientation.git
 https://github.ubc.ca/mds-2026-27/sicong02.github.io.git

@@ -5,13 +5,13 @@ DSCI_*/assignments/*/*/
 COLX_*/official/current/*/
 COLX_*/official/public/*/
 COLX_*/assignments/*/*/
-admin/upstream/current/*/
-admin/upstream/public/*/
 assignments
 
 # Generated Python cache
 __pycache__/
 *.py[cod]
+.venv/
+.pytest_cache/
 
 .DS_Store
 .worktrees/

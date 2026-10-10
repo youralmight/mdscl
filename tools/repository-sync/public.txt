@@ -18,7 +18,9 @@ https://github.com/UBC-MDS/DSCI_552_stat-inf-1.git
 https://github.com/UBC-MDS/DSCI_553_stat-inf-2.git
 https://github.com/UBC-MDS/DSCI_554_exper-causal-inf.git
 https://github.com/UBC-MDS/DSCI_561_regr-1.git
+https://github.com/UBC-MDS/DSCI_562_regr-2.git
 https://github.com/UBC-MDS/DSCI_563_unsup-learn.git
+https://github.com/UBC-MDS/DSCI_571-slides.git
 https://github.com/UBC-MDS/DSCI_571_sup-learn-1.git
 https://github.com/UBC-MDS/DSCI_571_sup-learn-1_book.git
 https://github.com/UBC-MDS/DSCI_573_feat-model-select.git

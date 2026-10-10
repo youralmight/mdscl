@@ -1,0 +1,25 @@
+[project]
+name = "mdscl-cheatsheet"
+version = "0.1.0"
+description = "Render Markdown documents as compact Letter PDF and PNG"
+readme = "README.md"
+requires-python = ">=3.14"
+dependencies = [
+    "markdown>=3.10.3",
+    "pymupdf>=1.28.2",
+    "weasyprint>=70.0",
+]
+
+[project.scripts]
+mdscl-cheatsheet = "mdscl_cheatsheet.cheatsheet:main"
+
+[build-system]
+requires = ["uv_build>=0.12.5,<0.13.0"]
+build-backend = "uv_build"
+
+[dependency-groups]
+dev = ["pytest>=9.1.1"]
+
+[tool.uv.build-backend]
+module-root = "src"
+module-name = "mdscl_cheatsheet"

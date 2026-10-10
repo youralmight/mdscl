@@ -6,7 +6,6 @@ import re
 import sys
 from pathlib import Path
 
-
 import markdown
 import pymupdf
 
@@ -37,9 +36,9 @@ def _reject_math_markup(source: Path, text: str) -> None:
     if found:
         raise ValueError(
             f"{source} contains LaTeX math markup ({', '.join(found)}); this renderer has no "
-            "math engine and would print it as literal text. Write formulas as plain text "
-            "instead — see admin/quiz-cheatsheet-workflow.md."
+            "math engine and would print it as literal text. Write formulas as plain text instead."
         )
+
 
 def _keep_heading_with_first_block(body: str) -> str:
     """Keep each section heading with its first content block, not the whole section."""
@@ -54,7 +53,6 @@ def _keep_heading_with_first_block(body: str) -> str:
         ),
         body,
     )
-
 
 
 def _css(columns: int, font_size_pt: int) -> str:
@@ -105,20 +103,16 @@ def render_cheatsheet(
     if source.suffix.lower() not in {".md", ".markdown"}:
         raise ValueError(f"Expected Markdown input, got: {source}")
     if font_size_pt not in FONT_SIZES_PT:
-        raise ValueError(
-            f"Font size must be one of {FONT_SIZES_PT}, got {font_size_pt}"
-        )
+        raise ValueError(f"Font size must be one of {FONT_SIZES_PT}, got {font_size_pt}")
     if dpi < 150:
         raise ValueError("DPI must be at least 150 for readable printed text")
 
-    # Parse the source once for every column candidate.
     text = source.read_text(encoding="utf-8")
     _reject_math_markup(source, text)
     body = markdown.markdown(text, extensions=["extra", "sane_lists"])
     body = _keep_heading_with_first_block(body)
     html = f"<!doctype html><html><body><main>{body}</main></body></html>"
 
-    # Minimize pages; ties retain the earlier, wider column layout.
     selected_document = None
     selected_columns = None
     selected_page_count = None
@@ -134,14 +128,9 @@ def render_cheatsheet(
         if page_count == 1:
             break
 
-    if (
-        selected_document is None
-        or selected_columns is None
-        or selected_page_count is None
-    ):
+    if selected_document is None or selected_columns is None or selected_page_count is None:
         raise RuntimeError("No column candidates were evaluated")
 
-    # Save the selected layout and complete Letter PDF.
     output_stem.parent.mkdir(parents=True, exist_ok=True)
     html_path = output_stem.with_suffix(".html")
     pdf_path = output_stem.with_suffix(".pdf")
@@ -154,7 +143,6 @@ def render_cheatsheet(
     )
     selected_document.write_pdf(pdf_path)
 
-    # Render every PDF page; a one-page Cheat Sheet keeps the simple .png name.
     single_png_path = output_stem.with_suffix(".png")
     for stale_path in output_stem.parent.glob(f"{output_stem.name}-page-*.png"):
         stale_path.unlink()
@@ -169,9 +157,7 @@ def render_cheatsheet(
 
     with pymupdf.open(pdf_path) as pdf:
         if len(pdf) != selected_page_count:
-            raise RuntimeError(
-                f"Expected {selected_page_count} PDF page(s), got {len(pdf)}"
-            )
+            raise RuntimeError(f"Expected {selected_page_count} PDF page(s), got {len(pdf)}")
         expected_width_pt, expected_height_pt = 612, 792
         for page, png_path in zip(pdf, png_paths, strict=True):
             if (
@@ -182,11 +168,7 @@ def render_cheatsheet(
                     f"Expected US Letter PDF, got {page.rect.width:.1f} × "
                     f"{page.rect.height:.1f} pt"
                 )
-            pixmap = page.get_pixmap(
-                dpi=dpi,
-                colorspace=pymupdf.csGRAY,
-                alpha=False,
-            )
+            pixmap = page.get_pixmap(dpi=dpi, colorspace=pymupdf.csGRAY, alpha=False)
             pixmap.save(png_path)
             if png_path.stat().st_size > MAX_PNG_BYTES:
                 raise RuntimeError(
@@ -194,14 +176,7 @@ def render_cheatsheet(
                     f"({png_path.stat().st_size / (1024 * 1024):.2f} MB)"
                 )
 
-    return (
-        html_path,
-        pdf_path,
-        png_paths,
-        selected_page_count,
-        selected_columns,
-        font_size_pt,
-    )
+    return html_path, pdf_path, png_paths, selected_page_count, selected_columns, font_size_pt
 
 
 def main() -> None:
@@ -225,13 +200,8 @@ def main() -> None:
     )
     args = parser.parse_args()
 
-    html_path, pdf_path, png_paths, page_count, columns, font_size_pt = (
-        render_cheatsheet(
-            args.source,
-            args.output_stem,
-            font_size_pt=args.font_size,
-            dpi=args.dpi,
-        )
+    html_path, pdf_path, png_paths, page_count, columns, font_size_pt = render_cheatsheet(
+        args.source, args.output_stem, font_size_pt=args.font_size, dpi=args.dpi
     )
     print(f"HTML: {html_path}")
     print(f"PDF: {pdf_path}")

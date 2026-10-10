@@ -1,0 +1,1 @@
+"""Standalone Markdown cheatsheet renderer."""
