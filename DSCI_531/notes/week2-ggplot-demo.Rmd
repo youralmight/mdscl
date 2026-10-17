@@ -1,0 +1,229 @@
+---
+title: "DSCI 531 Week 2：ggplot2 可运行演示"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    code_folding: show
+    self_contained: true
+---
+
+这不是 Lab 答案。它只演示 Week 2：**summary 与 spread、counts/proportions、histogram、KDE、joint distributions、EDA 与 missingness**。
+
+运行：
+
+```sh
+Rscript -e 'rmarkdown::render("DSCI_531/notes/week2-ggplot-demo.Rmd")'
+```
+
+## 0. Setup：内置合成数据
+
+```{r setup, message=FALSE, warning=FALSE}
+library(tidyverse)
+theme_set(theme_minimal(base_size = 13))
+
+observations <- tidyr::expand_grid(device_num = 1:20, day = 1:12) |>
+  mutate(
+    device = sprintf("D%02d", device_num),
+    region = factor(c("North", "Central", "South")[(device_num - 1) %% 3 + 1],
+                    levels = c("North", "Central", "South")),
+    load = 20 + 1.7 * day + recode(region, North = 3, Central = 0, South = -2) +
+      ((device_num * 17 + day * 7) %% 11 - 5) / 2,
+    signal = 4 + 0.38 * load + 2 * sin(day * pi / 6) +
+      recode(region, North = 1.5, Central = 0, South = -1) +
+      ((device_num * 5 + day * 3) %% 7 - 3) * 0.4,
+    events = pmax(0, round(load / 6 + recode(region, North = 2, Central = 1, South = 0) +
+                           ((device_num + day) %% 3 - 1))),
+    signal = if_else(device_num == 7 & day == 8, signal + 12, signal),
+    signal = if_else(
+      (device_num == 3 & day == 4) |
+      (device_num == 8 & day == 9) |
+      (device_num == 14 & day == 2) |
+      (device_num == 19 & day == 11),
+      NA_real_, signal),
+    alert = case_when(is.na(signal) ~ "missing", signal >= 22 ~ "alert", TRUE ~ "ok")
+  ) |>
+  select(device, device_num, region, day, load, signal, events, alert)
+
+stopifnot(nrow(observations) == 240, sum(is.na(observations$signal)) == 4)
+glimpse(observations)
+head(observations, 8)
+```
+
+一行是一台设备在一天的一次观测。`signal` 有 4 个缺失值，并人为加入 1 个极端高值，便于观察 summary 会隐藏什么。
+
+## 1. Central tendency、spread 与 underlying observations
+
+```{r summaries, fig.width=11, fig.height=5}
+raw_and_mean <- ggplot(observations, aes(signal, region)) +
+  geom_jitter(width = 0, height = 0.12, alpha = 0.28, na.rm = TRUE) +
+  stat_summary(fun = mean, geom = "point", shape = 18, size = 4,
+               color = "black", na.rm = TRUE) +
+  labs(title = "原始观测 + mean", x = "Signal", y = NULL)
+
+boxplots <- ggplot(observations, aes(signal, region, fill = region)) +
+  geom_boxplot(alpha = 0.5, na.rm = TRUE, show.legend = FALSE) +
+  labs(title = "Median、IQR、whiskers 与 beyond-whisker points",
+       x = "Signal", y = NULL)
+
+raw_and_mean
+boxplots
+```
+
+- Mean 使用所有值，容易受极端值影响；median 更稳健，但可能忽略真正重要的极端事件。
+- Boxplot 的箱体是 Q1–Q3，中线是 median；默认 whiskers 到 1.5 IQR 范围内的最远点。Beyond-whisker point 不自动等于错误。
+- 这里的 spread 描述 observations，不是 mean 的 uncertainty。
+
+## 2. Counts、proportions 与 denominator
+
+```{r counts, fig.width=11, fig.height=5}
+count_plot <- ggplot(observations, aes(region, fill = alert)) +
+  geom_bar(position = "dodge") +
+  labs(title = "Joint counts：region × alert", y = "Rows")
+
+conditional_plot <- ggplot(observations, aes(region, fill = alert)) +
+  geom_bar(position = "fill") +
+  scale_y_continuous(labels = scales::label_percent()) +
+  labs(title = "Conditional proportions：alert within region",
+       y = "Share within region")
+
+count_plot
+conditional_plot
+
+count_table <- observations |>
+  count(region, alert) |>
+  group_by(region) |>
+  mutate(within_region = n / sum(n)) |>
+  ungroup()
+count_table
+```
+
+- Joint count = 一个 `(region, alert)` cell；marginal count = row/column total。
+- Joint proportion 除以 grand total；conditional proportion 除以指定 row/column total。
+- `position = "fill"` 隐藏了不同 region 的原始样本量，因此 counts 和 proportions 回答不同问题。
+
+## 3. Histogram：bin width 和 origin 都会改变图形
+
+```{r histograms, fig.width=11, fig.height=5}
+hist_narrow <- ggplot(observations, aes(signal)) +
+  geom_histogram(binwidth = 1, boundary = 0, color = "white", na.rm = TRUE) +
+  geom_rug(alpha = 0.18, na.rm = TRUE) +
+  labs(title = "binwidth = 1；boundary = 0")
+
+hist_wide <- ggplot(observations, aes(signal)) +
+  geom_histogram(binwidth = 4, boundary = 0, color = "white", na.rm = TRUE) +
+  geom_rug(alpha = 0.18, na.rm = TRUE) +
+  labs(title = "binwidth = 4；boundary = 0")
+
+hist_shifted <- ggplot(observations, aes(signal)) +
+  geom_histogram(binwidth = 4, boundary = 2, color = "white", na.rm = TRUE) +
+  geom_rug(alpha = 0.18, na.rm = TRUE) +
+  labs(title = "同样 binwidth，boundary 改成 2")
+
+hist_narrow
+hist_wide
+hist_shifted
+```
+
+Histogram 先分 bin，再数每个 interval 的 observations。不要只看一种 width/origin；尝试按变量单位选择几个合理值，检查 peak/gap 是否稳定。
+
+## 4. KDE、bandwidth 与 grouped distributions
+
+```{r density, fig.width=11, fig.height=5}
+kde_narrow <- ggplot(observations, aes(signal, color = region)) +
+  geom_density(bw = 0.6, na.rm = TRUE) +
+  geom_rug(alpha = 0.12, na.rm = TRUE) +
+  labs(title = "KDE：bw = 0.6")
+
+kde_smooth <- ggplot(observations, aes(signal, color = region)) +
+  geom_density(bw = 2.0, na.rm = TRUE) +
+  geom_rug(alpha = 0.12, na.rm = TRUE) +
+  labs(title = "KDE：bw = 2.0")
+
+violins <- ggplot(observations, aes(region, signal, fill = region)) +
+  geom_violin(trim = FALSE, alpha = 0.45, na.rm = TRUE, show.legend = FALSE) +
+  geom_boxplot(width = 0.13, outlier.shape = NA, na.rm = TRUE) +
+  labs(title = "Violin（mirrored KDE）+ boxplot", x = NULL, y = "Signal")
+
+kde_narrow
+kde_smooth
+violins
+```
+
+Normalized KDE 每组总面积为 1；高度是 probability density per x-unit，不是 point probability/count。小 bandwidth 显示更多细节/噪声，大 bandwidth 更平滑但可能隐藏 modes。光滑曲线不证明 n 大；结合 rug 和 group counts。
+
+## 5. Joint distributions：margins 不能重建 combinations
+
+```{r joint, fig.width=11, fig.height=5}
+category_joint <- observations |>
+  count(region, alert) |>
+  ggplot(aes(alert, region, size = n, color = n)) +
+  geom_point() +
+  scale_size_area(max_size = 15) +
+  labs(title = "Categorical joint counts", size = "Rows", color = "Rows")
+
+points <- ggplot(observations, aes(load, signal)) +
+  geom_point(alpha = 0.25, na.rm = TRUE) +
+  labs(title = "Scatter：overlap 可能掩盖局部密度")
+
+binned <- ggplot(observations, aes(load, signal)) +
+  geom_bin_2d(binwidth = c(3, 2), na.rm = TRUE) +
+  labs(title = "2-D histogram：cell color = joint count")
+
+category_joint
+points
+binned
+```
+
+分别知道 `load` 和 `signal` 的 marginal distributions，不能确定每个 `(load, signal)` cell 的 joint count。Scatter 饱和时换 2-D histogram；同样要改变 x/y bin width 做 sensitivity check。
+
+## 6. EDA：distribution、relationship、missingness
+
+```{r eda, fig.width=11, fig.height=5}
+measurements_long <- observations |>
+  pivot_longer(c(load, signal, events), names_to = "measurement", values_to = "value")
+
+distribution_gallery <- ggplot(measurements_long, aes(value)) +
+  geom_histogram(bins = 20, na.rm = TRUE) +
+  facet_wrap(vars(measurement), scales = "free", nrow = 1) +
+  labs(title = "Distribution overview", x = NULL, y = "Recorded rows")
+
+recorded_share <- observations |>
+  group_by(day, region) |>
+  summarise(recorded_share = mean(!is.na(signal)), .groups = "drop")
+
+missing_plot <- ggplot(recorded_share, aes(day, region, fill = recorded_share)) +
+  geom_tile(color = "white") +
+  scale_fill_viridis_c(limits = c(0, 1), labels = scales::label_percent()) +
+  scale_x_continuous(breaks = 1:12) +
+  labs(title = "Recorded-share heatmap", fill = "Recorded share")
+
+outcome_gallery <- observations |>
+  pivot_longer(c(load, events), names_to = "measurement", values_to = "value") |>
+  ggplot(aes(value, signal, color = region)) +
+  geom_point(alpha = 0.3, na.rm = TRUE) +
+  facet_wrap(vars(measurement), scales = "free_x", nrow = 1) +
+  labs(title = "Outcome-focused EDA：signal 与候选变量", x = NULL, y = "Signal") +
+  theme(legend.position = "bottom")
+
+distribution_gallery
+missing_plot
+outcome_gallery
+```
+
+EDA reasoning trail：
+
+1. **Expectation：**根据文档、采集过程或领域知识，原本预期什么？
+2. **Observation：**实际看到什么？每张图包含哪些有效 rows？
+3. **Competing explanations：**subgroups、missingness、录入、极端值、bin/bandwidth 都可能解释。
+4. **Discriminating check：**哪项 follow-up 能区分解释？是否需要 data provider/provenance？
+5. **Narrow conclusion + unresolved：**只写当前证据支持的最窄结论；“机制未确认”可以是正确结果。
+
+## 7. 建议你亲手修改
+
+- `geom_boxplot()` 上加入/移除 raw points，观察 summary 隐藏什么。
+- 将 bar 的 `position` 在 `"dodge"`、`"stack"`、`"fill"` 间切换并说明 denominator。
+- 修改 histogram 的 `binwidth` 和 `boundary`。
+- 修改 KDE 的 `bw`，并比较 group n。
+- 修改 2-D histogram 的两个 `binwidth`。
+- 把 missing value 填成 0，观察图怎样改变；然后解释为什么这不是中立处理。
