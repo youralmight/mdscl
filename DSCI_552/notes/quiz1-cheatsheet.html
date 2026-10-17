@@ -1,0 +1,140 @@
+<!doctype html><html><head><meta charset="utf-8"><base href="file:///Users/youralmight/workspaces/reps/mdscl/DSCI_552/notes/"><style>
+@page { size: Letter; margin: 0.25in; }
+html { font-family: Arial, "PingFang SC", sans-serif; }
+body { margin: 0; color: #111; font-size: 9pt; line-height: 1; }
+main { column-count: 2; column-fill: balance; column-gap: 0.08in; }
+h1 { column-span: all; margin: 0 0 2pt; font-size: 1.5em; line-height: 1; }
+section.cheatsheet-heading-block { break-inside: avoid; }
+h2 { margin: 2pt 0 0.5pt; font-size: 1.25em; line-height: 1; }
+h3 { margin: 1.5pt 0 0.5pt; font-size: 1.0625em; line-height: 1; break-after: avoid; }
+p, ul, ol { margin: 0.5pt 0; }
+ul, ol { padding-left: 10pt; }
+li { margin: 0; break-inside: avoid; }
+pre {
+    margin: 1pt 0;
+    break-inside: avoid;
+    padding: 1pt;
+    border: 0.4pt solid #bbb;
+    background: #f5f5f5;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+code { font-family: Menlo, Consolas, monospace; font-size: 9pt; }
+table {
+    width: 100%;
+    margin: 1pt 0;
+    border-collapse: collapse;
+    font-size: 9pt;
+    line-height: 1;
+}
+tr { break-inside: avoid; }
+th, td { border: 0.4pt solid #999; padding: 0.5pt; vertical-align: top; overflow-wrap: anywhere; }
+hr { margin: 1pt 0; border: 0; border-top: 0.4pt solid #999; }
+</style></head><body><main><h1>DSCI 552 Quiz 1</h1>
+<section class="cheatsheet-heading-block"><h2>Objects: identify before computing</h2>
+<table>
+<thead>
+<tr>
+<th>Object</th>
+<th>One value in the distribution</th>
+<th>Center/spread meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Population</td>
+<td>one population member's measurement</td>
+<td>parameter (μ, p); individual variability</td>
+</tr>
+<tr>
+<td>Sample</td>
+<td>one sampled member's measurement</td>
+<td>statistic (x̄, p̂); within-sample SD</td>
+</tr>
+<tr>
+<td>Sampling distribution</td>
+<td>one statistic from one repeated sample</td>
+<td>E(T); SE = SD across statistics</td>
+</tr>
+<tr>
+<td>Bootstrap distribution</td>
+<td>one statistic from one resample of the observed sample</td>
+<td>centered near observed statistic; estimates SE</td>
+</tr>
+<tr>
+<td>Null distribution</td>
+<td>one statistic from data generated/permuted under H₀</td>
+<td>extremeness under H₀; yields p-value</td>
+</tr>
+</tbody>
+</table></section>
+<p>Population parameter is fixed/unknown; estimator is a random rule before sampling; estimate is its realized value. Sample statistic can be an estimator when used for a parameter.</p>
+<p>Mean: μ = Σyᵢ/N; x̄ = Σxᵢ/n. Proportion: p̂ = successes/n = mean(condition). Bias(T)=E(T)−θ. SE(T)=SD of T's sampling distribution—not SD of raw observations and not distance to truth.</p>
+<p><strong>n</strong> = observations per sample/resample; <strong>m</strong> = repeated population samples in simulation; <strong>b/B</strong> = bootstrap repetitions. Larger n usually lowers estimator SE under a suitable design. Larger m/B only stabilizes the simulated distribution; it adds no original information and does not fix bias.</p>
+<section class="cheatsheet-heading-block"><h2>Sampling + estimation</h2>
+<p>Random sampling describes selection; representative describes relation to target population. Random within the wrong frame does not generalize to the desired population. Random sampling supports population generalization; random treatment assignment supports causal comparison—different jobs.</p></section>
+<ul>
+<li>Without replacement: same member cannot repeat within one sample; used for finite-population sampling.</li>
+<li>With replacement: records can repeat/vanish; required for ordinary bootstrap.</li>
+<li>Sampling variation remains even with a good design. Systematic undercoverage/selection does not disappear with bigger n or more repetitions.</li>
+</ul>
+<pre><code class="language-r">set.seed(552)
+samples &lt;- pop |&gt; rep_sample_n(size=n, reps=m, replace=FALSE)
+sampling_dist &lt;- samples |&gt;
+  group_by(replicate) |&gt;
+  summarise(stat=mean(value), .groups=&quot;drop&quot;)
+se_sim &lt;- sd(sampling_dist$stat)
+</code></pre>
+<p><code>rep_sample_n()</code> returns original columns + <code>replicate</code>, usually grouped; output rows = <code>size*reps</code>. <code>replicate</code> is sample ID, not member ID. <code>ungroup()</code> removes grouping metadata, not the column.</p>
+<section class="cheatsheet-heading-block"><h2>Bootstrap distribution + CI</h2>
+<p>Given observed sample of size n:
+1. draw n rows <strong>with replacement</strong>; 2. calculate same statistic; 3. repeat B times. Resampling n rows without replacement only permutes the data → zero variability for order-invariant statistics.</p></section>
+<pre><code class="language-r">set.seed(552)
+boot &lt;- observed |&gt;
+  specify(response=value) |&gt;
+  generate(reps=2000,type=&quot;bootstrap&quot;) |&gt;
+  calculate(stat=&quot;mean&quot;)
+boot_se &lt;- sd(boot$stat)
+ci95 &lt;- boot |&gt; get_confidence_interval(level=.95,type=&quot;percentile&quot;)
+</code></pre>
+<p>Proportion:</p>
+<pre><code class="language-r">boot_p &lt;- observed |&gt;
+  specify(response=outcome,success=&quot;yes&quot;) |&gt;
+  generate(reps=2000,type=&quot;bootstrap&quot;) |&gt;
+  calculate(stat=&quot;prop&quot;)
+</code></pre>
+<p>Percentile (1−α) CI = empirical quantiles α/2 and 1−α/2 of bootstrap statistics. 95% → 2.5%/97.5%; 90% → 5%/95%; 99% → 0.5%/99.5%. Higher confidence (same data/method) → wider interval. Larger representative n usually → narrower interval.</p>
+<p><strong>Correct interpretation:</strong> if the sampling + interval procedure were repeated many times, about 95% of 95% intervals would capture θ. For this already-computed frequentist interval, do <strong>not</strong> say P(θ lies inside)=.95.</p>
+<p>Bootstrap approximates what the observed sample contains. It cannot restore missing groups/tails, repair selection bias, or create real observations. Small/biased samples, boundaries, extreme skew, or nonsmooth statistics can give poor percentile coverage.</p>
+<p>Visualization: show observations when possible + point estimate + labeled CI. SD, SE, percentile range, and CI are different. Overlap of two separate group CIs is not a formal test of their difference.</p>
+<section class="cheatsheet-heading-block"><h2>Hypotheses + test statistic</h2>
+<p>Hypotheses concern <strong>population parameters</strong>, not observed statistics.</p></section>
+<p>Two proportions, define δ = p_A − p_B:
+- H₀: δ=0; two-sided H_A: δ≠0; right-sided: δ&gt;0; left-sided: δ&lt;0.
+- observed statistic δ̂ = p̂_A − p̂_B. <code>order=c("A","B")</code> means A−B; keep it consistent with H_A.</p>
+<p>Decision framework:
+1. state population/parameter + H₀/H_A/sidedness; 2. calculate observed t_obs; 3. generate data under H₀; 4. recalculate statistic many times; 5. find tail proportion at least as extreme as t_obs; 6. p&lt;α → reject H₀, otherwise fail to reject.</p>
+<p><strong>p-value:</strong> under H₀/null model, probability of a statistic as or more extreme than observed. It is not P(H₀ true), P(chance caused result), effect size, study quality, or replication probability. Fail to reject ≠ accept/prove H₀.</p>
+<section class="cheatsheet-heading-block"><h2>Permutation randomization test</h2>
+<p>Under an independence/no-difference null, shuffle group labels <strong>without replacement</strong>, retaining outcomes and group sizes while breaking the original association. Requires exchangeability/design justification; ordinary shuffling must respect pairing, blocks, clusters, repeated measures. Observational association still does not become causal.</p></section>
+<pre><code class="language-r">obs &lt;- data |&gt;
+  specify(response=outcome,explanatory=group,success=&quot;yes&quot;) |&gt;
+  calculate(stat=&quot;diff in props&quot;,order=c(&quot;A&quot;,&quot;B&quot;))
+set.seed(552)
+null &lt;- data |&gt;
+  specify(response=outcome,explanatory=group,success=&quot;yes&quot;) |&gt;
+  hypothesize(null=&quot;independence&quot;) |&gt;
+  generate(reps=2000,type=&quot;permute&quot;) |&gt;
+  calculate(stat=&quot;diff in props&quot;,order=c(&quot;A&quot;,&quot;B&quot;))
+p &lt;- null |&gt; get_p_value(obs_stat=obs,direction=&quot;two-sided&quot;)
+</code></pre>
+<p>Numeric mean difference: <strong>remove <code>success</code> in both pipelines</strong>; use <code>calculate(stat="diff in means",order=...)</code>. Median difference: same valid null mechanism, <code>stat="diff in medians"</code>. Randomization tests flexibly support statistics whose analytic null distributions are inconvenient; the statistic must still answer the parameter/question.</p>
+<p>Directions: <code>"greater"</code> = right tail; <code>"less"</code> = left; <code>"two-sided"</code> = both extremes. Choose sidedness before seeing the result.</p>
+<section class="cheatsheet-heading-block"><h2>CI ↔ test; final traps</h2>
+<p>For the same parameter, assumptions, method, and matching two-sided levels: a (1−α) difference CI excluding null value 0 commonly corresponds to rejection at α. Do not infer this from overlap of separate group CIs, or assume exact equivalence between unrelated bootstrap/permutation constructions.</p></section>
+<ul>
+<li>Keep raw values, estimates, resamples, and statistics in separate tables/columns.</li>
+<li><code>mean(x)</code>/<code>sd(x)</code> return NA with NA unless <code>na.rm=TRUE</code>; handling missing values does not fix missingness bias.</li>
+<li>Set seed once per simulation workflow; resetting inside each repetition can duplicate draws.</li>
+<li>Histogram x-axis: raw measurements vs sample statistics vs bootstrap/null statistics—label correctly. More repetitions smooth the picture; they do not narrow the true estimator uncertainty.</li>
+</ul></main></body></html>

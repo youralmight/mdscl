@@ -1,0 +1,169 @@
+<!doctype html><html><head><meta charset="utf-8"><base href="file:///Users/youralmight/workspaces/reps/mdscl/DSCI_571/notes/"><style>
+@page { size: Letter; margin: 0.25in; }
+html { font-family: Arial, "PingFang SC", sans-serif; }
+body { margin: 0; color: #111; font-size: 9pt; line-height: 1; }
+main { column-count: 2; column-fill: balance; column-gap: 0.08in; }
+h1 { column-span: all; margin: 0 0 2pt; font-size: 1.5em; line-height: 1; }
+section.cheatsheet-heading-block { break-inside: avoid; }
+h2 { margin: 2pt 0 0.5pt; font-size: 1.25em; line-height: 1; }
+h3 { margin: 1.5pt 0 0.5pt; font-size: 1.0625em; line-height: 1; break-after: avoid; }
+p, ul, ol { margin: 0.5pt 0; }
+ul, ol { padding-left: 10pt; }
+li { margin: 0; break-inside: avoid; }
+pre {
+    margin: 1pt 0;
+    break-inside: avoid;
+    padding: 1pt;
+    border: 0.4pt solid #bbb;
+    background: #f5f5f5;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+code { font-family: Menlo, Consolas, monospace; font-size: 9pt; }
+table {
+    width: 100%;
+    margin: 1pt 0;
+    border-collapse: collapse;
+    font-size: 9pt;
+    line-height: 1;
+}
+tr { break-inside: avoid; }
+th, td { border: 0.4pt solid #999; padding: 0.5pt; vertical-align: top; overflow-wrap: anywhere; }
+hr { margin: 1pt 0; border: 0; border-top: 0.4pt solid #999; }
+</style></head><body><main><h1>DSCI 571 Quiz 1</h1>
+<section class="cheatsheet-heading-block"><h2>Frame task + data</h2>
+<p>Supervised learning: labeled (X,y) → fitted model → predict y for new X. Classification target = discrete class (even if coded 0/1); regression target = numerical quantity. One row/example; X shape <code>(n,d)</code>, y <code>(n,)</code>; one row/feature remains 2-D: <code>X.iloc[[0]]</code>, <code>df[["feature"]]</code>.</p></section>
+<p>Before modeling: what is one example? target? features available <strong>at prediction time</strong>? intended use/error cost? Exclude target/post-outcome leakage and meaningless IDs; sensitive proxies require judgment. Predictive association/accuracy ≠ causation or appropriate deployment.</p>
+<pre><code class="language-python">X = df.drop(columns=&quot;target&quot;)
+y = df[&quot;target&quot;]
+X_train,X_test,y_train,y_test = train_test_split(
+    X,y,test_size=.2,random_state=123,
+    stratify=y)  # classification; omit for continuous regression
+</code></pre>
+<p>Split test early; choice-driving EDA only on training. <code>random_state</code> reproduces, not validates. Respect time/groups/repeated subjects; random split can leak structure.</p>
+<section class="cheatsheet-heading-block"><h2>Estimator interface + metrics</h2>
+<table>
+<thead>
+<tr>
+<th>API</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Model(hyperparameters)</code></td>
+<td>unfitted estimator</td>
+</tr>
+<tr>
+<td><code>.fit(X_train,y_train)</code></td>
+<td>learns parameters; returns self</td>
+</tr>
+<tr>
+<td><code>.predict(X_new)</code></td>
+<td>predictions; does not fit</td>
+</tr>
+<tr>
+<td><code>.score(X_eval,y_eval)</code></td>
+<td>estimator-specific metric</td>
+</tr>
+</tbody>
+</table></section>
+<p>Classification default here: accuracy = mean(ŷ=y); error = 1−accuracy. Imbalance/error costs can make accuracy misleading.</p>
+<p>Regression tree/dummy default: <code>R² = 1 − Σ(y−ŷ)² / Σ(y−ȳ_eval)²</code>. 1 perfect; 0 equals constant prediction at <strong>evaluation-set mean</strong>; negative is legal/worse. R² is not percent correct; <code>1−R²</code> is not classification error. Constant/one-row y makes normal interpretation fail.</p>
+<section class="cheatsheet-heading-block"><h2>Baselines + decision trees</h2>
+<p><code>DummyClassifier(strategy="most_frequent")</code>: learns training majority class, ignores X. <code>DummyRegressor(strategy="mean"|"median")</code>: learns training constant. Compare all candidates using same data/folds/metric; baseline held-out score need not equal training score or 0 R².</p></section>
+<p>Tree prediction: root → <code>feature &lt;= threshold</code> left, <code>&gt;</code> right → leaf class majority / regression mean. Fit greedily chooses feature/threshold to improve purity/error; not global exhaustive search. Numerical scale does not normally change tree partitions.</p>
+<ul>
+<li>parameter: split feature/threshold, leaf statistics—learned in <code>fit</code>.</li>
+<li>hyperparameter: <code>max_depth</code>, <code>min_samples_split</code>, <code>min_samples_leaf</code>, <code>max_leaf_nodes</code>—chosen via validation.</li>
+<li><code>max_depth</code> is an upper bound; actual tree may be shallower. Depth counts edges; stump depth=1.</li>
+<li>Greater capacity usually lowers train error, may first improve then harm validation. Identical X with conflicting y cannot be separated by a deterministic tree.</li>
+<li>Tree boundaries are axis-aligned partitions; training fit/feature importance is not causal evidence.</li>
+</ul>
+<section class="cheatsheet-heading-block"><h2>Generalization, Golden Rule, CV</h2>
+<p>Training learns parameters. Validation/CV selects features/preprocessing/model/hyperparameters. <strong>Test is untouched until all choices are fixed</strong>, then evaluated once. Looking at test plots/scores to revise choices turns it into development data.</p></section>
+<p>k-fold CV: k fits per configuration; each fold validates once and trains k−1 times. <code>cross_validate</code> returns arrays: <code>train_score</code>, <code>test_score</code> (<strong>validation fold</strong>, not final test), <code>fit_time</code>, <code>score_time</code>; request train scores explicitly. CV clones estimators; refit selected workflow on all training data afterward.</p>
+<pre><code class="language-python">cv = cross_validate(
+    pipe, X_train, y_train, cv=5,
+    return_train_score=True)
+cv[&quot;train_score&quot;].mean()
+cv[&quot;test_score&quot;].mean(), cv[&quot;test_score&quot;].std()
+pipe.fit(X_train,y_train)
+final = pipe.score(X_test,y_test)  # once
+</code></pre>
+<p>Underfit: train and validation both poor vs baseline. Overfit: train high, validation much lower. Small mean differences relative to fold variability are weak evidence; similar results favor simpler justified workflow. CV fold scores overlap in training data; std is not automatically a CI/SE.</p>
+<section class="cheatsheet-heading-block"><h2>Similarity models: representation defines distance</h2>
+<p>Euclidean <code>d(u,v)=sqrt(Σⱼ(uⱼ−vⱼ)²)</code>. Units, included features, encoding, and scale define “near.” Large-scale/irrelevant dimensions can dominate; in high dimensions points become sparse and nearest/farthest distances less distinct (curse of dimensionality).</p></section>
+<p><strong>k-NN classifier:</strong> find k nearest training examples, vote; regressor: average targets. <code>weights="uniform"</code> equal influence; <code>"distance"</code> closer points matter more. Small k flexible/noisy/overfit; large k smooth/underfit. With uniform weights and k≈all training data → majority/global mean; with distance weights predictions remain query-dependent. Fit cheap/stores data; prediction/storage costly.</p>
+<p><strong>RBF SVM:</strong> similarity <code>K(xᵢ,x)=exp(−γ||xᵢ−x||²)</code>. Fit selects support vectors and learned contributions; not nearest-neighbor voting.
+- gamma small → broad influence/smooth; large → local/flexible.
+- C small → tolerates training mistakes/smoother; large → penalizes mistakes/flexible.
+- C and gamma interact: tune jointly inside training/CV. Scaling changes distances and gamma's meaning.</p>
+<section class="cheatsheet-heading-block"><h2>Transformers + leakage</h2>
+<p>Transformer <code>.fit(X)</code> learns representation parameters; <code>.transform(X)</code> applies them; <code>.fit_transform(X_train)</code> only for training. Validation/test/deployment use the already-fitted transformer. Anything learned—means, medians, categories, vocabulary, selected features—must be fold-local.</p></section>
+<p>Standardization: <code>z = (x − μ_train) / σ_train</code>; transformed training features have mean ≈0 and SD ≈1. Validation/test reuse training μ/σ. It is not min–max scaling.</p>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Treatment</th>
+<th>Key trap</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>numeric</td>
+<td>median impute → standardize</td>
+<td>fit on training fold only</td>
+</tr>
+<tr>
+<td>nominal</td>
+<td>one-hot encode</td>
+<td>no fake order; unseen → all learned indicators 0</td>
+</tr>
+<tr>
+<td>ordinal</td>
+<td>explicit ordered codes</td>
+<td>codes also imply equal spacing</td>
+</tr>
+<tr>
+<td>suitable binary</td>
+<td>pass through</td>
+<td>check semantics, not dtype only</td>
+</tr>
+<tr>
+<td>ID/leakage/unwanted</td>
+<td>drop</td>
+<td>unlisted columns drop by default</td>
+</tr>
+</tbody>
+</table>
+<p>Median imputation makes data usable; it does not recover missing truth or fix missingness bias. <code>drop="if_binary"</code> saves one indicator but all-zero may mean dropped category or unknown. High-cardinality one-hot can be sparse; memory efficiency does not create information.</p>
+<p><strong>Wrong:</strong> fit preprocessing on full data before split, or on all X_train before CV. Fold validation then affects learned transformation.</p>
+<pre><code class="language-python">num = make_pipeline(
+    SimpleImputer(strategy=&quot;median&quot;),
+    StandardScaler(),
+)
+onehot = OneHotEncoder(handle_unknown=&quot;ignore&quot;)
+ordinal = OrdinalEncoder(categories=[level_order])
+pre = make_column_transformer(
+    (num, num_cols),
+    (onehot, nom_cols),
+    (ordinal, ord_cols),
+    (&quot;passthrough&quot;, bin_cols),
+    (&quot;drop&quot;, drop_cols),
+)
+pipe = make_pipeline(
+    pre,
+    KNeighborsClassifier(n_neighbors=5),
+)
+cv = cross_validate(
+    pipe, X_train, y_train, cv=5,
+    return_train_score=True,
+)
+</code></pre>
+<p>Each fold fits a fresh imputer/scaler/encoder/model on its fold-training rows; validation only transforms/scores. Pass raw X + full pipeline to CV. Pipeline prevents specified-step leakage, but cannot stop a human repeatedly checking test.</p>
+<section class="cheatsheet-heading-block"><h2>Final decision checklist</h2>
+<ol>
+<li>Task/row/X/y/prediction time defined? 2. Test locked before EDA/choices? 3. Baseline and metric appropriate? 4. Train–validation pattern indicates capacity issue or data limitation? 5. Distance features correctly scaled/encoded; irrelevant dimensions removed for a reason? 6. Every learned preprocessing step inside pipeline/CV? 7. ColumnTransformer covers each feature exactly once and excludes target? 8. Selection uses validation, then refit, then one final test? 9. Claims limited to represented future data and actual error costs?</li>
+</ol></section></main></body></html>

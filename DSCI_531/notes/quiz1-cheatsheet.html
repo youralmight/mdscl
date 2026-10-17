@@ -1,0 +1,179 @@
+<!doctype html><html><head><meta charset="utf-8"><base href="file:///Users/youralmight/workspaces/reps/mdscl/DSCI_531/notes/"><style>
+@page { size: Letter; margin: 0.25in; }
+html { font-family: Arial, "PingFang SC", sans-serif; }
+body { margin: 0; color: #111; font-size: 8pt; line-height: 1; }
+main { column-count: 2; column-fill: balance; column-gap: 0.08in; }
+h1 { column-span: all; margin: 0 0 2pt; font-size: 1.5em; line-height: 1; }
+section.cheatsheet-heading-block { break-inside: avoid; }
+h2 { margin: 2pt 0 0.5pt; font-size: 1.25em; line-height: 1; }
+h3 { margin: 1.5pt 0 0.5pt; font-size: 1.0625em; line-height: 1; break-after: avoid; }
+p, ul, ol { margin: 0.5pt 0; }
+ul, ol { padding-left: 10pt; }
+li { margin: 0; break-inside: avoid; }
+pre {
+    margin: 1pt 0;
+    break-inside: avoid;
+    padding: 1pt;
+    border: 0.4pt solid #bbb;
+    background: #f5f5f5;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+code { font-family: Menlo, Consolas, monospace; font-size: 8pt; }
+table {
+    width: 100%;
+    margin: 1pt 0;
+    border-collapse: collapse;
+    font-size: 8pt;
+    line-height: 1;
+}
+tr { break-inside: avoid; }
+th, td { border: 0.4pt solid #999; padding: 0.5pt; vertical-align: top; overflow-wrap: anywhere; }
+hr { margin: 1pt 0; border: 0; border-top: 0.4pt solid #999; }
+</style></head><body><main><h1>DSCI 531 Quiz 1</h1>
+<section class="cheatsheet-heading-block"><h2>Grammar + channel decisions</h2>
+<p><strong>Start with the question and observational unit.</strong> Grammar: data → statistical transform → mark/geom → channels/aes → scales → guides → facet/layer/layout. A field's storage type does not decide its meaning.</p></section>
+<table>
+<thead>
+<tr>
+<th>T</th>
+<th>Meaning</th>
+<th>Implementation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Q</td>
+<td>quantitative; differences/ratios meaningful</td>
+<td>Altair <code>"x:Q"</code>; R numeric continuous scale</td>
+</tr>
+<tr>
+<td>N</td>
+<td>nominal; unordered identity</td>
+<td>Altair <code>"group:N"</code>; R character/factor</td>
+</tr>
+<tr>
+<td>O</td>
+<td>ordinal; ordered, unequal spacing allowed</td>
+<td>Altair <code>"level:O"</code>; R ordered factor</td>
+</tr>
+<tr>
+<td>T</td>
+<td>temporal; date/time spacing</td>
+<td>Altair <code>"date:T"</code>; R Date/POSIXct</td>
+</tr>
+</tbody>
+</table>
+<p>Magnitude effectiveness: <strong>common-scale position &gt; unaligned position &gt; length &gt; angle &gt; area &gt; volume/color intensity</strong>. Use x/y for the most important quantities. Identity: spatial separation &gt; hue &gt; shape. Size/area is hard to read precisely; decorative 3D adds distortion/occlusion. Bar/area lengths imply a zero baseline; points/lines may zoom if ticks make it explicit.</p>
+<ul>
+<li>Mapping varies by data: Altair <code>.encode(color="group:N")</code>; ggplot <code>aes(color=group)</code>.</li>
+<li>Constant styling: Altair <code>.mark_point(color="steelblue")</code>; ggplot <code>geom_point(color="steelblue")</code> <strong>outside</strong> <code>aes()</code>.</li>
+<li>Association ≠ causation. Pooled trend may differ from within-group trends; check grouping/facets. Ecological association does not automatically apply to individuals.</li>
+</ul>
+<section class="cheatsheet-heading-block"><h2>Core chart templates: Altair / ggplot2</h2>
+<pre><code class="language-python">base = alt.Chart(df)
+point = base.mark_point(filled=True).encode(
+    x=&quot;x:Q&quot;, y=&quot;y:Q&quot;,
+    color=&quot;group:N&quot;, shape=&quot;group:N&quot;)
+facets = point.properties(
+    width=130, height=100
+).facet(&quot;group:N&quot;, columns=2)
+line = base.mark_line().encode(
+    x=&quot;time:T&quot;, y=&quot;value:Q&quot;, color=&quot;id:N&quot;)
+line_points = line + line.mark_point(filled=True)
+</code></pre></section>
+<pre><code class="language-r">point &lt;- ggplot(df, aes(x, y, color=group, shape=group)) + geom_point()
+facets &lt;- point + facet_wrap(vars(group), ncol=2)
+line &lt;- ggplot(df, aes(time, value, color=id, group=id)) + geom_line()
+line_points &lt;- line + geom_point()
+</code></pre>
+<ul>
+<li>Facet = same specification on subsets; layer = marks share coordinates. Keep scales shared for cross-panel values; free scales emphasize within-group shape but destroy direct magnitude/slope comparison.</li>
+<li>Line requires meaningful order/connection and grouping identity. Interpolated segments are not observations. ggplot <code>geom_line()</code> sorts by x; <code>geom_path()</code> follows row order. Altair can encode <code>order=</code>. Paired data need an ID; never invent pairings.</li>
+<li>Stacked area: top edge = total; each band's value = upper − lower boundary. Use only additive, same-unit, non-overlapping groups. For individual group paths, use lines/facets.</li>
+</ul>
+<section class="cheatsheet-heading-block"><h2>Summaries + raw observations</h2>
+<p>Mean uses all values and is sensitive to extremes; median is robust but may ignore consequential extremes. SD describes observation spread, <strong>not uncertainty in a mean</strong>. Boxplot: box Q1–Q3, line median, whiskers to most extreme points within 1.5 IQR; beyond-whisker points are not automatically errors.</p></section>
+<pre><code class="language-python">base = alt.Chart(df).encode(
+    y=&quot;group:N&quot;, x=&quot;value:Q&quot;)
+mean_sd = (
+    base.mark_circle(color=&quot;black&quot;).encode(
+        x=&quot;mean(value):Q&quot;)
+    + base.mark_errorbar(extent=&quot;stdev&quot;)
+)
+box = base.mark_boxplot()
+</code></pre>
+<pre><code class="language-r">ggplot(df,aes(group,value)) +
+  geom_boxplot()
+ggplot(df,aes(y=group,x=value)) +
+  geom_jitter(width=0,height=.1,alpha=.3) +
+  geom_pointrange(
+    stat=&quot;summary&quot;, fun.data=mean_sdl,
+    fun.args=list(mult=1))
+</code></pre>
+<p>Always label error bars: raw SD, percentile range, SE, and CI answer different questions. Summary charts can hide multimodality, outliers, or group size; inspect points/rug/distribution.</p>
+<section class="cheatsheet-heading-block"><h2>Counts, proportions, distributions</h2>
+<p><strong>Count what?</strong> Rows may be people, days, or exploded memberships. <strong>Marginal count</strong> = row/column total; <strong>joint count</strong> = one cell/combination, and margins alone do not determine cells. Define denominator before “proportion”: joint proportion = cell / grand total; conditional proportion = cell / row or column total.</p></section>
+<pre><code class="language-python">alt.Chart(df).mark_bar().encode(
+    x=&quot;count():Q&quot;,
+    y=alt.Y(&quot;cat:N&quot;).sort(&quot;-x&quot;))
+# normalized composition
+alt.Chart(df).mark_bar().encode(
+    x=alt.X(&quot;count():Q&quot;).stack(&quot;normalize&quot;),
+    y=&quot;group:N&quot;, color=&quot;cat:N&quot;)
+</code></pre>
+<pre><code class="language-r">ggplot(df,aes(y=cat)) + geom_bar()
+ggplot(df,aes(y=group,fill=cat)) + geom_bar(position=&quot;fill&quot;)
+# already summarized counts: geom_col(aes(x=n,y=cat))
+</code></pre>
+<ul>
+<li>Bars start at 0. Stacked bars show totals/composition but middle segments lack common baselines; dodge for precise subgroup comparison. Normalized bars hide group size. Preserve natural category order; otherwise sort for comparison. Pie angles/areas are usually harder than bars.</li>
+<li>Histogram bins a quantitative axis and counts observations. Try meaningful bin widths <strong>and origins</strong>; one binning can create/hide peaks.</li>
+</ul>
+<pre><code class="language-python">hist = alt.Chart(df).mark_bar().encode(
+    x=alt.X(&quot;value:Q&quot;).bin(step=5),
+    y=&quot;count():Q&quot;)
+rug = alt.Chart(df,height=20).mark_tick().encode(
+    x=&quot;value:Q&quot;)
+(hist &amp; rug).resolve_scale(x=&quot;shared&quot;)
+</code></pre>
+<pre><code class="language-r">ggplot(df,aes(value)) +
+  geom_histogram(
+    binwidth=5,boundary=0,color=&quot;white&quot;) +
+  geom_rug()
+</code></pre>
+<p>Normalized KDE has total area 1; height is probability per x-unit, not point probability/count. <strong>Count-scaled KDE = n × density:</strong> total area = n; interval area estimates count, but height remains count per x-unit—not histogram-bin count. Small bandwidth = detail/noise; large = smooth/hidden modes. KDE may extend outside valid bounds and can look smooth with tiny n: show rug/n. Separately normalized group densities each integrate to 1, so peak height does not show group size. Violin = mirrored KDE; state scaling/bandwidth and add observations/summary.</p>
+<pre><code class="language-python">kde = alt.Chart(df).transform_density(
+    &quot;value&quot;,
+    as_=[&quot;value&quot;,&quot;density&quot;],
+    bandwidth=2)
+kde.mark_area().encode(
+    x=&quot;value:Q&quot;, y=&quot;density:Q&quot;)
+</code></pre>
+<pre><code class="language-r">ggplot(df,aes(value,color=group)) +
+  geom_density(bw=&quot;SJ&quot;) +
+  geom_rug()
+</code></pre>
+<section class="cheatsheet-heading-block"><h2>Joint distributions + EDA</h2>
+<pre><code class="language-python"># categorical combinations
+alt.Chart(df).mark_circle().encode(
+    x=&quot;a:N&quot;, y=&quot;b:N&quot;,
+    size=&quot;count():Q&quot;, color=&quot;count():Q&quot;)
+# saturated numerical scatter → 2-D histogram
+alt.Chart(df).mark_rect().encode(
+    x=alt.X(&quot;x:Q&quot;).bin(step=.1),
+    y=alt.Y(&quot;y:Q&quot;).bin(step=5),
+    color=&quot;count():Q&quot;)
+</code></pre></section>
+<pre><code class="language-r">df |&gt; count(a,b) |&gt; ggplot(aes(a,b,size=n,color=n)) + geom_point()
+ggplot(df,aes(x,y)) + geom_bin_2d(binwidth=c(.1,5))
+</code></pre>
+<p>EDA cycle: <strong>expectation → inspect → surprise/agreement → competing explanations → discriminating check → narrow conclusion + unresolved items.</strong></p>
+<ol>
+<li>Define row/unit, columns, units, provenance, collection time; check duplicate/missing IDs/dates—not just row count.</li>
+<li>Overview quantitative distributions, categorical counts, pairwise relationships, and missingness amount/pattern.</li>
+<li>Valid zero ≠ missing. <code>NA</code> may mean failure/not asked/not applicable/join miss; sentinels like <code>999</code> escape <code>isna()</code>.</li>
+<li>Extreme/bimodal/unexpected value: inspect record, related variables, subgroups, provenance, and multiple bin/bandwidth choices; never delete because a plot looks nicer.</li>
+<li>Pearson = linear; Spearman = monotonic ranks. Near-zero correlation can hide U-shapes/interactions; neither proves causality. Pairwise complete correlations may use different rows.</li>
+<li>For ML, perform choice-driving EDA on training data; require prediction-time availability. Record what remains unresolved and whether external information is required.</li>
+</ol></main></body></html>
